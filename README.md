@@ -4,8 +4,8 @@ Het biedt een centrale oplossing voor vluchtbeheer en passagiersafhandeling.
 Veel luchthavens kampen met gefragmenteerde systemen en handmatige processen, wat leidt tot vertragingen, miscommunicatie en operationele fouten. 
 Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en veiligheid te verbeteren.
 
-# Roles and Responsibilities
 
+# Roles and Responsibilities
 ## Admin
 
 - **Create users** (Gebruikers aanmaken)
@@ -51,6 +51,8 @@ Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en ve
 ## Airline (Vliegtuigmaatschappij)
 
 - **Offer flights** (Vluchten aanbieden)
+
+
 
 # TO DO 
 1. Admin page (Thomas)
