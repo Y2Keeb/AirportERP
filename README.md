@@ -1,54 +1,45 @@
-    Admin
+# Roles and Responsibilities
 
-        Create users (Gebruikers aanmaken)
+## Admin
 
-        Manage roles (Rollen aanpassen)
+- **Create users** (Gebruikers aanmaken)
+- **Manage roles** (Rollen aanpassen)
+  - *Add roles* (Rollen toevoegen)
+  - *Remove roles* (Rollen verwijderen)
 
-            Add roles (Rollen toevoegen)
+## Flight Planner (Vluchtplanner)
 
-            Remove roles (Rollen verwijderen)
+- **Plan flights** (Vluchten plannen)
 
-    Flight Planner (Vluchtplanner)
+## Security Border
 
-        Plan flights (Vluchten plannen)
+- **Flag names** (e.g., Bjorn Wijn → Red) (Naam ingeven → Rood)
 
-    Security Border
+## Manager
 
-        Flag names (e.g., Bjorn Wijn → Red) (Naam ingeven → Rood)
+*(Responsibilities not specified)*
 
-    Manager
+## Maintenance (Onderhoud)
 
-        (Responsibilities not specified)
+- **Maintain warehouse database** (Warehouse database onderhouden)
 
-    Maintenance (Onderhoud)
+## ATC Tower (ATC Toren)
 
-        Maintain warehouse database (Warehouse database onderhouden)
+*(Responsibilities not specified)*
 
-    ATC Tower (ATC Toren)
+## Cafeteria (Cafetaria)
 
-        (Responsibilities not specified)
+- **Add extra lounge** (Extra lounge toevoegen)
 
-    Cafeteria (Cafetaria)
+## User (Gebruiker)
 
-        Add extra lounge (Extra lounge toevoegen)
+- **Buy tickets** (Ticket kopen)
+- **Earn points** (Puntensparen)
+- **Check flight details** (Vlucht raadplegen)
+- **Upgrade class** (Klasse verhogen)
+- **Access lounge** (Lounge toegang)
+- **Use QR code tickets** (QR-code ticket)
 
-    User (Gebruiker)
+## Airline (Vliegtuigmaatschappij)
 
-        Buy tickets (Ticket kopen)
-
-        Earn points (Puntensparen)
-
-        Check flight details (Vlucht raadplegen)
-
-        Upgrade class (Klasse verhogen)
-
-        Access lounge (Lounge toegang)
-
-        Use QR code tickets (QR-code ticket)
-
-    Airline (Vliegtuigmaatschappij)
-
-        Offer flights (Vluchten aanbieden)
-systemen
-	vluchten databank MH
-	rooster beheer
+- **Offer flights** (Vluchten aanbieden)
