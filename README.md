@@ -1,3 +1,9 @@
+# Luchthaven ERP
+Ons project is een luchthaven ERP-systeem dat de operationele processen van een luchthaven digitaliseert en optimaliseert. 
+Het biedt een centrale oplossing voor vluchtbeheer en passagiersafhandeling.
+Veel luchthavens kampen met gefragmenteerde systemen en handmatige processen, wat leidt tot vertragingen, miscommunicatie en operationele fouten. 
+Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en veiligheid te verbeteren.
+
 # Roles and Responsibilities
 
 ## Admin
@@ -54,7 +60,7 @@
 2. Flight Planner vormgeven (Lindsey)
 2. Flight Planner functies
 3. User Page vormgeven met data van flight
-4. ---
+
 
 # Technical
 - Database: **mySQL**
