@@ -3,6 +3,8 @@ Ons project is een luchthaven ERP-systeem dat de operationele processen van een 
 Het biedt een centrale oplossing voor vluchtbeheer en passagiersafhandeling.
 Veel luchthavens kampen met gefragmenteerde systemen en handmatige processen, wat leidt tot vertragingen, miscommunicatie en operationele fouten. 
 Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en veiligheid te verbeteren.
+# Airport ERP 
+Our project is an airport ERP system that digitizes and optimizes the operational processes of an airport. It provides a centralized solution for flight management and passenger handling. Many airports struggle with fragmented systems and manual processes, leading to delays, miscommunication, and operational errors. Our system centralizes and streamlines these processes to improve efficiency and safety.
 
 # File structure
 ```
@@ -17,14 +19,14 @@ Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en ve
 # Roles and Responsibilities
 ## Admin
 
-- **Create users** (Gebruikers aanmaken)
-- **Manage roles** (Rollen aanpassen)
-  - *Add roles* (Rollen toevoegen)
-  - *Remove roles* (Rollen verwijderen)
+- **Create users**
+- **Manage roles**
+  - *Add roles*
+  - *Remove roles*
 
-## Flight Planner (Vluchtplanner)
+## Flight Planner
 
-- **Plan flights** (Vluchten plannen)
+- **Plan flights**
 
 ## Security Border
 
@@ -36,13 +38,14 @@ Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en ve
 
 ## Manager (operationeel plannen)
 
-- *Vluchten tonen*
+- *Show flights
+- *Adjust salary of employees
 - *Beheer afwezigheden*
 
 
 ## Maintenance (Onderhoud)
 
-- **Maintain warehouse database** (Warehouse database onderhouden)
+- **Maintain warehouse database**
 
 ## ATC Tower (ATC Toren)
 
@@ -50,7 +53,7 @@ Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en ve
 
 ## Cafeteria (Cafetaria)
 
-- **Add extra lounge** (Extra lounge toevoegen)
+- **Add extra lounge**
 
 ## User (Gebruiker)
 
