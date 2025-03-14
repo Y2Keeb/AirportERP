@@ -1,20 +1,24 @@
-# Luchthaven ERP
+# Airport ERP 
+Our project is an airport ERP system that digitizes and optimizes the operational processes of an airport. It provides a centralized solution for flight management and passenger handling. Many airports struggle with fragmented systems and manual processes, leading to delays, miscommunication, and operational errors. Our system centralizes and streamlines these processes to improve efficiency and safety.
+
+### Luchthaven ERP
 Ons project is een luchthaven ERP-systeem dat de operationele processen van een luchthaven digitaliseert en optimaliseert. 
 Het biedt een centrale oplossing voor vluchtbeheer en passagiersafhandeling.
 Veel luchthavens kampen met gefragmenteerde systemen en handmatige processen, wat leidt tot vertragingen, miscommunicatie en operationele fouten. 
 Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en veiligheid te verbeteren.
-# Airport ERP 
-Our project is an airport ERP system that digitizes and optimizes the operational processes of an airport. It provides a centralized solution for flight management and passenger handling. Many airports struggle with fragmented systems and manual processes, leading to delays, miscommunication, and operational errors. Our system centralizes and streamlines these processes to improve efficiency and safety.
 
 # File structure
 ```
 /airportERP
-│── /src                 # Source code (main Python)
-│── /docs                # Documentation (wireframes, planning,...)
-│    ├── wireframes      # Wireframes
-│── .gitignore           # Files to ignore in Git (like __pycache__,.idea,...)
-│── README.md            # High-level project description
-│── requirements.txt     # Non Built-in external dependencies
+│── /src                                      # Source code (main Python)
+│── /docs                                     # Documentation (wireframes, info,...)
+│    ├── wireframes                           # Wireframes (designs of the UI screens)
+│    ├── roles_and_responsibilities.md        # Detailed breakdown of user roles and responsibilities
+│    ├── DATABASE.md                          # Database schema, table structures, and relationships
+│── .gitignore                                # Files to ignore in Git (like __pycache__, .idea,...)
+│── LICENCE.md                                # License file describing the terms under which the project is shared
+│── README.md                                 # Project description and overview
+│── requirements.txt                          # Non Built-in external dependencies (e.g., bcrypt, pillow)
 ```
 ## Roles and Responsibilities
 See the detailed breakdown of roles and responsibilities [here](docs/roles_and_responsibilities.md).
