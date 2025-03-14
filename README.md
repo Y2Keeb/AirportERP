@@ -4,6 +4,14 @@ Het biedt een centrale oplossing voor vluchtbeheer en passagiersafhandeling.
 Veel luchthavens kampen met gefragmenteerde systemen en handmatige processen, wat leidt tot vertragingen, miscommunicatie en operationele fouten. 
 Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en veiligheid te verbeteren.
 
+# File structure
+/airportERP
+│── /src                 # Source code (main Python)
+│── /docs                # Documentation (wireframes, planning,...)
+│    ├── wireframes      # Wireframes
+│── .gitignore           # Files to ignore in Git (like __pycache__,.idea,...)
+│── README.md            # High-level project description
+│── requirements.txt     # Non Built-in external dependencies
 
 # Roles and Responsibilities
 ## Admin
@@ -20,6 +28,10 @@ Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en ve
 ## Security Border
 
 - **Flag names** (e.g., Bjorn Wijn → Red) (Naam ingeven → Rood)
+
+## Bagage Claim
+- Status bagage + location 
+- Paired to flight_id and passager_id
 
 ## Manager (operationeel plannen)
 
@@ -67,3 +79,5 @@ Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en ve
 # Technical
 - Database: **mySQL**
 - UI: **Tkinter**
+- External Packages: **Pillow** (image processing for airline logos) 
+
