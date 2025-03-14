@@ -1,4 +1,8 @@
 # Database Schema
+## Overview
+This document provides an overview of the database structure used in the Airport ERP System. The database stores all essential data related to users, employees, flights, and bookings, ensuring that all operations are efficiently handled and queried.
+
+---
 
 ## 1. Users Table
 Stores user login details
@@ -6,11 +10,13 @@ Stores user login details
 | Column Name     | Data Type     | Description                                      |
 |-----------------|---------------|--------------------------------------------------|
 | `id`            | INTEGER       | Primary Key, Unique ID for each user             |
-| `Username`      | VARCHAR(255)  | Unique username for login                        |
-| `First name`    | VARCHAR(255)  | User's first name                                |
-| `Last name`     | VARCHAR(255)  | User's last name                                 |
-| `Role`          | VARCHAR(50)   | Role of the user (e.g., user, admin, staff)      |
-| `Password`      | VARCHAR(255)  | Password for authentication                      |
+| `username`      | VARCHAR(255)  | Unique username for login                        |
+| `first_name`    | VARCHAR(255)  | User's first name                                |
+| `last_name`     | VARCHAR(255)  | User's last name                                 |
+| `role`          | VARCHAR(50)   | Role of the user (e.g., user, admin, staff)      |
+| `password`      | VARCHAR(255)  | Password for authentication                      |
+
+---
 
 ## 2. Employees Table
 Stores employee details (staff, managers, etc.).
@@ -18,9 +24,11 @@ Stores employee details (staff, managers, etc.).
 | Column Name     | Data Type     | Description                                      |
 |-----------------|---------------|--------------------------------------------------|
 | `id`            | INTEGER       | Primary Key, Unique ID for each employee         |
-| `Username`      | VARCHAR(255)  | Employee's username                              |
-| `Job/Team`      | VARCHAR(255)  | Job position or team the employee is part of     |
-| `Salary`        | DECIMAL(10,2) | Employee's salary                                |
+| `username`      | VARCHAR(255)  | Employee's username                              |
+| `job_team`      | VARCHAR(255)  | Job position or team the employee is part of     |
+| `salary`        | DECIMAL(10,2) | Employee's salary                                |
+
+---
 
 ## 3. Flights Table
 Tracks flight information.
@@ -37,6 +45,24 @@ Tracks flight information.
 | `total_seats`   | INTEGER       | Total number of seats on the flight              |
 | `seats_taken`   | INTEGER       | Number of seats already booked                   |
 
+---
+
+## 4. Bookings Table
+Tracks flight bookings by users.
+
+| Column Name     | Data Type     | Description                                      |
+|-----------------|---------------|--------------------------------------------------|
+| `id`            | INTEGER       | Primary Key, Unique ID for each booking          |
+| `user_id`       | INTEGER       | Foreign Key referencing `id` in Users table      |
+| `flight_id`     | INTEGER       | Foreign Key referencing `id` in Flights table    |
+| `booking_date`  | DATETIME      | Date and time the booking was made               |
+| `seat_class`    | VARCHAR(50)   | Class of seat (Economy, Business, etc.)          |
+
+---
+
 ## Relationships
-- A **User** can be linked to **Employees** if they have a staff role.
-- A **Flight** can have multiple **Bookings** (TO DO)
+- A **User** can be linked to **Employees** if they have a staff role (foreign key `user_id` in **Employees**).
+- A **Flight** can have multiple **Bookings** (foreign key `flight_id` in **Bookings**).
+- A **User** can have multiple **Bookings** (foreign key `user_id` in **Bookings**).
+
+---
