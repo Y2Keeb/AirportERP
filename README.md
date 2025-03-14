@@ -5,6 +5,7 @@ Veel luchthavens kampen met gefragmenteerde systemen en handmatige processen, wa
 Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en veiligheid te verbeteren.
 
 # File structure
+```
 /airportERP
 │── /src                 # Source code (main Python)
 │── /docs                # Documentation (wireframes, planning,...)
@@ -12,7 +13,7 @@ Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en ve
 │── .gitignore           # Files to ignore in Git (like __pycache__,.idea,...)
 │── README.md            # High-level project description
 │── requirements.txt     # Non Built-in external dependencies
-
+```
 # Roles and Responsibilities
 ## Admin
 
