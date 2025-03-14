@@ -16,59 +16,8 @@ Our project is an airport ERP system that digitizes and optimizes the operationa
 │── README.md            # High-level project description
 │── requirements.txt     # Non Built-in external dependencies
 ```
-# Roles and Responsibilities
-## Admin
-
-- **Create users**
-- **Manage roles**
-  - *Add roles*
-  - *Remove roles*
-
-## Flight Planner
-
-- **Plan flights**
-
-## Security Border
-
-- **Flag names** (e.g., Bjorn Wijn → Red) (Naam ingeven → Rood)
-
-## Bagage Claim
-- Status bagage + location 
-- Paired to flight_id and passager_id
-
-## Manager (operationeel plannen)
-
-- *Show flights
-- *Adjust salary of employees
-- *Beheer afwezigheden*
-
-
-## Maintenance (Onderhoud)
-
-- **Maintain warehouse database**
-
-## ATC Tower (ATC Toren)
-
-*(Responsibilities not specified)*
-
-## Cafeteria (Cafetaria)
-
-- **Add extra lounge**
-
-## User (Gebruiker)
-
-- **Buy tickets** (Ticket kopen)
-- **Earn points** (Puntensparen)
-- **Check flight details** (Vlucht raadplegen)
-- **Upgrade class** (Klasse verhogen)
-- **Access lounge** (Lounge toegang)
-- **Use QR code tickets** (QR-code ticket)
-
-## Airline (Vliegtuigmaatschappij)
-
-- **Offer flights** (Vluchten aanbieden)
-
-
+## Roles and Responsibilities
+See the detailed breakdown of roles and responsibilities [here](docs/roles_and_responsibilities.md).
 
 # TO DO 
 1. Admin page (Thomas)
