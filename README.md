@@ -53,10 +53,10 @@ Security is a priority, and we will implement the following measures:
 - **Access Control**: Different roles (Admin, User, etc.) will have access to different parts of the application, ensuring proper access control.
 
 
-# TO DO 
+# TO DO
 1. Admin page (Thomas)
 1. Login scherm (Thomas)
-1. Database opzetten en DBConnector (Reza) 
+1. Database opzetten en DBConnector (Reza)
 2. Database Tables (Lindsey)
 2. Flight Planner vormgeven (Lindsey)
 2. Flight Planner functies
