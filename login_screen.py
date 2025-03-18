@@ -39,7 +39,7 @@ class LoginScreen:
         self.entry_password = tk.Entry(self.root, show="*",)
         self.entry_password.pack(pady=5)
 
-        btn_login = tk.Button(self.root, text="Login", command=self.login)
+        btn_login = tk.Button(self.root, text="Login", command=self.login) 
         btn_login.pack(pady=20)
 
     def create_menu(self):
