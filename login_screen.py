@@ -19,7 +19,7 @@ class LoginScreen:
     def __init__(self, root):
         self.root = root
         self.root.title("Login Venster")
-        self.root.geometry("300x200")
+        self.root.geometry("400x500")
         self.create_widgets()
         self.create_menu()
 
