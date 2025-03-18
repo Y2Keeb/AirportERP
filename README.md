@@ -55,9 +55,6 @@ Security is a priority, and we will implement the following measures:
 
 # TO DO
 1. Admin page (Thomas)
-1. Login scherm (Thomas)
-1. Database opzetten en DBConnector (Reza)
-2. Database Tables (Lindsey)
 2. Flight Planner vormgeven (Lindsey)
 2. Flight Planner functies
 3. User Page vormgeven met data van flight
