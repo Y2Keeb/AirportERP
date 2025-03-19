@@ -12,7 +12,7 @@
 
 ## Security Border
 
-- **Flag names** (e.g., Bjorn Wijn → Red) (Naam ingeven → Rood)
+- **Flag names** (login als Bjorn -> rood scherm Access Denied)
 
 ## Bagage Claim
 - Status bagage + location 

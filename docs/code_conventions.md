@@ -1,10 +1,10 @@
 # ~*~*~ DA RULEZ ~*~*~
 
-In this section, we outline the coding conventions that will be followed throughout the project. 
-These conventions help maintain consistency, readability, and quality across the codebase. 
+In this section, we outline the coding conventions that will be followed throughout the project.
+These conventions help maintain consistency, readability, and quality across the codebase.
 
 
-<details>  
+<details>
 <summary>Function and Method Docstrings:</summary>
 A short description of what the function does needs to be added at the start of a function/method.
 
@@ -23,20 +23,20 @@ def add_numbers(a, b):
     return a + b
 ```
 </details>
-<details>  
+<details>
 <summary>Imports </summary>
 Write imports on one line when possible to prevent typing the same line twice.
 
 ```python
 from tkinter import messagebox, Menu
 ```
-instead of 
+instead of
 
 ```python
 from tkinter import messagebox
 from tkinter import Menu
 ```
-</details>  
+</details>
 <details>
 <summary>Indentation</summary>
 Use 4 spaces per indentation level.
