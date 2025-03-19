@@ -63,7 +63,7 @@ class LoginScreen(BaseWindow):
             elif role == "staff":
                 StaffScreen(self.new_root)
             else:
-                UserScreen(self.new_root)
+                UserScreen(self.new_root,username)
 
         else:
             tk.messagebox.showerror("Login Failed", "Invalid username or password.")

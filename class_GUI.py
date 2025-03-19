@@ -101,6 +101,26 @@ class StaffScreen(BaseWindow):
 
 class UserScreen(BaseWindow):
     """User dashboard"""
-    def __init__(self, root):
+    def __init__(self, root, username):
         super().__init__(root, "User Dashboard")
-        tk.Label(self.root, text="Welcome User!", font=("Arial", 20)).pack(pady=10)
+        self.username = username
+        self.create_widgets()
+
+    def create_widgets(self):
+        greeting_label = tk.Label(self.root, text=f"Hi {self.username}!", font=("Arial", 20))
+        greeting_label.pack(pady=10)
+
+        frame_buttons = tk.Frame(self.root)
+        frame_buttons.pack(pady=10)
+
+        btn_buy_tickets = tk.Button(frame_buttons, text="Buy Tickets", width=20)
+        btn_buy_tickets.grid(row=0, column=0, padx=10)
+
+        btn_my_bookings = tk.Button(frame_buttons, text="My Bookings", width=20)
+        btn_my_bookings.grid(row=0, column=1, padx=10)
+
+        frame_flight_info = tk.Frame(self.root, width=500, height=300, relief="solid")
+        frame_flight_info.pack(pady=20)
+        frame_flight_info.pack_propagate(False)
+
+        tk.Label(frame_flight_info, text="Upcoming Flight Info Here", font=("Arial", 14)).pack(pady=20)
