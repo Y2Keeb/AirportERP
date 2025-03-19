@@ -18,12 +18,14 @@ CREATE TABLE Flights (
     airline VARCHAR(255) NOT NULL,
     departure DATETIME NOT NULL,
     arrival DATETIME NOT NULL,
-	status VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL,
     gate VARCHAR(50) NOT NULL,
     plane_type VARCHAR(50) NOT NULL,
     total_seats INTEGER NOT NULL CHECK (total_seats > 0),
-    seats_taken INTEGER NOT NULL DEFAULT 0
+    seats_taken INTEGER NOT NULL DEFAULT 0,
+    price FLOAT NOT NULL
 );
+
 CREATE TABLE Bookings (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     user_id INTEGER NOT NULL,
