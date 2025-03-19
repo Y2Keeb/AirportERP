@@ -113,7 +113,7 @@ class UserScreen(BaseWindow):
         frame_buttons = tk.Frame(self.root)
         frame_buttons.pack(pady=10)
 
-        btn_buy_tickets = tk.Button(frame_buttons, text="Buy Tickets", width=20)
+        btn_buy_tickets = tk.Button(frame_buttons, text="Buy Tickets", width=20, command=self.buy_tickets)
         btn_buy_tickets.grid(row=0, column=0, padx=10)
 
         btn_my_bookings = tk.Button(frame_buttons, text="My Bookings", width=20)
@@ -127,7 +127,9 @@ class UserScreen(BaseWindow):
 
     def buy_tickets(self):
         """Handles the Buy Tickets button"""
-
+        new_window = tk.Toplevel(self.root)
+        ticket_module = importlib.import_module('ticket_system')
+        ticket_system = ticket_module.TicketSystem(new_window)
 
     def my_bookings(self):
         """Handles the My Bookings button"""
