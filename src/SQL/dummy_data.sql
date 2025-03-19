@@ -9,3 +9,14 @@ INSERT INTO flights (airline, departure, arrival, status, gate, plane_type, tota
 ('Turkish Airlines', '2025-05-04 21:00:00', '2025-05-05 01:00:00', 'On Time', 'H8', 'Airbus A380', 500, 400, 650.00, 'Brussels', 'Istanbul', 'docs/icons/turkish_airlines.png'),
 ('Wizz Air', '2025-05-05 12:00:00', '2025-05-05 14:30:00', 'Delayed', 'I9', 'Boeing 767', 180, 90, 279.95, 'Brussels', 'Budapest', 'docs/icons/wizz_air.png'),
 ('Air Canada', '2025-05-05 15:00:00', '2025-05-05 17:30:00', 'On Time', 'J10', 'Airbus A320', 160, 80, 199.00, 'Brussels', 'Toronto', 'docs/icons/air_canada.png');
+INSERT INTO Users (id, username, first_name, last_name, role, password) VALUES
+(1, 'admin1', 'Alice', 'Smith', 'admin', 'adminpass123'),
+(2, 'admin2', 'Bob', 'Johnson', 'admin', 'secureadmin456'),
+(3, 'staff1', 'Charlie', 'Brown', 'staff', 'staffpass789'),
+(4, 'staff2', 'Diana', 'Miller', 'staff', 'passwordstaff'),
+(5, 'user1', 'Eve', 'Davis', 'user', 'userpass123'),
+(6, 'user2', 'Frank', 'Wilson', 'user', 'letmein456'),
+(7, 'user3', 'Grace', 'Lee', 'user', 'mypassword'),
+(8, 'staff3', 'Henry', 'Moore', 'staff', 'flightstaff2025'),
+(9, 'admin3', 'Isabel', 'Taylor', 'admin', 'rootadmin987'),
+(10, 'user4', 'Jack', 'Anderson', 'user', 'welcomeuser');

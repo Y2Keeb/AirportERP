@@ -1,28 +1,18 @@
 """
 This module provides a login screen for the Airport ERP system.
-This file is deprecate replaced by main.py this will be deleted later
 """
 
 import tkinter as tk
 from tkinter import messagebox, Menu
-from main import MainWindow
-import mysql.connector
+from class_GUI import BaseWindow,UserScreen,AdminScreen,StaffScreen
+from config import mydb
 
-mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="root",
-    database="airport",
-)
-
-
-class LoginScreen:
+class LoginScreen(BaseWindow):
+    """Login screen class"""
     def __init__(self, root):
-        self.root = root
-        self.root.title("Login Venster")
-        self.root.geometry("400x500")
+        super().__init__(root, "Login Window")
+        self.root.geometry("300x500")
         self.create_widgets()
-        self.create_menu()
 
     def create_widgets(self):
         image = tk.PhotoImage(file="docs/icons/plane-prop.png")
@@ -40,7 +30,7 @@ class LoginScreen:
         self.entry_password = tk.Entry(self.root, show="*",)
         self.entry_password.pack(pady=5)
 
-        btn_login = tk.Button(self.root, text="Login", command=self.login) 
+        btn_login = tk.Button(self.root, text="Login", command=self.login)
         btn_login.pack(pady=20)
 
     def create_menu(self):
@@ -57,14 +47,23 @@ class LoginScreen:
         password = self.entry_password.get()
 
         cursor = mydb.cursor()
-        query = "SELECT * FROM Users WHERE username = %s AND password = %s"
+        query = "SELECT id, username, first_name, last_name, role FROM Users WHERE username = %s AND password = %s"
         cursor.execute(query, (username, password))
         result = cursor.fetchone()
 
         if result:
-            tk.messagebox.showinfo("Login Success", "Welcome!")
+            role = result[4]
+            messagebox.showinfo("Login Success", f"Welcome, {username}!")
             self.root.destroy()
-            root.mainloop()
+
+            self.new_root = tk.Tk()
+
+            if role == "admin":
+                AdminScreen(self.new_root)
+            elif role == "staff":
+                StaffScreen(self.new_root)
+            else:
+                UserScreen(self.new_root)
 
         else:
             tk.messagebox.showerror("Login Failed", "Invalid username or password.")
