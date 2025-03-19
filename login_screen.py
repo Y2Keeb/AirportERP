@@ -20,7 +20,7 @@ class LoginScreen:
     def __init__(self, root):
         self.root = root
         self.root.title("Login Venster")
-        self.root.geometry("300x200")
+        self.root.geometry("400x500")
         self.create_widgets()
         self.create_menu()
 
@@ -40,7 +40,7 @@ class LoginScreen:
         self.entry_password = tk.Entry(self.root, show="*",)
         self.entry_password.pack(pady=5)
 
-        btn_login = tk.Button(self.root, text="Login", command=self.login)
+        btn_login = tk.Button(self.root, text="Login", command=self.login) 
         btn_login.pack(pady=20)
 
     def create_menu(self):
