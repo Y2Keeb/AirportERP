@@ -15,7 +15,7 @@ cursor = mydb.cursor() #cursor nodig om SQL code te kunnen executen
 
 root = tk.Tk()
 root.title("Buy Tickets")
-root.geometry("950x600")
+root.geometry("800x400")
 
 tk.Label(root, text="Buy Tickets", font=("Arial", 25, "bold")).grid(row=0, column=0, pady=20, padx=20, sticky="w") #titel
 
@@ -38,13 +38,18 @@ date_entry.grid(row=1, column=3, padx=5)
 btn_search = tk.Button(root, text="Search", command=lambda: fetch_flights())
 btn_search.grid(row=1, column=1, padx=20, sticky="e")
 
-columns = ("Airline", "From"," ", "To", "Price"," ")
+columns = ("Airline", "From"," ", "To", "Price")
 tree = ttk.Treeview(root, columns=columns, show="headings", height=6)
-tree.grid(row=2, column=0, columnspan=2, pady=20)
+tree.grid(row=2, column=0, columnspan=2, padx=20,pady=20)
 
 for col in columns:
     tree.heading(col, text=col)
-    tree.column(col, width=150)
+
+tree.column("Airline", width=150)
+tree.column("From", width=100)
+tree.column(" ", width=300)
+tree.column("To", width=100)
+tree.column("Price", width=100)
 
 def swap_locations():
     from_location = entry_from.get()
@@ -60,7 +65,7 @@ def fetch_flights():
     from_location = entry_from.get()
     to_location = entry_to.get()
 
-    sql_query = "SELECT airline,from_location,CONCAT(departure, ' - ', arrival) AS flight_schedule,from_location, price FROM flights WHERE from_location=%s AND to_location=%s"
+    sql_query = "SELECT airline,from_location,CONCAT(departure, ' - ', arrival) AS flight_schedule,to_location, price FROM flights WHERE from_location=%s AND to_location=%s"
     cursor.execute(sql_query, (from_location, to_location))
 
     for row in cursor.fetchall():
