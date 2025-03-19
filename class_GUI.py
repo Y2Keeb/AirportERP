@@ -124,3 +124,11 @@ class UserScreen(BaseWindow):
         frame_flight_info.pack_propagate(False)
 
         tk.Label(frame_flight_info, text="Upcoming Flight Info Here", font=("Arial", 14)).pack(pady=20)
+
+    def buy_tickets(self):
+        """Handles the Buy Tickets button"""
+
+
+    def my_bookings(self):
+        """Handles the My Bookings button"""
+        tk.messagebox.showinfo("My Bookings", "This feature will show your past bookings.")
