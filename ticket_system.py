@@ -22,9 +22,12 @@ frame_search = tk.Frame(root)
 frame_search.grid(row=1, column=0, pady=10, padx=20, sticky="w") #frame in root voor search balken
 
 entry_from = tk.Entry(frame_search, width=15)
+entry_from.insert(0, "Brussels")
 entry_from.grid(row=1, column=0, padx=5)
-btn_swap_to_from = tk.Button(frame_search, text="↔", width=3) #to do: button werkend maken
+
+btn_swap_to_from = tk.Button(frame_search, text="↔", width=3, command=lambda: swap_locations())
 btn_swap_to_from.grid(row=1, column=1, padx=5)
+
 entry_to = tk.Entry(frame_search, width=15)
 entry_to.grid(row=1, column=2, padx=5)
 
@@ -41,6 +44,15 @@ tree.grid(row=2, column=0, columnspan=2, pady=20)
 for col in columns:
     tree.heading(col, text=col)
     tree.column(col, width=150)
+
+def swap_locations():
+    from_location = entry_from.get()
+    to_location = entry_to.get()
+
+    entry_from.delete(0, tk.END)
+    entry_from.insert(0, to_location)
+    entry_to.delete(0, tk.END)
+    entry_to.insert(0, from_location)
 
 def fetch_flights():
     tree.delete(*tree.get_children())
