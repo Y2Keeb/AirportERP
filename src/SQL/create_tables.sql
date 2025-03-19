@@ -23,12 +23,19 @@ CREATE TABLE flights (
     plane_type VARCHAR(50) NOT NULL,
     total_seats INTEGER NOT NULL CHECK (total_seats > 0),
     seats_taken INTEGER NOT NULL DEFAULT 0,
+<<<<<<< HEAD
     price FLOAT NOT NULL,
     from_location VARCHAR(255) NOT NULL,
     to_location VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE bookings (
+=======
+    price FLOAT NOT NULL
+);
+
+CREATE TABLE Bookings (
+>>>>>>> dff5229c7e30323881e50afc540a72e4c298bbde
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     user_id INTEGER NOT NULL,
     flight_id INTEGER NOT NULL,
