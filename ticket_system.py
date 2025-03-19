@@ -47,7 +47,7 @@ def fetch_flights():
     from_location = entry_from.get()
     to_location = entry_to.get()
 
-    sql_query = "SELECT departure, arrival, airline, price FROM flights WHERE from_location=%s AND to_location=%s"
+    sql_query = "SELECT airline,from_location,CONCAT(departure, ' - ', arrival) AS flight_schedule,from_location, price FROM flights WHERE from_location=%s AND to_location=%s"
     cursor.execute(sql_query, (from_location, to_location))
 
     for row in cursor.fetchall():
