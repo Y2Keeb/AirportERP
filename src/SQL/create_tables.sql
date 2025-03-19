@@ -1,4 +1,4 @@
-CREATE TABLE Users (
+CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255) NOT NULL,
@@ -7,24 +7,28 @@ CREATE TABLE Users (
     password VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Employees (
+CREATE TABLE employees (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(255) UNIQUE NOT NULL,
     job_team VARCHAR(255) NOT NULL,
     salary DECIMAL(10,2) NOT NULL
 );
-CREATE TABLE Flights (
+CREATE TABLE flights (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     airline VARCHAR(255) NOT NULL,
     departure DATETIME NOT NULL,
     arrival DATETIME NOT NULL,
-	status VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL,
     gate VARCHAR(50) NOT NULL,
     plane_type VARCHAR(50) NOT NULL,
     total_seats INTEGER NOT NULL CHECK (total_seats > 0),
-    seats_taken INTEGER NOT NULL DEFAULT 0
+    seats_taken INTEGER NOT NULL DEFAULT 0,
+    price FLOAT NOT NULL,
+    from_location VARCHAR(255) NOT NULL,
+    to_location VARCHAR(255) NOT NULL
 );
-CREATE TABLE Bookings (
+
+CREATE TABLE bookings (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     user_id INTEGER NOT NULL,
     flight_id INTEGER NOT NULL,
@@ -33,3 +37,5 @@ CREATE TABLE Bookings (
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (flight_id) REFERENCES Flights(id) ON DELETE CASCADE
 );
+
+
