@@ -47,7 +47,7 @@ class LoginScreen(BaseWindow):
         password = self.entry_password.get()
 
         cursor = mydb.cursor()
-        query = "SELECT id, username, first_name, last_name, role FROM Users WHERE username = %s AND password = %s"
+        query = "SELECT id, username, first_name, last_name, role FROM users WHERE username = %s AND password = %s"
         cursor.execute(query, (username, password))
         result = cursor.fetchone()
 

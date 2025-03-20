@@ -28,7 +28,7 @@ CREATE TABLE flights(
     to_location VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE Bookings (
+CREATE TABLE bookings (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     user_id INTEGER NOT NULL,
     flight_id INTEGER NOT NULL,
