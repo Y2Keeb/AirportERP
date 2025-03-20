@@ -44,6 +44,10 @@ Tracks flight information.
 | `plane_type`    | VARCHAR(50)   | Type of aircraft (e.g., Airbus A320)             |
 | `total_seats`   | INTEGER       | Total number of seats on the flight              |
 | `seats_taken`   | INTEGER       | Number of seats already booked                   |
+| `price`         | FLOAT         | Price of this flight                             |
+| `from_location` | VARCHAR(255)  | Departure location of the flight                 |
+| `to_location`   | VARCHAR(255)  | Arrival location of the flight                   |
+| `airline_icon`  | VARCHAR(255)  | Path of airline icon                             |
 
 ---
 
