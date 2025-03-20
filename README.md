@@ -54,6 +54,7 @@ Security is a priority, and we will implement the following measures:
 
 
 # TO DO
+- add comments to all code
 - Admin page (Thomas)
 - login screen: use bcrypt to encrypt passwords of our users so its not in our DB as plain text
 - user screen: add my bookings page
