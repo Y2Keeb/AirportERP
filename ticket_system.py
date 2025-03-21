@@ -1,4 +1,4 @@
-import customtkinter
+import customtkinter as ctk
 from tkinter import ttk
 from tkcalendar import DateEntry
 from config import mydb
@@ -10,16 +10,16 @@ class TicketSystem:
         self.root = root
         self.cursor = mydb.cursor()
 
-        self.frame_main = customtkinter.CTkFrame(self.root)
+        self.frame_main = ctk.CTkFrame(self.root)
         self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
         # -> Create main frame that holds everything.
 
-        self.frame_search = customtkinter.CTkFrame(self.frame_main)
+        self.frame_search = ctk.CTkFrame(self.frame_main)
         self.frame_search.grid(row=1, column=0, pady=10, padx=20, sticky="w")
         # -> Create search frame, to separate the search bar from the rest of the UI.
 
-        self.entry_from = customtkinter.CTkEntry(self.frame_search, width=150, placeholder_text="From")
-        self.entry_to = customtkinter.CTkEntry(self.frame_search, width=150, placeholder_text="To")
+        self.entry_from = ctk.CTkEntry(self.frame_search, width=150, placeholder_text="From")
+        self.entry_to = ctk.CTkEntry(self.frame_search, width=150, placeholder_text="To")
         # -> Create "From" and "To" Entry Fields with placeholder text.
 
         self.date_entry = DateEntry(self.frame_search, width=12, background="darkgrey", foreground="white", borderwidth=2)
@@ -38,7 +38,7 @@ class TicketSystem:
     def create_widgets(self):
         """Creates and positions all widgets in the UI."""
 
-        customtkinter.CTkLabel(
+        ctk.CTkLabel(
             self.frame_main, text="Buy Tickets", font=("Arial", 25, "bold")
         ).grid(row=0, column=0, pady=20, padx=20, sticky="w")
         # -> Create main title label and place it at the top of the main frame
@@ -47,7 +47,7 @@ class TicketSystem:
         self.entry_from.grid(row=1, column=0, padx=5)
         # -> fill "From" entry with "Brussels" and place it in the search frame
 
-        btn_swap_to_from = customtkinter.CTkButton(self.frame_search, text="↔", width=40, command=self.swap_locations)
+        btn_swap_to_from = ctk.CTkButton(self.frame_search, text="↔", width=40, command=self.swap_locations)
         btn_swap_to_from.grid(row=1, column=1, padx=5)
         # -> Button to swap "From" and "To" locations
 
@@ -57,7 +57,7 @@ class TicketSystem:
         self.date_entry.grid(row=1, column=3, padx=5)
         # -> Position the date selection widget
 
-        btn_search = customtkinter.CTkButton(self.frame_search, text="Search", command=self.fetch_flights)
+        btn_search = ctk.CTkButton(self.frame_search, text="Search", command=self.fetch_flights)
         btn_search.grid(row=1, column=4, padx=10)
         # -> Create and position the Search button
 
@@ -98,10 +98,10 @@ class TicketSystem:
 
 
 def main():
-    customtkinter.set_appearance_mode("Light")
-    customtkinter.set_default_color_theme("themes/violet.json")
+    ctk.set_appearance_mode("Dark")
+    ctk.set_default_color_theme("themes/rime.json")
 
-    root = customtkinter.CTk()
+    root = ctk.CTk()
     root.title("Buy Tickets")
     root.geometry("740x500")
 

@@ -1,17 +1,11 @@
 """
-The mainscreen using CustomTkinter
+The mainscreen
 """
-import customtkinter
+import tkinter as tk
 from login_screen import LoginScreen
 
-customtkinter.set_appearance_mode("System")
-customtkinter.set_default_color_theme("themes/rime.json")
-
-root = customtkinter.CTk()
-root.title("Airport ERP Login")
-
+root = tk.Tk()
 app = LoginScreen(root)
-
 root.bind("<Return>", lambda event: app.login())
-
 root.mainloop()
+
