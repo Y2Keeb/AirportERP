@@ -5,7 +5,7 @@ from config import mydb,set_theme
 
 
 class TicketSystem:
-    def __init__(self, root):
+    def __init__(self, root,previous_window=None):
         """Sets up the UI and prepares the database connection."""
         self.root = root
         self.cursor = mydb.cursor()
@@ -13,6 +13,7 @@ class TicketSystem:
         self.frame_main = ctk.CTkFrame(self.root)
         self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
         # -> Create main frame that holds everything.
+        self.previous_window = previous_window
 
         self.frame_search = ctk.CTkFrame(self.frame_main)
         self.frame_search.grid(row=1, column=0,columnspan=2, pady=10, padx=20, sticky="w")
@@ -57,7 +58,7 @@ class TicketSystem:
         self.entry_date.grid(row=1, column=3, padx=5)
         # -> Position the date selection widget
 
-        btn_back = ctk.CTkButton(self.frame_main, text="<-")
+        btn_back = ctk.CTkButton(self.frame_main, text="<-",command=self.go_back)
         btn_back.grid(row=0, column=1, padx=10,sticky="e")
         # -> Create and position the Back button
 
@@ -78,6 +79,11 @@ class TicketSystem:
         for col_name, width in columns:
             self.tree.heading(col_name, text=col_name)  # Set column header text
             self.tree.column(col_name, width=width)  # Set column width
+
+    def go_back(self):
+        if self.previous_window:
+            self.previous_window.deiconify()
+        self.root.destroy()
 
     def swap_locations(self):
         """Swap the locations in the 'From' and 'To' fields."""

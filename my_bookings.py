@@ -5,12 +5,13 @@ from config import mydb,set_theme
 
 
 class MyBookings:
-    def __init__(self, root, user_id):
+    def __init__(self, root, user_id,previous_window=None):
         """Initialize the My Bookings window"""
         self.root = root
         self.cursor = mydb.cursor()
         self.root.title("My Bookings")
         self.root.geometry("700x500")
+        self.previous_window = previous_window
 
         set_theme()
 
@@ -31,7 +32,7 @@ class MyBookings:
         self.load_bookings()
 
     def create_widgets(self):
-        btn_back = ctk.CTkButton(self.frame_main, text="<-")
+        btn_back = ctk.CTkButton(self.frame_main, text="<-", command=self.go_back)
         btn_back.grid(row=0, column=1, padx=10, sticky="e")
         # -> Create and position the Back button
 
@@ -47,6 +48,11 @@ class MyBookings:
 
         self.frame_main.grid_rowconfigure(1, weight=1)
         self.frame_main.grid_columnconfigure(0, weight=1)
+
+    def go_back(self):
+        if self.previous_window:
+            self.previous_window.deiconify()
+        self.root.destroy()
 
     def load_bookings(self):
         """Fetches and displays user bookings from the database"""
