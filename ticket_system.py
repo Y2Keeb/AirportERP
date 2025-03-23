@@ -15,14 +15,14 @@ class TicketSystem:
         # -> Create main frame that holds everything.
 
         self.frame_search = ctk.CTkFrame(self.frame_main)
-        self.frame_search.grid(row=1, column=0, pady=10, padx=20, sticky="w")
+        self.frame_search.grid(row=1, column=0,columnspan=2, pady=10, padx=20, sticky="w")
         # -> Create search frame, to separate the search bar from the rest of the UI.
 
         self.entry_from = ctk.CTkEntry(self.frame_search, width=150, placeholder_text="From")
         self.entry_to = ctk.CTkEntry(self.frame_search, width=150, placeholder_text="To")
         # -> Create "From" and "To" Entry Fields with placeholder text.
 
-        self.date_entry = DateEntry(self.frame_search, width=12, background="darkgrey", foreground="white", borderwidth=2)
+        self.entry_date = DateEntry(self.frame_search, width=12, background="darkgrey", foreground="white", borderwidth=2)
         # -> DateEntry from tkcalendar package, lets the user pick a date from calendar instead of typing
 
         self.tree = ttk.Treeview(
@@ -54,8 +54,12 @@ class TicketSystem:
         self.entry_to.grid(row=1, column=2, padx=5)
         # -> Position the "To" entry field
 
-        self.date_entry.grid(row=1, column=3, padx=5)
+        self.entry_date.grid(row=1, column=3, padx=5)
         # -> Position the date selection widget
+
+        btn_back = ctk.CTkButton(self.frame_main, text="<-")
+        btn_back.grid(row=0, column=1, padx=10,sticky="e")
+        # -> Create and position the Back button
 
         btn_search = ctk.CTkButton(self.frame_search, text="Search", command=self.fetch_flights)
         btn_search.grid(row=1, column=4, padx=10)
