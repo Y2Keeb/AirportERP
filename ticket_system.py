@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import ttk
 from tkcalendar import DateEntry
-from config import mydb
+from config import mydb,set_theme
 
 
 class TicketSystem:
@@ -102,8 +102,7 @@ class TicketSystem:
 
 
 def main():
-    ctk.set_appearance_mode("Dark")
-    ctk.set_default_color_theme("themes/marsh.json")
+    set_theme()
 
     root = ctk.CTk()
     root.title("Buy Tickets")
