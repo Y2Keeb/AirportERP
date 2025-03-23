@@ -116,7 +116,7 @@ class UserScreen(BaseWindow):
         btn_buy_tickets = tk.Button(frame_buttons, text="Buy Tickets", width=20, command=self.buy_tickets)
         btn_buy_tickets.grid(row=0, column=0, padx=10)
 
-        btn_my_bookings = tk.Button(frame_buttons, text="My Bookings", width=20)
+        btn_my_bookings = tk.Button(frame_buttons, text="My Bookings", width=20,command=self.my_bookings)
         btn_my_bookings.grid(row=0, column=1, padx=10)
 
         frame_flight_info = tk.Frame(self.root, width=500, height=300, relief="solid")
@@ -133,4 +133,12 @@ class UserScreen(BaseWindow):
 
     def my_bookings(self):
         """Handles the My Bookings button"""
-        tk.messagebox.showinfo("My Bookings", "This feature will show your past bookings.")
+        cursor = mydb.cursor()
+        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
+        user_id_result = cursor.fetchone()
+        user_id = user_id_result[0]
+        # -> om user_id te krijgen ipv username, dus 5 ipv "user_1"
+
+        new_window = tk.Toplevel(self.root)
+        my_bookings_module = importlib.import_module('my_bookings')
+        booking_module = my_bookings_module.MyBookings(new_window, user_id)
