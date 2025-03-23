@@ -9,4 +9,4 @@ mydb = mysql.connector.connect(
 )
 def set_theme():
     ctk.set_appearance_mode("Dark")
-    ctk.set_default_color_theme("themes/marsh.json")
+    ctk.set_default_color_theme("themes/tKChic.json")

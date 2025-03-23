@@ -9,11 +9,11 @@ class TicketSystem:
         """Sets up the UI and prepares the database connection."""
         self.root = root
         self.cursor = mydb.cursor()
+        self.previous_window = previous_window
 
         self.frame_main = ctk.CTkFrame(self.root)
         self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
         # -> Create main frame that holds everything.
-        self.previous_window = previous_window
 
         self.frame_search = ctk.CTkFrame(self.frame_main)
         self.frame_search.grid(row=1, column=0,columnspan=2, pady=10, padx=20, sticky="w")

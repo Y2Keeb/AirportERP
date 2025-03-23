@@ -10,7 +10,7 @@ class MyBookings:
         self.root = root
         self.cursor = mydb.cursor()
         self.root.title("My Bookings")
-        self.root.geometry("700x500")
+        self.root.geometry("700x300")
         self.previous_window = previous_window
 
         set_theme()

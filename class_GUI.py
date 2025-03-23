@@ -13,7 +13,7 @@ class BaseWindow:
         self.root = root
         self.root.title(title)
         self.create_menu()
-  
+
 
     def create_menu(self):
         """Creates a menu bar for the application window."""
@@ -45,12 +45,16 @@ class BaseWindow:
     def logout(self):
         """Logs out the user and returns to the login screen."""
         try:
+            self.root.quit()
             self.root.destroy()
         except tk.TclError:
             pass
+        except Exception as e:
+            print(f"Error while logging out: {e}")
+
         login_module = importlib.import_module('login_screen')
         login_screen = login_module.LoginScreen(tk.Tk())
-        tk.mainloop()
+
 
     def kill_window(self):
         """quit"""
@@ -63,8 +67,6 @@ class MainWindow(BaseWindow):
         super().__init__(root, "Dashboard")
         self.create_widgets()
         self.admin_dashboard()
-
-    # moved role determination to login function
 
     def manage_users(self):
         """Handles user management functionality."""
