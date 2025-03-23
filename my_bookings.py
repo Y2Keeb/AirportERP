@@ -34,20 +34,16 @@ class MyBookings:
 
     def create_ui(self):
         """Creates the UI layout"""
-        # Define columns for the Treeview
         columns = [("Status", 100), ("Departure", 100), ("Destination", 100), ("Flight Info", 350)]
 
-        # Initialize treeview in the frame
         self.tree = ttk.Treeview(self.frame, columns=[col[0] for col in columns], show="headings", height=6)
 
-        # Instead of grid(), use pack() for the treeview
         self.tree.pack(expand=True, fill="both", padx=20, pady=20)
 
         for col_name, width in columns:
             self.tree.heading(col_name, text=col_name)
             self.tree.column(col_name, width=width)
 
-        # Optionally, wrap the treeview in a frame for better control (using pack())
         treeview_frame = ctk.CTkFrame(self.frame)
         treeview_frame.pack(expand=True, fill="both", padx=10, pady=10)
 
