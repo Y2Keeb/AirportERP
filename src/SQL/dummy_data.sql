@@ -10,7 +10,7 @@ INSERT INTO flights (airline, departure, arrival, status, gate, plane_type, tota
 ('Wizz Air', '2025-05-05 12:00:00', '2025-05-05 14:30:00', 'Delayed', 'I9', 'Boeing 767', 180, 90, 279.95, 'Brussels', 'Budapest', 'docs/icons/wizz_air.png'),
 ('Air Canada', '2025-05-05 15:00:00', '2025-05-05 17:30:00', 'On Time', 'J10', 'Airbus A320', 160, 80, 199.00, 'Brussels', 'Toronto', 'docs/icons/air_canada.png');
 INSERT INTO users (id, username, first_name, last_name, role, password) VALUES
-(1, 'admin1', 'Alice', 'Smith', 'admin', 'adminpass123'),
+(1, 'admin', 'Alice', 'Smith', 'admin', 'admin'),
 (2, 'admin2', 'Bob', 'Johnson', 'admin', 'secureadmin456'),
 (3, 'staff1', 'Charlie', 'Brown', 'staff', 'staffpass789'),
 (4, 'staff2', 'Diana', 'Miller', 'staff', 'passwordstaff'),
