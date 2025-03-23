@@ -1,6 +1,6 @@
 import tkinter as tk
+import customtkinter as ctk
 from tkinter import ttk, messagebox
-import mysql.connector
 from config import mydb
 
 
@@ -10,7 +10,23 @@ class MyBookings:
         self.root = root
         self.cursor = mydb.cursor()
         self.root.title("My Bookings")
-        self.root.geometry("500x300")
+        self.root.geometry("700x500")
+
+        ctk.set_appearance_mode("Dark")
+        ctk.set_default_color_theme("themes/marsh.json")
+
+        self.frame = ctk.CTkFrame(self.root)
+        self.frame.pack(expand=True, fill="both", padx=10, pady=10)
+
+        self.title_label = ctk.CTkLabel(self.frame, text="My Bookings", font=("Arial", 16, "bold"))
+        self.title_label.pack(pady=(0, 10))
+
+
+        self.tree = ttk.Treeview(
+            self.frame,
+            columns=("Status", "Departure", "Destination", "Flight Info"),
+            show="headings",
+            height=6)
 
         self.user_id = user_id
         self.create_ui()
@@ -18,30 +34,65 @@ class MyBookings:
 
     def create_ui(self):
         """Creates the UI layout"""
-        columns = ("Booking ID", "Flight Number", "Date")
-        self.tree = ttk.Treeview(self.root, columns=columns, show="headings")
+        # Define columns for the Treeview
+        columns = [("Status", 100), ("Departure", 100), ("Destination", 100), ("Flight Info", 350)]
 
-        for col in columns:
-            self.tree.heading(col, text=col)
-            self.tree.column(col, width=150)
+        # Initialize treeview in the frame
+        self.tree = ttk.Treeview(self.frame, columns=[col[0] for col in columns], show="headings", height=6)
 
-        self.tree.pack(expand=True, fill="both")
+        # Instead of grid(), use pack() for the treeview
+        self.tree.pack(expand=True, fill="both", padx=20, pady=20)
+
+        for col_name, width in columns:
+            self.tree.heading(col_name, text=col_name)
+            self.tree.column(col_name, width=width)
+
+        # Optionally, wrap the treeview in a frame for better control (using pack())
+        treeview_frame = ctk.CTkFrame(self.frame)
+        treeview_frame.pack(expand=True, fill="both", padx=10, pady=10)
 
     def load_bookings(self):
         """Fetches and displays user bookings from the database"""
         self.cursor.execute("SELECT id, flight_id, booking_date, status FROM bookings WHERE user_id = %s",
                             (self.user_id,))
         bookings = self.cursor.fetchall()
-        for booking in bookings:
-            flight_info = self.get_flight_info(booking[1])
-            print(f"Adding booking to treeview: {booking[0]} - {flight_info} - {booking[2]} - {booking[3]}")
-            self.tree.insert("", tk.END, values=(booking[0], flight_info, booking[2], booking[3]))
+        if bookings:
+            for booking in bookings:
+                flight_info = self.get_flight_info(booking[1])
+                departure_info = self.get_departure_location(booking[0])
+                destination_info = self.get_destination_location(booking[0])
+                self.tree.insert("", tk.END, values=(booking[3],departure_info,destination_info, flight_info))
+        else:
+            messagebox.showinfo("No Bookings", "No bookings found for this user.")
 
     def get_flight_info(self, flight_id):
         """Fetches flight information based on the flight_id."""
         self.cursor.execute("SELECT airline, departure, arrival FROM flights WHERE id = %s", (flight_id,))
         flight = self.cursor.fetchone()
-        print(f"Flight fetched: {flight}")
-        if flight:
-            return f"{flight[0]} ({flight[1]} - {flight[2]})"
-        return "Unknown Flight"
+        return f"{flight[0]} ({flight[1]} - {flight[2]})"
+
+    def get_departure_location(self, booking_id):
+        """Fetches the departure location (from_location) for a given booking."""
+        self.cursor.execute("""
+            SELECT f.from_location
+            FROM bookings b
+            JOIN flights f ON b.flight_id = f.id
+            WHERE b.id = %s
+        """, (booking_id,))
+        departure_location = self.cursor.fetchone()
+        if departure_location:
+            return departure_location[0]
+        return "Unknown Departure Location"
+
+    def get_destination_location(self, booking_id):
+        """Fetches the destination location (to_location) for a given booking."""
+        self.cursor.execute("""
+            SELECT f.to_location
+            FROM bookings b
+            JOIN flights f ON b.flight_id = f.id
+            WHERE b.id = %s
+        """, (booking_id,))
+        destination_location = self.cursor.fetchone()
+        if destination_location:
+            return destination_location[0]
+        return "Unknown Destination Location"
