@@ -99,7 +99,7 @@ class TicketSystem:
 
 def main():
     ctk.set_appearance_mode("Dark")
-    ctk.set_default_color_theme("themes/rime.json")
+    ctk.set_default_color_theme("themes/marsh.json")
 
     root = ctk.CTk()
     root.title("Buy Tickets")

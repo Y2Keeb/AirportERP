@@ -25,7 +25,8 @@ CREATE TABLE flights(
     seats_taken INTEGER NOT NULL DEFAULT 0,
     price FLOAT NOT NULL,
     from_location VARCHAR(255) NOT NULL,
-    to_location VARCHAR(255) NOT NULL
+    to_location VARCHAR(255) NOT NULL,
+    airline_icon VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE bookings (
@@ -37,6 +38,6 @@ CREATE TABLE bookings (
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (flight_id) REFERENCES Flights(id) ON DELETE CASCADE
 );
-ALTER TABLE flights ADD COLUMN airline_icon VARCHAR(255) NOT NULL;
+
 
 
