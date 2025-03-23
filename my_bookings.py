@@ -65,7 +65,9 @@ class MyBookings:
         """Fetches flight information based on the flight_id."""
         self.cursor.execute("SELECT airline, departure, arrival FROM flights WHERE id = %s", (flight_id,))
         flight = self.cursor.fetchone()
-        return f"{flight[0]} ({flight[1]} - {flight[2]})"
+        if flight:
+            return f"{flight[0]} ({flight[1]} - {flight[2]})"
+        return "Unknown Flight"
 
     def get_departure_location(self, booking_id):
         """Fetches the departure location (from_location) for a given booking."""
