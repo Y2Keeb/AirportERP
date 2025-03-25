@@ -13,7 +13,7 @@ class BaseWindow:
         self.root = root
         self.root.title(title)
         self.create_menu()
-  
+
 
     def create_menu(self):
         """Creates a menu bar for the application window."""
@@ -44,10 +44,17 @@ class BaseWindow:
 
     def logout(self):
         """Logs out the user and returns to the login screen."""
-        self.root.destroy()
+        try:
+            self.root.quit()
+            self.root.destroy()
+        except tk.TclError:
+            pass
+        except Exception as e:
+            print(f"Error while logging out: {e}")
+
         login_module = importlib.import_module('login_screen')
         login_screen = login_module.LoginScreen(tk.Tk())
-        tk.mainloop()
+
 
     def kill_window(self):
         """quit"""
@@ -60,8 +67,6 @@ class MainWindow(BaseWindow):
         super().__init__(root, "Dashboard")
         self.create_widgets()
         self.admin_dashboard()
-
-    # moved role determination to login function
 
     def manage_users(self):
         """Handles user management functionality."""
@@ -116,7 +121,7 @@ class UserScreen(BaseWindow):
         btn_buy_tickets = tk.Button(frame_buttons, text="Buy Tickets", width=20, command=self.buy_tickets)
         btn_buy_tickets.grid(row=0, column=0, padx=10)
 
-        btn_my_bookings = tk.Button(frame_buttons, text="My Bookings", width=20)
+        btn_my_bookings = tk.Button(frame_buttons, text="My Bookings", width=20,command=self.my_bookings)
         btn_my_bookings.grid(row=0, column=1, padx=10)
 
         frame_flight_info = tk.Frame(self.root, width=500, height=300, relief="solid")
@@ -127,10 +132,27 @@ class UserScreen(BaseWindow):
 
     def buy_tickets(self):
         """Handles the Buy Tickets button"""
+        self.root.withdraw()
         new_window = tk.Toplevel(self.root)
         ticket_module = importlib.import_module('ticket_system')
-        ticket_system = ticket_module.TicketSystem(new_window)
+        ticket_system = ticket_module.TicketSystem(new_window,previous_window=self.root)
 
     def my_bookings(self):
         """Handles the My Bookings button"""
-        tk.messagebox.showinfo("My Bookings", "This feature will show your past bookings.")
+        self.root.withdraw()
+        cursor = mydb.cursor()
+        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
+        user_id_result = cursor.fetchone()
+        user_id = user_id_result[0]
+        # -> om user_id te krijgen ipv username, dus 5 ipv "user_1"
+
+        new_window = tk.Toplevel(self.root)
+        my_bookings_module = importlib.import_module('my_bookings')
+        my_bookings_window = my_bookings_module.MyBookings(new_window, user_id, previous_window=self.root)
+
+    def on_my_bookings_close(self):
+        """When MyBookings is closed, show UserScreen again"""
+        self.root.deiconify()
+
+    def on_buytickets_close(self):
+        self.root.deiconify()

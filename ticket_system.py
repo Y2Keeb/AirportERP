@@ -1,28 +1,29 @@
 import customtkinter as ctk
 from tkinter import ttk
 from tkcalendar import DateEntry
-from config import mydb
+from config import mydb,set_theme
 
 
 class TicketSystem:
-    def __init__(self, root):
+    def __init__(self, root,previous_window=None):
         """Sets up the UI and prepares the database connection."""
         self.root = root
         self.cursor = mydb.cursor()
+        self.previous_window = previous_window
 
         self.frame_main = ctk.CTkFrame(self.root)
         self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
         # -> Create main frame that holds everything.
 
         self.frame_search = ctk.CTkFrame(self.frame_main)
-        self.frame_search.grid(row=1, column=0, pady=10, padx=20, sticky="w")
+        self.frame_search.grid(row=1, column=0,columnspan=2, pady=10, padx=20, sticky="w")
         # -> Create search frame, to separate the search bar from the rest of the UI.
 
         self.entry_from = ctk.CTkEntry(self.frame_search, width=150, placeholder_text="From")
         self.entry_to = ctk.CTkEntry(self.frame_search, width=150, placeholder_text="To")
         # -> Create "From" and "To" Entry Fields with placeholder text.
 
-        self.date_entry = DateEntry(self.frame_search, width=12, background="darkgrey", foreground="white", borderwidth=2)
+        self.entry_date = DateEntry(self.frame_search, width=12, background="darkgrey", foreground="white", borderwidth=2)
         # -> DateEntry from tkcalendar package, lets the user pick a date from calendar instead of typing
 
         self.tree = ttk.Treeview(
@@ -54,8 +55,12 @@ class TicketSystem:
         self.entry_to.grid(row=1, column=2, padx=5)
         # -> Position the "To" entry field
 
-        self.date_entry.grid(row=1, column=3, padx=5)
+        self.entry_date.grid(row=1, column=3, padx=5)
         # -> Position the date selection widget
+
+        btn_back = ctk.CTkButton(self.frame_main, text="<-",command=self.go_back)
+        btn_back.grid(row=0, column=1, padx=10,sticky="e")
+        # -> Create and position the Back button
 
         btn_search = ctk.CTkButton(self.frame_search, text="Search", command=self.fetch_flights)
         btn_search.grid(row=1, column=4, padx=10)
@@ -74,6 +79,11 @@ class TicketSystem:
         for col_name, width in columns:
             self.tree.heading(col_name, text=col_name)  # Set column header text
             self.tree.column(col_name, width=width)  # Set column width
+
+    def go_back(self):
+        if self.previous_window:
+            self.previous_window.deiconify()
+        self.root.destroy()
 
     def swap_locations(self):
         """Swap the locations in the 'From' and 'To' fields."""
@@ -98,8 +108,7 @@ class TicketSystem:
 
 
 def main():
-    ctk.set_appearance_mode("Dark")
-    ctk.set_default_color_theme("themes/marsh.json")
+    set_theme()
 
     root = ctk.CTk()
     root.title("Buy Tickets")
