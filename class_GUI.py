@@ -1,9 +1,12 @@
 """All Function for building the GUI"""
 
 import tkinter as tk
-from tkinter import messagebox, Menu
-from config import mydb
+from tkinter import Menu
+import customtkinter as ctk
+from CTkMessagebox import CTkMessagebox
+import tksheet
 import importlib
+from config import mydb,set_theme
 
 
 class BaseWindow:
@@ -13,7 +16,7 @@ class BaseWindow:
         self.root = root
         self.root.title(title)
         self.create_menu()
-
+        set_theme()
 
     def create_menu(self):
         """Creates a menu bar for the application window."""
@@ -39,7 +42,7 @@ class BaseWindow:
         """Displays the Help dialog."""
         tk.messagebox.showinfo(
             message="Login by entering your username and password\n"
-            "If you don't have a login, contact your administrator"
+                    "If you don't have a login, contact your administrator"
         )
 
     def logout(self):
@@ -55,10 +58,10 @@ class BaseWindow:
         login_module = importlib.import_module('login_screen')
         login_screen = login_module.LoginScreen(tk.Tk())
 
-
     def kill_window(self):
         """quit"""
         self.root.destroy()
+
 
 class MainWindow(BaseWindow):
     """Main application window"""
@@ -80,8 +83,6 @@ class MainWindow(BaseWindow):
         """Handles viewing tasks functionality."""
         tk.messagebox.showinfo("View Tasks", "Task viewing functionality goes here.")
 
-
-
     def create_widgets(self):
         """Creates widgets for the main window"""
         self.add_image("docs/icons/plane-prop.png")
@@ -92,48 +93,53 @@ class MainWindow(BaseWindow):
         tk.Label(self.root, image=image).pack()
         self.root.image = image
 
+
 class AdminScreen(BaseWindow):
     """Admin dashboard"""
+
     def __init__(self, root):
         super().__init__(root, "Admin Dashboard")
         tk.Label(self.root, text="Welcome Admin!", font=("Arial", 20)).pack(pady=10)
 
+
 class StaffScreen(BaseWindow):
     """Staff dashboard"""
+
     def __init__(self, root):
         super().__init__(root, "Staff Dashboard")
         tk.Label(self.root, text="Welcome Staff!", font=("Arial", 20)).pack(pady=10)
 
+
 class UserScreen(BaseWindow):
     """User dashboard"""
+
     def __init__(self, root, username):
         super().__init__(root, "User Dashboard")
         self.username = username
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        set_theme()
         self.create_widgets()
 
+
     def create_widgets(self):
-        greeting_label = tk.Label(self.root, text=f"Hi {self.username}!", font=("Arial", 20))
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+
+        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Hi {self.username}!", font=("Arial", 20))
         greeting_label.pack(pady=10)
 
-        frame_buttons = tk.Frame(self.root)
-        frame_buttons.pack(pady=10)
+        btn_buy_tickets = ctk.CTkButton(self.frame_main, text="Buy Tickets", command=self.buy_tickets)
+        btn_buy_tickets.pack(pady=5)
 
-        btn_buy_tickets = tk.Button(frame_buttons, text="Buy Tickets", width=20, command=self.buy_tickets)
-        btn_buy_tickets.grid(row=0, column=0, padx=10)
-
-        btn_my_bookings = tk.Button(frame_buttons, text="My Bookings", width=20,command=self.my_bookings)
-        btn_my_bookings.grid(row=0, column=1, padx=10)
-
-        frame_flight_info = tk.Frame(self.root, width=500, height=300, relief="solid")
-        frame_flight_info.pack(pady=20)
-        frame_flight_info.pack_propagate(False)
-
-        tk.Label(frame_flight_info, text="Upcoming Flight Info Here", font=("Arial", 14)).pack(pady=20)
+        btn_my_bookings = ctk.CTkButton(self.frame_main, text="My Bookings", command=self.my_bookings)
+        btn_my_bookings.pack(pady=5)
 
     def buy_tickets(self):
         """Handles the Buy Tickets button"""
         self.root.withdraw()
         new_window = tk.Toplevel(self.root)
+
         ticket_module = importlib.import_module('ticket_system')
         ticket_system = ticket_module.TicketSystem(new_window,previous_window=self.root)
 
