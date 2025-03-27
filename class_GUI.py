@@ -123,17 +123,15 @@ class UserScreen(BaseWindow):
 
 
     def create_widgets(self):
-        self.frame_main = ctk.CTkFrame(self.root)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
 
         greeting_label = ctk.CTkLabel(self.frame_main, text=f"Hi {self.username}!", font=("Arial", 20))
-        greeting_label.pack(pady=10)
+        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
 
         btn_buy_tickets = ctk.CTkButton(self.frame_main, text="Buy Tickets", command=self.buy_tickets)
-        btn_buy_tickets.pack(pady=5)
+        btn_buy_tickets.grid(row=1, column=0, pady=10, padx=20, sticky="w")
 
         btn_my_bookings = ctk.CTkButton(self.frame_main, text="My Bookings", command=self.my_bookings)
-        btn_my_bookings.pack(pady=5)
+        btn_my_bookings.grid(row=1, column=1, pady=10, padx=20, sticky="w")
 
     def buy_tickets(self):
         """Handles the Buy Tickets button"""
