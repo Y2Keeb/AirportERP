@@ -3,12 +3,16 @@ This module provides a login screen for the Airport ERP system.
 """
 
 import tkinter as tk
-from tkinter import messagebox, Menu
-from class_GUI import BaseWindow,UserScreen,AdminScreen,StaffScreen
+from tkinter import Menu
+import customtkinter as ctk
+from CTkMessagebox import CTkMessagebox
+from class_GUI import BaseWindow, UserScreen, AdminScreen, StaffScreen
 from config import mydb
+
 
 class LoginScreen(BaseWindow):
     """Login screen class"""
+
     def __init__(self, root):
         super().__init__(root, "Login Window")
         self.root.geometry("300x500")
@@ -17,20 +21,25 @@ class LoginScreen(BaseWindow):
     def create_widgets(self):
         image = tk.PhotoImage(file="docs/icons/plane-prop.png")
         tk.Label(self.root, image=image).pack()
-        self.root.image = image
+        self.image = image
 
-        tk.Label(self.root, text="Welcome Back!", font=("Comics-sans", 25)).pack()
-        tk.Label(self.root, text="Log in to your account").pack()
+        ctk.CTkLabel(
+            self.root, text="Welcome Back!", fg="black", font=("Comic Sans MS", 25)
+        ).pack()
+        ctk.CTkLabel(self.root, text="Log in to your account").pack()
 
-        tk.Label(self.root, text="username:").pack(pady=5)
-        self.entry_username = tk.Entry(self.root)
+        ctk.CTkLabel(self.root, text="username:").pack(pady=5)
+        self.entry_username = ctk.CTkEntry(self.root)
         self.entry_username.pack(pady=5)
 
-        tk.Label(self.root, text="password:").pack(pady=5)
-        self.entry_password = tk.Entry(self.root, show="*",)
+        ctk.CTkLabel(self.root, text="password:").pack(pady=5)
+        self.entry_password = ctk.CTkEntry(
+            self.root,
+            show="*",
+        )
         self.entry_password.pack(pady=5)
 
-        btn_login = tk.Button(self.root, text="Login", command=self.login)
+        btn_login = ctk.CTkButton(self.root, text="Login", command=self.login)
         btn_login.pack(pady=20)
 
     def create_menu(self):
@@ -53,35 +62,41 @@ class LoginScreen(BaseWindow):
 
         if result:
             role = result[4]
-            messagebox.showinfo("Login Success", f"Welcome, {username}!")
-            self.root.destroy()
+            CTkMessagebox(
+                message=f"Login Successful! Welcome, {username}!",
+                icon="check",
+                option_1="Thanks",
+            )
 
-            self.new_root = tk.Tk()
-
+            self.new_root = tk.Toplevel(self.root)
             if role == "admin":
                 AdminScreen(self.new_root)
             elif role == "staff":
                 StaffScreen(self.new_root)
             else:
-                UserScreen(self.new_root,username)
+                UserScreen(self.new_root, username)
 
         else:
-            tk.messagebox.showerror("Login Failed", "Invalid username or password.")
+            CTkMessagebox(
+                title="Error", message="Invalid username or password.", icon="cancel"
+            )
 
     def about(self):
-        tk.messagebox.showinfo(
-            message="(c) AirportERP\n BY \n Lindsey, Reza And Thomas"
+        CTkMessagebox(
+            title="Info", message="(c) AirportERP\n BY \n Lindsey, Reza And Thomas"
         )
 
     def help_menu(self):
-        tk.messagebox.showinfo(
-            message="login by entering your username and password\n"
-            "if you don't have a login contact your administrator"
+        CTkMessagebox(
+            title="Info",
+            icon="question",
+            message="• Login by entering your username and password.\n"
+            "• If you don't have a login, contact your administrator.",
         )
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = LoginScreen(root)
-    root.bind('<Return>', lambda event: app.login())
+    root.bind("<Return>", lambda event: (event.widget.focus(), app.login()))
     root.mainloop()
