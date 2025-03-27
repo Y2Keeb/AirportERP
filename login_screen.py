@@ -53,32 +53,23 @@ class LoginScreen(BaseWindow):
     def login(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
-
         cursor = mydb.cursor()
         query = "SELECT id, username, first_name, last_name, role FROM users WHERE username = %s AND password = %s"
         cursor.execute(query, (username, password))
         result = cursor.fetchone()
-
         if result:
             role = result[4]
-            CTkMessagebox(
-                message=f"Login Successful! Welcome, {username}!",
-                icon="check",
-                option_1="Thanks",
-            )
-
-            self.new_root = tk.Toplevel(self.root)
+            messagebox.showinfo("Login Success", f"Welcome, {username}!")
+            self.root.destroy()
+            self.new_root = tk.Tk()
             if role == "admin":
                 AdminScreen(self.new_root)
             elif role == "staff":
                 StaffScreen(self.new_root)
             else:
-                UserScreen(self.new_root, username)
-
+                UserScreen(self.new_root,username)
         else:
-            CTkMessagebox(
-                title="Error", message="Invalid username or password.", icon="cancel"
-            )
+            tk.messagebox.showerror("Login Failed", "Invalid username or password.")
 
     def about(self):
         CTkMessagebox(
