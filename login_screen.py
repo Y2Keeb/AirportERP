@@ -8,8 +8,12 @@ import customtkinter as ctk
 from class_GUI import BaseWindow,UserScreen,AdminScreen,StaffScreen
 from config import mydb,set_theme
 
+
+
+
 class LoginScreen(BaseWindow):
     """Login screen class"""
+
     def __init__(self, root):
         super().__init__(root, "Login Window")
         self.root.geometry("300x500")
@@ -57,35 +61,41 @@ class LoginScreen(BaseWindow):
 
         if result:
             role = result[4]
-            messagebox.showinfo("Login Success", f"Welcome, {username}!")
-            self.root.destroy()
+            CTkMessagebox(
+                message=f"Login Successful! Welcome, {username}!",
+                icon="check",
+                option_1="Thanks",
+            )
 
-            self.new_root = tk.Tk()
-
+            self.new_root = tk.Toplevel(self.root)
             if role == "admin":
                 AdminScreen(self.new_root)
             elif role == "staff":
                 StaffScreen(self.new_root)
             else:
-                UserScreen(self.new_root,username)
+                UserScreen(self.new_root, username)
 
         else:
-            tk.messagebox.showerror("Login Failed", "Invalid username or password.")
+            CTkMessagebox(
+                title="Error", message="Invalid username or password.", icon="cancel"
+            )
 
     def about(self):
-        tk.messagebox.showinfo(
-            message="(c) AirportERP\n BY \n Lindsey, Reza And Thomas"
+        CTkMessagebox(
+            title="Info", message="(c) AirportERP\n BY \n Lindsey, Reza And Thomas"
         )
 
     def help_menu(self):
-        tk.messagebox.showinfo(
-            message="login by entering your username and password\n"
-            "if you don't have a login contact your administrator"
+        CTkMessagebox(
+            title="Info",
+            icon="question",
+            message="• Login by entering your username and password.\n"
+            "• If you don't have a login, contact your administrator.",
         )
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = LoginScreen(root)
-    root.bind('<Return>', lambda event: app.login())
+    root.bind("<Return>", lambda event: (event.widget.focus(), app.login()))
     root.mainloop()
