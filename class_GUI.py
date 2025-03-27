@@ -13,10 +13,12 @@ class BaseWindow:
     """Base class for common window functionality"""
 
     def __init__(self, root, title):
+        set_theme()
         self.root = root
         self.root.title(title)
         self.create_menu()
         set_theme()
+
 
     def create_menu(self):
         """Creates a menu bar for the application window."""
@@ -33,9 +35,8 @@ class BaseWindow:
         self.root.config(menu=menubar)
 
     def about(self):
-        """Displays the About dialog."""
-        tk.messagebox.showinfo(
-            message="(c) 2025 AirportERP\n BY \n Lindsey, Reza And Thomas"
+        CTkMessagebox(
+            title="Info", message="(c) AirportERP\n BY \n Lindsey, Reza And Thomas"
         )
 
     def help_menu(self):
@@ -43,6 +44,7 @@ class BaseWindow:
         tk.messagebox.showinfo(
             message="Login by entering your username and password\n"
                     "If you don't have a login, contact your administrator"
+
         )
 
     def logout(self):
@@ -73,11 +75,15 @@ class MainWindow(BaseWindow):
 
     def manage_users(self):
         """Handles user management functionality."""
-        tk.messagebox.showinfo("Manage Users", "User management functionality goes here.")
+        tk.messagebox.showinfo(
+            "Manage Users", "User management functionality goes here."
+        )
 
     def view_reports(self):
         """Handles viewing reports functionality."""
-        tk.messagebox.showinfo("View Reports", "Report viewing functionality goes here.")
+        tk.messagebox.showinfo(
+            "View Reports", "Report viewing functionality goes here."
+        )
 
     def view_tasks(self):
         """Handles viewing tasks functionality."""
@@ -88,9 +94,8 @@ class MainWindow(BaseWindow):
         self.add_image("docs/icons/plane-prop.png")
 
     def add_image(self, image_path):
-        """Adds an image to the window"""
-        image = tk.PhotoImage(file=image_path)
-        tk.Label(self.root, image=image).pack()
+        self.image = tk.PhotoImage(file=image_path)
+        tk.Label(self.root, image=self.image).pack()
         self.root.image = image
 
 
@@ -99,7 +104,15 @@ class AdminScreen(BaseWindow):
 
     def __init__(self, root):
         super().__init__(root, "Admin Dashboard")
-        tk.Label(self.root, text="Welcome Admin!", font=("Arial", 20)).pack(pady=10)
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        set_theme()
+        self.create_widgets()
+
+    def create_widgets(self):
+        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Welcome Admin!", font=("Arial", 20))
+        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
+
 
 
 class StaffScreen(BaseWindow):
@@ -107,7 +120,15 @@ class StaffScreen(BaseWindow):
 
     def __init__(self, root):
         super().__init__(root, "Staff Dashboard")
-        tk.Label(self.root, text="Welcome Staff!", font=("Arial", 20)).pack(pady=10)
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        set_theme()
+        self.create_widgets()
+
+    def create_widgets(self):
+        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Welcome Staff!", font=("Arial", 20))
+        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
+
 
 
 class UserScreen(BaseWindow):
@@ -121,7 +142,6 @@ class UserScreen(BaseWindow):
         set_theme()
         self.create_widgets()
 
-
     def create_widgets(self):
 
         greeting_label = ctk.CTkLabel(self.frame_main, text=f"Hi {self.username}!", font=("Arial", 20))
@@ -132,6 +152,7 @@ class UserScreen(BaseWindow):
 
         btn_my_bookings = ctk.CTkButton(self.frame_main, text="My Bookings", command=self.my_bookings)
         btn_my_bookings.grid(row=1, column=1, pady=10, padx=20, sticky="w")
+
 
     def buy_tickets(self):
         """Handles the Buy Tickets button"""
