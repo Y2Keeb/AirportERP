@@ -62,7 +62,6 @@ class BaseWindow:
         """quit"""
         self.root.destroy()
 
-
 class MainWindow(BaseWindow):
     """Main application window"""
 
@@ -93,13 +92,19 @@ class MainWindow(BaseWindow):
         tk.Label(self.root, image=image).pack()
         self.root.image = image
 
-
 class AdminScreen(BaseWindow):
     """Admin dashboard"""
 
     def __init__(self, root):
         super().__init__(root, "Admin Dashboard")
-        tk.Label(self.root, text="Welcome Admin!", font=("Arial", 20)).pack(pady=10)
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        set_theme()
+        self.create_widgets()
+
+    def create_widgets(self):
+        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Welcome Admin!", font=("Arial", 20))
+        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
 
 
 class StaffScreen(BaseWindow):
@@ -107,7 +112,14 @@ class StaffScreen(BaseWindow):
 
     def __init__(self, root):
         super().__init__(root, "Staff Dashboard")
-        tk.Label(self.root, text="Welcome Staff!", font=("Arial", 20)).pack(pady=10)
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        set_theme()
+        self.create_widgets()
+
+    def create_widgets(self):
+        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Welcome Staff!", font=("Arial", 20))
+        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
 
 
 class UserScreen(BaseWindow):
