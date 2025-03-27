@@ -24,7 +24,7 @@ class LoginScreen(BaseWindow):
         self.image = image
 
         ctk.CTkLabel(
-            self.root, text="Welcome Back!", fg="black", font=("Comic Sans MS", 25)
+            self.root, text="Welcome Back!", text_color="black", font=("Comic Sans MS", 25)
         ).pack()
         ctk.CTkLabel(self.root, text="Log in to your account").pack()
 
