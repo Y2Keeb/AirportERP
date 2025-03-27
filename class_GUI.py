@@ -2,8 +2,8 @@
 
 import tkinter as tk
 from tkinter import Menu
-from CTkMessagebox import CTkMessagebox
 import customtkinter as ctk
+from CTkMessagebox import CTkMessagebox
 import tksheet
 import importlib
 from config import mydb,set_theme
@@ -17,6 +17,8 @@ class BaseWindow:
         self.root = root
         self.root.title(title)
         self.create_menu()
+        set_theme()
+
 
     def create_menu(self):
         """Creates a menu bar for the application window."""
@@ -38,11 +40,11 @@ class BaseWindow:
         )
 
     def help_menu(self):
-        CTkMessagebox(
-            title="Info",
-            icon="question",
-            message="login by entering your username and password\n"
-            "if you don't have a login contact your administrator",
+        """Displays the Help dialog."""
+        tk.messagebox.showinfo(
+            message="Login by entering your username and password\n"
+                    "If you don't have a login, contact your administrator"
+
         )
 
     def logout(self):
@@ -102,11 +104,15 @@ class AdminScreen(BaseWindow):
 
     def __init__(self, root):
         super().__init__(root, "Admin Dashboard")
-        ctk.CTkLabel(self.root, text="Welcome Admin!", font=("Arial", 20)).pack(pady=10)
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        set_theme()
+        self.create_widgets()
 
-    def create_widget(self):
-        sheet = tksheet.Sheet(root)
-        sheet = tksheet.Sheet(self.root)
+    def create_widgets(self):
+        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Welcome Admin!", font=("Arial", 20))
+        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
+
 
 
 class StaffScreen(BaseWindow):
@@ -114,7 +120,15 @@ class StaffScreen(BaseWindow):
 
     def __init__(self, root):
         super().__init__(root, "Staff Dashboard")
-        ctk.CTkLabel(self.root, text="Welcome Staff!", font=("Arial", 20)).pack(pady=10)
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        set_theme()
+        self.create_widgets()
+
+    def create_widgets(self):
+        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Welcome Staff!", font=("Arial", 20))
+        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
+
 
 
 class UserScreen(BaseWindow):
@@ -123,32 +137,22 @@ class UserScreen(BaseWindow):
     def __init__(self, root, username):
         super().__init__(root, "User Dashboard")
         self.username = username
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        set_theme()
         self.create_widgets()
 
     def create_widgets(self):
-        greeting_label = ctk.CTkLabel(
-            self.root, text=f"Hi {self.username}!", font=("Arial", 20)
-        )
-        greeting_label.pack(pady=10)
 
-        frame_buttons = ctk.CTkFrame(self.root)
-        frame_buttons.pack(pady=10)
+        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Hi {self.username}!", font=("Arial", 20))
+        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
 
-        btn_buy_tickets = ctk.CTkButton(
-            frame_buttons, text="Buy Tickets", width=20, command=self.buy_tickets
-        )
-        btn_buy_tickets.grid(row=0, column=0, padx=10)
+        btn_buy_tickets = ctk.CTkButton(self.frame_main, text="Buy Tickets", command=self.buy_tickets)
+        btn_buy_tickets.grid(row=1, column=0, pady=10, padx=20, sticky="w")
 
-        btn_my_bookings = ctk.CTkButton(frame_buttons, text="My Bookings", width=20,command=self.my_bookings)
-        btn_my_bookings.grid(row=0, column=1, padx=10)
+        btn_my_bookings = ctk.CTkButton(self.frame_main, text="My Bookings", command=self.my_bookings)
+        btn_my_bookings.grid(row=1, column=1, pady=10, padx=20, sticky="w")
 
-        frame_flight_info = ctk.CTkFrame(self.root, width=500, height=300, relief="solid")
-        frame_flight_info.pack(pady=20)
-        frame_flight_info.pack_propagate(False)
-
-        ctk.CTkLabel(
-            frame_flight_info, text="Upcoming Flight Info Here", font=("Arial", 14)
-        ).pack(pady=20)
 
     def buy_tickets(self):
         """Handles the Buy Tickets button"""
