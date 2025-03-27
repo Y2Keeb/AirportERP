@@ -6,9 +6,6 @@ from class_GUI import MainWindow, AdminScreen
 from config import mydb
 
 
-
-
-
 root = tk.Tk()
 app = AdminScreen(root)
 root.mainloop()

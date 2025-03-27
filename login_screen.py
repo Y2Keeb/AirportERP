@@ -21,9 +21,11 @@ class LoginScreen(BaseWindow):
     def create_widgets(self):
         image = tk.PhotoImage(file="docs/icons/plane-prop.png")
         tk.Label(self.root, image=image).pack()
-        self.root.image = image
+        self.image = image
 
-        ctk.CTkLabel(self.root, text="Welcome Back!", font=("Comics-sans", 25)).pack()
+        ctk.CTkLabel(
+            self.root, text="Welcome Back!", fg="black", font=("Comic Sans MS", 25)
+        ).pack()
         ctk.CTkLabel(self.root, text="Log in to your account").pack()
 
         ctk.CTkLabel(self.root, text="username:").pack(pady=5)
@@ -65,8 +67,8 @@ class LoginScreen(BaseWindow):
                 icon="check",
                 option_1="Thanks",
             )
-            
-            self.new_root = tk.Tk()
+
+            self.new_root = tk.Toplevel(self.root)
             if role == "admin":
                 AdminScreen(self.new_root)
             elif role == "staff":
@@ -88,13 +90,13 @@ class LoginScreen(BaseWindow):
         CTkMessagebox(
             title="Info",
             icon="question",
-            message="login by entering your username and password\n"
-            "if you don't have a login contact your administrator",
+            message="• Login by entering your username and password.\n"
+            "• If you don't have a login, contact your administrator.",
         )
 
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = LoginScreen(root)
-    root.bind("<Return>", lambda event: app.login())
+    root.bind("<Return>", lambda event: (event.widget.focus(), app.login()))
     root.mainloop()

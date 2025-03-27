@@ -1,12 +1,12 @@
 """All Function for building the GUI"""
 
-import tkinter as ttk
+import tkinter as tk
 from tkinter import Menu
 from CTkMessagebox import CTkMessagebox
 import customtkinter as ctk
 import tksheet
-from config import mydb
 import importlib
+from config import mydb
 
 
 class BaseWindow:
@@ -48,8 +48,8 @@ class BaseWindow:
         """Logs out the user and returns to the login screen."""
         self.root.destroy()
         login_module = importlib.import_module("login_screen")
-        login_screen = login_module.LoginScreen(ttk.Tk())
-        ttk.mainloop()
+        login_screen = login_module.LoginScreen(tk.Tk())
+        login_module.LoginScreen(tk.Tk())
 
     def kill_window(self):
         """quit"""
@@ -87,9 +87,8 @@ class MainWindow(BaseWindow):
         self.add_image("docs/icons/plane-prop.png")
 
     def add_image(self, image_path):
-        """Adds an image to the window"""
-        image = tk.PhotoImage(file=image_path)
-        tk.Label(self.root, image=image).pack()
+        self.image = tk.PhotoImage(file=image_path)
+        tk.Label(self.root, image=self.image).pack()
         self.root.image = image
 
 
@@ -102,7 +101,7 @@ class AdminScreen(BaseWindow):
 
     def create_widget(self):
         sheet = tksheet.Sheet(root)
-        sheet.pack()
+        sheet = tksheet.Sheet(self.root)
 
 
 class StaffScreen(BaseWindow):
@@ -148,7 +147,7 @@ class UserScreen(BaseWindow):
 
     def buy_tickets(self):
         """Handles the Buy Tickets button"""
-        new_window = ttk.Toplevel(self.root)
+        new_window = tk.Toplevel(self.root)
         ticket_module = importlib.import_module("ticket_system")
         ticket_system = ticket_module.TicketSystem(new_window)
 
@@ -157,5 +156,5 @@ class UserScreen(BaseWindow):
         CTkMessagebox(
                 title="My bookings",
                 message="My Bookings This feature will show your past bookings.",
-                icon="check"
+                icon="info"
             )
