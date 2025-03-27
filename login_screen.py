@@ -10,6 +10,7 @@ from class_GUI import BaseWindow, UserScreen, AdminScreen, StaffScreen
 from config import mydb
 
 
+
 class LoginScreen(BaseWindow):
     """Login screen class"""
 

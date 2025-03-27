@@ -6,13 +6,14 @@ from CTkMessagebox import CTkMessagebox
 import customtkinter as ctk
 import tksheet
 import importlib
-from config import mydb
+from config import mydb,set_theme
 
 
 class BaseWindow:
     """Base class for common window functionality"""
 
     def __init__(self, root, title):
+        set_theme()
         self.root = root
         self.root.title(title)
         self.create_menu()
