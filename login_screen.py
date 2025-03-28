@@ -16,9 +16,9 @@ class LoginScreen(BaseWindow):
 
     def __init__(self, root):
         super().__init__(root, "Login Window")
-        self.root.geometry("300x500")
-        self.frame_main = ctk.CTkFrame(self.root)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        self.root.geometry("300x600")
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main.pack(fill="both", expand=True)
         set_theme()
         self.create_widgets()
 
