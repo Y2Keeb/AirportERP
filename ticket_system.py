@@ -89,13 +89,13 @@ class TicketSystem:
     def get_user_id(self):
         """Fetch user_id from the database using username"""
         if not self.username:
-            return None  # No username provided
+            return None
 
         query = "SELECT id FROM users WHERE username = %s"
         self.cursor.execute(query, (self.username,))
         result = self.cursor.fetchone()
 
-        return result[0] if result else None  # Return user_id or None
+        return result[0] if result else None
 
     def go_back(self):
         if self.previous_window:
@@ -117,37 +117,34 @@ class TicketSystem:
         from_location = self.entry_from.get()
         to_location = self.entry_to.get()
 
-        # Selecting 'id' instead of 'flight_id'
         sql_query = "SELECT id, airline, from_location, CONCAT(departure, ' - ', arrival) AS flight_schedule, to_location, price FROM flights WHERE from_location=%s AND to_location=%s"
         self.cursor.execute(sql_query, (from_location, to_location))
 
-        self.flights_data = {}  # Dictionary to store 'id' separately
+        self.flights_data = {}
 
         for row in self.cursor.fetchall():
             flight_id, airline, from_location, flight_schedule, to_location, price = row
             self.tree.insert("", "end", values=(airline, from_location, flight_schedule, to_location, price))
 
-            # Store 'id' using the row ID in the tree
-            tree_id = self.tree.get_children()[-1]  # Get the last inserted row
-            self.flights_data[tree_id] = flight_id  # Store 'id' separately
+            tree_id = self.tree.get_children()[-1]
+            self.flights_data[tree_id] = flight_id
 
     def on_flight_select(self, event):
         """Get selected flight details and store them, including id."""
         selected_item = self.tree.selection()
 
         if not selected_item:
-            return  # No selection made
+            return
 
-        tree_id = selected_item[0]  # Get Treeview row ID
-        flight_values = self.tree.item(tree_id, "values")  # Get displayed values
-        flight_id = self.flights_data.get(tree_id)  # Get 'id' from dictionary
+        tree_id = selected_item[0]
+        flight_values = self.tree.item(tree_id, "values")
+        flight_id = self.flights_data.get(tree_id)
 
         if flight_id is None:
             print("Error: Flight ID not found for selected flight")
             return
 
-        # Store flight details, including id
-        self.selected_flight = (flight_id,) + flight_values  # Add 'id' at the start
+        self.selected_flight = (flight_id,) + flight_values
         print("Selected flight details:", self.selected_flight)
 
     def buy_ticket(self):
@@ -155,9 +152,9 @@ class TicketSystem:
             print("No flight selected!")
             return
 
-        flight_id, airline, from_location, departure, to_location, price = self.selected_flight  # Using 'id' now
+        flight_id, airline, from_location, departure, to_location, price = self.selected_flight
 
-        user_id = self.user_id  # Using user_id for bookings
+        user_id = self.user_id
 
         query = """
             INSERT INTO bookings (user_id, flight_id, booking_date, status)
