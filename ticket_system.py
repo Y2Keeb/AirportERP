@@ -1,8 +1,6 @@
 import customtkinter as ctk
 from tkinter import ttk
 import tkinter as tk
-
-from Demos.win32ts_logoff_disconnected import username
 from tkcalendar import DateEntry
 from config import *
 
