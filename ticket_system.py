@@ -146,7 +146,6 @@ class TicketSystem:
         package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
 
     def open_package_screen(self):
-        # Create a new window for the package screen
         print(f"user_id in book_ticket: {self.user_id}")
         package_window = tk.Toplevel(self.master)
         package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
@@ -185,24 +184,32 @@ class TicketSystem:
         self.fetch_flights()
 
 class AdditionalPackageScreen:
-    def __init__(self, master, selected_flight, user_id):
-        self.master = master
+    def __init__(self, root, selected_flight, user_id):
+        self.root = root
         self.selected_flight = selected_flight
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main.pack(fill="both", expand=True)
         self.user_id = user_id
-
         self.cursor = mydb.cursor()
+        set_theme()
 
-        self.master.title("Additional Packages")
-        self.success_label = ctk.CTkLabel(self.master, text="Ticket booked successfully! Now choose your additional packages.")
+        flight_id, airline, from_location, departure, to_location, price = self.selected_flight
+        flight_info = f"Flight: {airline} | {from_location} to {to_location} | {departure} | Price: {price}"
+        print(f"Flight info to display: {flight_info}")
+
+        self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
+        self.flight_info_label.pack(pady=10)
+
+        self.success_label = ctk.CTkLabel(self.frame_main, text="Ticket reserved! Now choose your additional packages.")
         self.success_label.pack(pady=10)
 
-        self.package1_button = ctk.CTkButton(self.master, text="Package 1", command=self.package1_selected)
+        self.package1_button = ctk.CTkButton(self.frame_main, text="Package 1", command=self.package1_selected)
         self.package1_button.pack(pady=5)
 
-        self.package2_button = ctk.CTkButton(self.master, text="Package 2", command=self.package2_selected)
+        self.package2_button = ctk.CTkButton(self.frame_main, text="Package 2", command=self.package2_selected)
         self.package2_button.pack(pady=5)
 
-        self.buy_button = ctk.CTkButton(self.master, text="Buy", command=self.finalize_purchase)
+        self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self.finalize_purchase)
         self.buy_button.pack(pady=10)
 
     def package1_selected(self):
@@ -235,18 +242,3 @@ class AdditionalPackageScreen:
         mydb.commit()
 
         print("Booking successful!")
-        self.master.destroy()
-
-def main():
-    set_theme()
-
-    root = ctk.CTk()
-    root.title("Buy Tickets")
-    root.geometry("740x500")
-
-    ticket_system = TicketSystem(root)
-    root.mainloop()
-
-
-if __name__ == "__main__":
-    main()
