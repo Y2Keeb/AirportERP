@@ -137,8 +137,10 @@ class UserScreen(BaseWindow):
     def __init__(self, root, username):
         super().__init__(root, "User Dashboard")
         self.username = username
-        self.frame_main = ctk.CTkFrame(self.root)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main.pack(fill="both", expand=True)
+        self.frame_upcoming_flight = ctk.CTkFrame(self.frame_main)
+        self.frame_upcoming_flight.grid(row=2,column=0,columnspan=3,pady=10, padx=20, sticky="w")
         set_theme()
         self.create_widgets()
 
