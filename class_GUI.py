@@ -195,7 +195,7 @@ class UserScreen(BaseWindow):
         new_window = tk.Toplevel(self.root)
 
         ticket_module = importlib.import_module('ticket_system')
-        ticket_system = ticket_module.TicketSystem(new_window,previous_window=self.root)
+        ticket_system = ticket_module.TicketSystem(new_window,previous_window=self.root,username=self.username)
 
     def my_bookings(self):
         """Handles the My Bookings button"""

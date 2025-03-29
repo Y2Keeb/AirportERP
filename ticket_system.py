@@ -5,11 +5,13 @@ from config import mydb,set_theme
 
 
 class TicketSystem:
-    def __init__(self, root,previous_window=None):
+    def __init__(self, root,previous_window=None,username=None):
         """Sets up the UI and prepares the database connection."""
         self.root = root
         self.cursor = mydb.cursor()
         self.previous_window = previous_window
+        self.username = username
+        self.user_id = self.get_user_id()
 
         self.frame_main = ctk.CTkFrame(self.root)
         self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
@@ -74,11 +76,26 @@ class TicketSystem:
 
         self.tree["columns"] = [col[0] for col in columns]
         # -> Set column names
+        self.tree.bind("<ButtonRelease-1>", self.on_flight_select)
 
         # -> Configure headings and column widths using a loop
         for col_name, width in columns:
             self.tree.heading(col_name, text=col_name)  # Set column header text
             self.tree.column(col_name, width=width)  # Set column width
+
+        btn_buy_ticket = ctk.CTkButton(self.frame_main, text="Buy Ticket", command=self.buy_ticket)
+        btn_buy_ticket.grid(row=3, column=1, padx=10)
+
+    def get_user_id(self):
+        """Fetch user_id from the database using username"""
+        if not self.username:
+            return None  # No username provided
+
+        query = "SELECT id FROM users WHERE username = %s"
+        self.cursor.execute(query, (self.username,))
+        result = self.cursor.fetchone()
+
+        return result[0] if result else None  # Return user_id or None
 
     def go_back(self):
         if self.previous_window:
@@ -100,12 +117,71 @@ class TicketSystem:
         from_location = self.entry_from.get()
         to_location = self.entry_to.get()
 
-        sql_query = "SELECT airline, from_location, CONCAT(departure, ' - ', arrival) AS flight_schedule, to_location, price FROM flights WHERE from_location=%s AND to_location=%s"
+        # Selecting 'id' instead of 'flight_id'
+        sql_query = "SELECT id, airline, from_location, CONCAT(departure, ' - ', arrival) AS flight_schedule, to_location, price FROM flights WHERE from_location=%s AND to_location=%s"
         self.cursor.execute(sql_query, (from_location, to_location))
 
-        for row in self.cursor.fetchall():
-            self.tree.insert("", "end", values=row)
+        self.flights_data = {}  # Dictionary to store 'id' separately
 
+        for row in self.cursor.fetchall():
+            flight_id, airline, from_location, flight_schedule, to_location, price = row
+            self.tree.insert("", "end", values=(airline, from_location, flight_schedule, to_location, price))
+
+            # Store 'id' using the row ID in the tree
+            tree_id = self.tree.get_children()[-1]  # Get the last inserted row
+            self.flights_data[tree_id] = flight_id  # Store 'id' separately
+
+    def on_flight_select(self, event):
+        """Get selected flight details and store them, including id."""
+        selected_item = self.tree.selection()
+
+        if not selected_item:
+            return  # No selection made
+
+        tree_id = selected_item[0]  # Get Treeview row ID
+        flight_values = self.tree.item(tree_id, "values")  # Get displayed values
+        flight_id = self.flights_data.get(tree_id)  # Get 'id' from dictionary
+
+        if flight_id is None:
+            print("Error: Flight ID not found for selected flight")
+            return
+
+        # Store flight details, including id
+        self.selected_flight = (flight_id,) + flight_values  # Add 'id' at the start
+        print("Selected flight details:", self.selected_flight)
+
+    def buy_ticket(self):
+        if not hasattr(self, "selected_flight"):
+            print("No flight selected!")
+            return
+
+        flight_id, airline, from_location, departure, to_location, price = self.selected_flight  # Using 'id' now
+
+        user_id = self.user_id  # Using user_id for bookings
+
+        query = """
+            INSERT INTO bookings (user_id, flight_id, booking_date, status)
+            VALUES (%s, %s, NOW(), 'Booked')
+        """
+        self.cursor.execute(query, (user_id, flight_id))
+        mydb.commit()
+
+        update_query = """
+            UPDATE flights
+            SET seats_taken = seats_taken + 1
+            WHERE id = %s
+        """
+        self.cursor.execute(update_query, (flight_id,))
+        mydb.commit()
+
+        print("Booking successful!")
+
+        self.refresh_flights()
+
+    def refresh_flights(self):
+        """Refresh the Treeview to reflect the current flight list."""
+        self.tree.delete(*self.tree.get_children())
+        self.fetch_flights()
 
 def main():
     set_theme()
