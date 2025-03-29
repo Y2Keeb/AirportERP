@@ -1,8 +1,12 @@
 import customtkinter as ctk
 from tkinter import ttk
 import tkinter as tk
+
+from Demos.win32ts_logoff_disconnected import username
 from tkcalendar import DateEntry
-from config import mydb,set_theme
+from config import *
+
+logger = get_logger(__name__) #zet module naam als log naam
 
 
 class TicketSystem:
@@ -129,12 +133,8 @@ class TicketSystem:
         flight_values = self.tree.item(tree_id, "values")
         flight_id = self.flights_data.get(tree_id)
 
-        if flight_id is None:
-            print("Error: Flight ID not found for selected flight")
-            return
-
         self.selected_flight = (flight_id,) + flight_values
-        print("Selected flight details:", self.selected_flight)
+        logger.info(f"User ID:{self.user_id}, Selected a flight in booking system: {self.selected_flight}")
 
     def book_ticket(self):
         """Proceed to additional package screen after booking the ticket."""
@@ -146,37 +146,8 @@ class TicketSystem:
         package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
 
     def open_package_screen(self):
-        print(f"user_id in book_ticket: {self.user_id}")
         package_window = tk.Toplevel(self.master)
         package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
-
-    def buy_ticket(self):
-        if not hasattr(self, "selected_flight"):
-            print("No flight selected!")
-            return
-
-        flight_id, airline, from_location, departure, to_location, price = self.selected_flight
-
-        user_id = self.user_id
-
-        query = """
-            INSERT INTO bookings (user_id, flight_id, booking_date, status)
-            VALUES (%s, %s, NOW(), 'Booked')
-        """
-        self.cursor.execute(query, (user_id, flight_id))
-        mydb.commit()
-
-        update_query = """
-            UPDATE flights
-            SET seats_taken = seats_taken + 1
-            WHERE id = %s
-        """
-        self.cursor.execute(update_query, (flight_id,))
-        mydb.commit()
-
-        print("Booking successful!")
-
-        self.refresh_flights()
 
     def refresh_flights(self):
         """Refresh the Treeview to reflect the current flight list."""
@@ -195,7 +166,6 @@ class AdditionalPackageScreen:
 
         flight_id, airline, from_location, departure, to_location, price = self.selected_flight
         flight_info = f"Flight: {airline} | {from_location} to {to_location} | {departure} | Price: {price}"
-        print(f"Flight info to display: {flight_info}")
 
         self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
         self.flight_info_label.pack(pady=10)
@@ -240,5 +210,4 @@ class AdditionalPackageScreen:
         """
         self.cursor.execute(update_query, (flight_id,))
         mydb.commit()
-
-        print("Booking successful!")
+        logger.info(f"Booking for user ID '{self.user_id}' succesful!")
