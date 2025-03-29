@@ -140,7 +140,7 @@ class UserScreen(BaseWindow):
         self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
         self.frame_main.pack(fill="both", expand=True)
         self.frame_upcoming_flight = ctk.CTkFrame(self.frame_main)
-        self.frame_upcoming_flight.grid(row=2,column=0,columnspan=3,pady=10, padx=20, sticky="w")
+        self.frame_upcoming_flight.grid(row=2,column=0,columnspan=3,pady=10, padx=20)
         set_theme()
         self.create_widgets()
 
@@ -155,6 +155,39 @@ class UserScreen(BaseWindow):
         btn_my_bookings = ctk.CTkButton(self.frame_main, text="My Bookings", command=self.my_bookings)
         btn_my_bookings.grid(row=1, column=1, pady=10, padx=20, sticky="w")
 
+        self.display_upcoming_flight()
+
+    def display_upcoming_flight(self):
+        """Fetch and display the user's closest upcoming flight"""
+
+        cursor = mydb.cursor()
+        cursor.execute("""
+            SELECT f.departure, f.to_location, f.from_location, f.airline, f.gate
+            FROM flights f
+            INNER JOIN bookings b ON f.id = b.flight_id
+            INNER JOIN users u ON b.user_id = u.id
+            WHERE u.username = %s AND f.departure > NOW()
+            ORDER BY f.departure ASC
+            LIMIT 1
+        """, (self.username,))
+
+        upcoming_flight = cursor.fetchone()
+
+        if upcoming_flight:
+            departure, to_location, from_location, airline, gate = upcoming_flight
+
+            flight_text = (f"Next Flight: {airline}\n"
+                           f"From: {from_location} → To: {to_location}\n"
+                           f"Departure: {departure}\n"
+                           f"Gate: {gate}")
+        else:
+            flight_text = "No upcoming flights found."
+
+        for widget in self.frame_upcoming_flight.winfo_children():
+            widget.destroy()
+
+        lbl_upcoming_flight = ctk.CTkLabel(self.frame_upcoming_flight, text=flight_text, font=("Arial", 14))
+        lbl_upcoming_flight.pack(pady=5, padx=10)
 
     def buy_tickets(self):
         """Handles the Buy Tickets button"""
