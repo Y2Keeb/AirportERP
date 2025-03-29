@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import Menu
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
-import tksheet
+#import tksheet
 import importlib
 from config import mydb,set_theme
 
