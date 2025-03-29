@@ -16,9 +16,9 @@ class LoginScreen(BaseWindow):
 
     def __init__(self, root):
         super().__init__(root, "Login Window")
-        self.root.geometry("300x500")
-        self.frame_main = ctk.CTkFrame(self.root)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        self.root.geometry("350x550")
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main.pack(fill="both", expand=True)
         set_theme()
         self.create_widgets()
 
@@ -42,13 +42,14 @@ class LoginScreen(BaseWindow):
         btn_login.pack(pady=20)
 
     def create_menu(self):
-        menubar = Menu(self.root)
-        help_ = Menu(menubar, tearoff=0)
+        menubar = Menu(self.root, bg="black", fg="white", activebackground="gray", activeforeground="white")
+        help_ = Menu(menubar, tearoff=0, bg="black", fg="white", activebackground="gray", activeforeground="white")
         menubar.add_cascade(label="Help", menu=help_)
         help_.add_command(label="Help", command=self.help_menu)
         help_.add_separator()
         help_.add_command(label="About AirportERP", command=self.about)
         self.root.config(menu=menubar)
+
 
     def login(self):
         username = self.entry_username.get()
