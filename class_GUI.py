@@ -6,7 +6,7 @@ import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
 import tksheet
 import importlib
-from config import mydb,set_theme
+from config import mydb, set_theme
 
 
 class BaseWindow:
@@ -34,15 +34,19 @@ class BaseWindow:
 
     def about(self):
         """Displays the About dialog."""
-        tk.messagebox.showinfo(
-            message="(c) 2025 AirportERP\n BY \n Lindsey, Reza And Thomas"
+        CTkMessagebox(
+            title="About",
+            message="(c) 2025 AirportERP\n BY \n Lindsey, Reza And Thomas",
+            icon="check",
         )
 
     def help_menu(self):
         """Displays the Help dialog."""
-        tk.messagebox.showinfo(
+        CTkMessagebox(
+            title="About",
             message="Login by entering your username and password\n"
-                    "If you don't have a login, contact your administrator"
+            "If you don't have a login, contact your administrator",
+            icon="question",
         )
 
     def logout(self):
@@ -55,7 +59,7 @@ class BaseWindow:
         except Exception as e:
             print(f"Error while logging out: {e}")
 
-        login_module = importlib.import_module('login_screen')
+        login_module = importlib.import_module("login_screen")
         login_screen = login_module.LoginScreen(tk.Tk())
 
     def kill_window(self):
@@ -73,15 +77,21 @@ class MainWindow(BaseWindow):
 
     def manage_users(self):
         """Handles user management functionality."""
-        tk.messagebox.showinfo("Manage Users", "User management functionality goes here.")
+        CTkMessagebox(
+            title="Manage Users", message="User management functionality goes here."
+        )
 
     def view_reports(self):
         """Handles viewing reports functionality."""
-        tk.messagebox.showinfo("View Reports", "Report viewing functionality goes here.")
+        CTkMessagebox(
+            title="View Reports", message="eport viewing functionality goes here"
+        )
 
     def view_tasks(self):
         """Handles viewing tasks functionality."""
-        tk.messagebox.showinfo("View Tasks", "Task viewing functionality goes here.")
+        CTkMessagebox(
+            title="View Tasks", message="Task viewing functionality goes here."
+        )
 
     def create_widgets(self):
         """Creates widgets for the main window"""
@@ -121,16 +131,21 @@ class UserScreen(BaseWindow):
         set_theme()
         self.create_widgets()
 
-
     def create_widgets(self):
 
-        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Hi {self.username}!", font=("Arial", 20))
+        greeting_label = ctk.CTkLabel(
+            self.frame_main, text=f"Hi {self.username}!", font=("Arial", 20)
+        )
         greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
 
-        btn_buy_tickets = ctk.CTkButton(self.frame_main, text="Buy Tickets", command=self.buy_tickets)
+        btn_buy_tickets = ctk.CTkButton(
+            self.frame_main, text="Buy Tickets", command=self.buy_tickets
+        )
         btn_buy_tickets.grid(row=1, column=0, pady=10, padx=20, sticky="w")
 
-        btn_my_bookings = ctk.CTkButton(self.frame_main, text="My Bookings", command=self.my_bookings)
+        btn_my_bookings = ctk.CTkButton(
+            self.frame_main, text="My Bookings", command=self.my_bookings
+        )
         btn_my_bookings.grid(row=1, column=1, pady=10, padx=20, sticky="w")
 
     def buy_tickets(self):
@@ -138,8 +153,10 @@ class UserScreen(BaseWindow):
         self.root.withdraw()
         new_window = tk.Toplevel(self.root)
 
-        ticket_module = importlib.import_module('ticket_system')
-        ticket_system = ticket_module.TicketSystem(new_window,previous_window=self.root)
+        ticket_module = importlib.import_module("ticket_system")
+        ticket_system = ticket_module.TicketSystem(
+            new_window, previous_window=self.root
+        )
 
     def my_bookings(self):
         """Handles the My Bookings button"""
@@ -151,8 +168,10 @@ class UserScreen(BaseWindow):
         # -> om user_id te krijgen ipv username, dus 5 ipv "user_1"
 
         new_window = tk.Toplevel(self.root)
-        my_bookings_module = importlib.import_module('my_bookings')
-        my_bookings_window = my_bookings_module.MyBookings(new_window, user_id, previous_window=self.root)
+        my_bookings_module = importlib.import_module("my_bookings")
+        my_bookings_window = my_bookings_module.MyBookings(
+            new_window, user_id, previous_window=self.root
+        )
 
     def on_my_bookings_close(self):
         """When MyBookings is closed, show UserScreen again"""

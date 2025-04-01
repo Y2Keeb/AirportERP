@@ -12,6 +12,8 @@ Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en ve
 /airportERP
 │── /src                                      # Source code (main Python)
 │── /docs                                     # Documentation (wireframes, info,...)
+│    ├── /grid_layout_docu                    # Documentation for the grid layout
+│    ├── /icons                               # Icons used in the project
 │    ├── wireframes                           # Wireframes (designs of the UI screens)
 │    ├── roles_and_responsibilities.md        # Detailed breakdown of user roles and responsibilities
 │    ├── DATABASE.md                          # Database schema, table structures, and relationships

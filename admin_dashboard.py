@@ -2,7 +2,7 @@
 
 import tkinter as tk
 import customtkinter as ctk
-from class_GUI import MainWindow, AdminScreen
+from class_GUI import AdminScreen
 from config import mydb
 
 
