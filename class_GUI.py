@@ -192,10 +192,15 @@ class UserScreen(BaseWindow):
     def buy_tickets(self):
         """Handles the Buy Tickets button"""
         self.root.withdraw()
+        cursor = mydb.cursor()
+        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
+        user_id_result = cursor.fetchone()
+        user_id = user_id_result[0]
         new_window = tk.Toplevel(self.root)
 
         ticket_module = importlib.import_module('ticket_system')
-        ticket_system = ticket_module.TicketSystem(new_window,previous_window=self.root)
+        print(f"Initializing TicketSystem with user_id: {user_id}")
+        ticket_system = ticket_module.TicketSystem(new_window,user_id,previous_window=self.root)
 
     def my_bookings(self):
         """Handles the My Bookings button"""

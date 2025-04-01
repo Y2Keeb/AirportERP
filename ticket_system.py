@@ -1,15 +1,20 @@
 import customtkinter as ctk
 from tkinter import ttk
+import tkinter as tk
 from tkcalendar import DateEntry
-from config import mydb,set_theme
+from config import *
+
+logger = get_logger(__name__) #zet module naam als log naam
 
 
 class TicketSystem:
-    def __init__(self, root,previous_window=None):
+    def __init__(self, root,user_id,previous_window=None):
         """Sets up the UI and prepares the database connection."""
         self.root = root
         self.cursor = mydb.cursor()
         self.previous_window = previous_window
+
+        self.user_id = user_id
 
         self.frame_main = ctk.CTkFrame(self.root)
         self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
@@ -74,11 +79,14 @@ class TicketSystem:
 
         self.tree["columns"] = [col[0] for col in columns]
         # -> Set column names
+        self.tree.bind("<ButtonRelease-1>", self.on_flight_select)
 
         # -> Configure headings and column widths using a loop
         for col_name, width in columns:
             self.tree.heading(col_name, text=col_name)  # Set column header text
             self.tree.column(col_name, width=width)  # Set column width
+        btn_book_ticket = ctk.CTkButton(self.frame_main, text="Book Ticket", command=self.book_ticket)
+        btn_book_ticket.grid(row=3, column=1, padx=10)
 
     def go_back(self):
         if self.previous_window:
@@ -100,23 +108,104 @@ class TicketSystem:
         from_location = self.entry_from.get()
         to_location = self.entry_to.get()
 
-        sql_query = "SELECT airline, from_location, CONCAT(departure, ' - ', arrival) AS flight_schedule, to_location, price FROM flights WHERE from_location=%s AND to_location=%s"
+        sql_query = "SELECT id, airline, from_location, CONCAT(departure, ' - ', arrival) AS flight_schedule, to_location, price FROM flights WHERE from_location=%s AND to_location=%s"
         self.cursor.execute(sql_query, (from_location, to_location))
 
+        self.flights_data = {}
+
         for row in self.cursor.fetchall():
-            self.tree.insert("", "end", values=row)
+            flight_id, airline, from_location, flight_schedule, to_location, price = row
+            self.tree.insert("", "end", values=(airline, from_location, flight_schedule, to_location, price))
 
+            tree_id = self.tree.get_children()[-1]
+            self.flights_data[tree_id] = flight_id
 
-def main():
-    set_theme()
+    def on_flight_select(self, event):
+        """Get selected flight details and store them, including id."""
+        selected_item = self.tree.selection()
 
-    root = ctk.CTk()
-    root.title("Buy Tickets")
-    root.geometry("740x500")
+        if not selected_item:
+            return
 
-    ticket_system = TicketSystem(root)
-    root.mainloop()
+        tree_id = selected_item[0]
+        flight_values = self.tree.item(tree_id, "values")
+        flight_id = self.flights_data.get(tree_id)
 
+        self.selected_flight = (flight_id,) + flight_values
+        logger.info(f"User ID:{self.user_id}, Selected a flight in booking system: {self.selected_flight}")
 
-if __name__ == "__main__":
-    main()
+    def book_ticket(self):
+        """Proceed to additional package screen after booking the ticket."""
+        if not hasattr(self, "selected_flight"):
+            print("No flight selected!")
+            return
+
+        package_window = tk.Toplevel(self.root)
+        package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
+
+    def open_package_screen(self):
+        package_window = tk.Toplevel(self.master)
+        package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
+
+    def refresh_flights(self):
+        """Refresh the Treeview to reflect the current flight list."""
+        self.tree.delete(*self.tree.get_children())
+        self.fetch_flights()
+
+class AdditionalPackageScreen:
+    def __init__(self, root, selected_flight, user_id):
+        self.root = root
+        self.selected_flight = selected_flight
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main.pack(fill="both", expand=True)
+        self.user_id = user_id
+        self.cursor = mydb.cursor()
+        set_theme()
+
+        flight_id, airline, from_location, departure, to_location, price = self.selected_flight
+        flight_info = f"Flight: {airline} | {from_location} to {to_location} | {departure} | Price: {price}"
+
+        self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
+        self.flight_info_label.pack(pady=10)
+
+        self.success_label = ctk.CTkLabel(self.frame_main, text="Ticket reserved! Now choose your additional packages.")
+        self.success_label.pack(pady=10)
+
+        self.package1_button = ctk.CTkButton(self.frame_main, text="Package 1", command=self.package1_selected)
+        self.package1_button.pack(pady=5)
+
+        self.package2_button = ctk.CTkButton(self.frame_main, text="Package 2", command=self.package2_selected)
+        self.package2_button.pack(pady=5)
+
+        self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self.finalize_purchase)
+        self.buy_button.pack(pady=10)
+
+    def package1_selected(self):
+        print("Package 1 selected")
+
+    def package2_selected(self):
+        print("Package 2 selected")
+
+    def finalize_purchase(self):
+        if not hasattr(self, "selected_flight"):
+            print("No flight selected!")
+            return
+
+        flight_id, airline, from_location, departure, to_location, price = self.selected_flight
+        user_id = self.user_id
+
+        query = """
+            INSERT INTO bookings (user_id, flight_id, booking_date, status)
+            VALUES (%s, %s, NOW(), 'Booked')
+        """
+        self.cursor.execute(query, (user_id, flight_id))
+        mydb.commit()
+
+        update_query = """
+            UPDATE flights
+            SET seats_taken = seats_taken + 1
+            WHERE id = %s
+        """
+        self.cursor.execute(update_query, (flight_id,))
+        mydb.commit()
+        logger.info(f"Booking for user ID '{self.user_id}' succesful!")
