@@ -141,7 +141,7 @@ class TicketSystem:
             return
 
         package_window = tk.Toplevel(self.root)
-        package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
+        package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id,package_price=0)
 
     def open_package_screen(self):
         package_window = tk.Toplevel(self.master)
@@ -153,54 +153,67 @@ class TicketSystem:
         self.fetch_flights()
 
 class AdditionalPackageScreen:
-    def __init__(self, root, selected_flight, user_id):
+    def __init__(self, root, selected_flight, user_id, package_price):
         self.root = root
         self.selected_flight = selected_flight
         flight_id, airline, from_location, departure, to_location, price = self.selected_flight
         flight_info = f"Flight: {airline} | {from_location} to {to_location} | {departure} | Price: {price}"
+        self.package_price = package_price
 
         self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
         self.frame_main.pack(fill="both", expand=True)
         self.frame_total_price = ctk.CTkFrame(self.frame_main)
         self.frame_total_price.grid(row=2,column=1,padx=10,pady=10)
         self.user_id = user_id
-
         self.cursor = mydb.cursor()
+
         set_theme()
+
+        #init widgets for main frame
         self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
         self.success_label = ctk.CTkLabel(self.frame_main, text="Ticket reserved! Now choose your additional packages.")
-        self.package1_button = ctk.CTkButton(self.frame_main, text="Package 1", command=self.package1_selected)
-        self.package2_button = ctk.CTkButton(self.frame_main, text="Package 2", command=self.package2_selected)
+        self.package1_button = ctk.CTkButton(self.frame_main, text="voorbeeld package: 30 euro",command=lambda: self.package1_selected(price))
+        self.package2_button = ctk.CTkButton(self.frame_main, text="voorbeeld package: 25 euro",command=lambda: self.package2_selected(price))
+
         self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self.finalize_purchase)
 
-
+        #init widgets for price frame
         self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
         self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=price)
-        self.lbl_additional_package_label = ctk.CTkLabel(self.frame_total_price, text="selected packages: ")
-        self.lbl_addpackage_price = ctk.CTkLabel(self.frame_total_price, text="")
+        self.lbl_additional_package_label = ctk.CTkLabel(self.frame_total_price, text="Selected packages: +")
+        self.lbl_addpackage_price = ctk.CTkLabel(self.frame_total_price, text="0.00 EUR")
 
+        total_price = float(package_price) + float(price)
+        self.total_price_label = ctk.CTkLabel(self.frame_total_price, text="Total: ")
+        self.total_price = ctk.CTkLabel(self.frame_total_price, text=f"{total_price:.2f}")
         self.create_widgets()
 
     def create_widgets(self):
         self.flight_info_label.grid(row=0,column=0,padx=10,pady=10)
         self.success_label.grid(row=1,column=0,columnspan=2,padx=10,pady=10)
-
         self.package1_button.grid(row=2,column=0,padx=10,pady=5)
         self.package2_button.grid(row=3,column=0,padx=10,pady=5)
-
-        self.lbl_additional_package_label.grid(row=3,column=1,padx=10, pady=10)
         self.buy_button.grid(row=4,column=0,padx=10,pady=10)
-
         self.lbl_flight_price_label.grid(row=2, column=1, padx=10, pady=10)
         self.lbl_flight_price.grid(row=2, column=2, padx=10, pady=10)
-
+        self.lbl_additional_package_label.grid(row=3,column=1,padx=10, pady=10)
         self.lbl_addpackage_price.grid(row=3,column=2,padx=10, pady=10)
+        self.total_price_label.grid(row=4,column=1,padx=10, pady=10)
+        self.total_price.grid(row=4,column=2,padx=10, pady=10)
 
-    def package1_selected(self):
-        print("Package 1 selected")
+    def package1_selected(self, price):
+        self.package_price += 30  # Add package price
+        self.update_total_price(price)
 
-    def package2_selected(self):
-        print("Package 2 selected")
+    def package2_selected(self, price):
+        self.package_price += 25  # Add package price
+        self.update_total_price(price)
+
+    def update_total_price(self, flight_price):
+        """Update total price display including flight price and selected package price."""
+        total = float(flight_price) + float(self.package_price)
+        self.lbl_addpackage_price.configure(text=f"+ {self.package_price:.2f} EUR")
+        self.total_price.configure(text=f"{total:.2f} EUR")
 
     def finalize_purchase(self):
         if not hasattr(self, "selected_flight"):
