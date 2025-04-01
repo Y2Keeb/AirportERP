@@ -156,29 +156,45 @@ class AdditionalPackageScreen:
     def __init__(self, root, selected_flight, user_id):
         self.root = root
         self.selected_flight = selected_flight
-        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
-        self.frame_main.pack(fill="both", expand=True)
-        self.user_id = user_id
-        self.cursor = mydb.cursor()
-        set_theme()
-
         flight_id, airline, from_location, departure, to_location, price = self.selected_flight
         flight_info = f"Flight: {airline} | {from_location} to {to_location} | {departure} | Price: {price}"
 
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main.pack(fill="both", expand=True)
+        self.frame_total_price = ctk.CTkFrame(self.frame_main)
+        self.frame_total_price.grid(row=2,column=1,padx=10,pady=10)
+        self.user_id = user_id
+
+        self.cursor = mydb.cursor()
+        set_theme()
         self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
-        self.flight_info_label.pack(pady=10)
-
         self.success_label = ctk.CTkLabel(self.frame_main, text="Ticket reserved! Now choose your additional packages.")
-        self.success_label.pack(pady=10)
-
         self.package1_button = ctk.CTkButton(self.frame_main, text="Package 1", command=self.package1_selected)
-        self.package1_button.pack(pady=5)
-
         self.package2_button = ctk.CTkButton(self.frame_main, text="Package 2", command=self.package2_selected)
-        self.package2_button.pack(pady=5)
-
         self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self.finalize_purchase)
-        self.buy_button.pack(pady=10)
+
+
+        self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
+        self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=price)
+        self.lbl_additional_package_label = ctk.CTkLabel(self.frame_total_price, text="selected packages: ")
+        self.lbl_addpackage_price = ctk.CTkLabel(self.frame_total_price, text="")
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.flight_info_label.grid(row=0,column=0,padx=10,pady=10)
+        self.success_label.grid(row=1,column=0,columnspan=2,padx=10,pady=10)
+
+        self.package1_button.grid(row=2,column=0,padx=10,pady=5)
+        self.package2_button.grid(row=3,column=0,padx=10,pady=5)
+
+        self.lbl_additional_package_label.grid(row=3,column=1,padx=10, pady=10)
+        self.buy_button.grid(row=4,column=0,padx=10,pady=10)
+
+        self.lbl_flight_price_label.grid(row=2, column=1, padx=10, pady=10)
+        self.lbl_flight_price.grid(row=2, column=2, padx=10, pady=10)
+
+        self.lbl_addpackage_price.grid(row=3,column=2,padx=10, pady=10)
 
     def package1_selected(self):
         print("Package 1 selected")
