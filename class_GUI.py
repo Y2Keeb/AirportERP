@@ -137,6 +137,7 @@ class UserScreen(BaseWindow):
     def __init__(self, root, username):
         super().__init__(root, "User Dashboard")
         self.username = username
+        self.root.geometry("600x400")
         self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
         self.frame_main.pack(fill="both", expand=True)
         self.frame_upcoming_flight = ctk.CTkFrame(self.frame_main)
@@ -204,16 +205,21 @@ class UserScreen(BaseWindow):
 
     def my_bookings(self):
         """Handles the My Bookings button"""
-        self.root.withdraw()
         cursor = mydb.cursor()
         cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
         user_id_result = cursor.fetchone()
-        user_id = user_id_result[0]
-        # -> om user_id te krijgen ipv username, dus 5 ipv "user_1"
 
-        new_window = tk.Toplevel(self.root)
+        if not user_id_result:
+            print("User not found!")
+            return
+
+        user_id = user_id_result[0]
+
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
         my_bookings_module = importlib.import_module('my_bookings')
-        my_bookings_window = my_bookings_module.MyBookings(new_window, user_id, previous_window=self.root)
+        my_bookings_window = my_bookings_module.MyBookings(self.root, user_id)
 
     def on_my_bookings_close(self):
         """When MyBookings is closed, show UserScreen again"""

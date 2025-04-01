@@ -15,9 +15,8 @@ class TicketSystem:
         self.previous_window = previous_window
 
         self.user_id = user_id
-
-        self.frame_main = ctk.CTkFrame(self.root)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main.pack(fill="both", expand=True)
         # -> Create main frame that holds everything.
 
         self.frame_search = ctk.CTkFrame(self.frame_main)
@@ -140,8 +139,11 @@ class TicketSystem:
             print("No flight selected!")
             return
 
-        package_window = tk.Toplevel(self.root)
-        package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id,package_price=0)
+        for widget in self.frame_main.winfo_children():
+            widget.destroy()
+
+        AdditionalPackageScreen(self.frame_main, selected_flight=self.selected_flight, user_id=self.user_id,
+                                package_price=0)
 
     def open_package_screen(self):
         package_window = tk.Toplevel(self.master)
