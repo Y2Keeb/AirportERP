@@ -1,31 +1,29 @@
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk, messagebox
-from config import mydb,set_theme
+from config import mydb, set_theme, get_logger
 
+logger = get_logger(__name__) #zet module naam als log naam
 
 class MyBookings:
     def __init__(self, root, user_id,previous_window=None):
         """Initialize the My Bookings window"""
+        logger.debug("Initializing MyBookings window...")
+
         self.root = root
         self.cursor = mydb.cursor()
         self.root.title("My Bookings")
-        self.root.geometry("700x300")
+        self.root.geometry("800x500")
         self.previous_window = previous_window
 
         set_theme()
 
-        self.frame_main = ctk.CTkFrame(self.root)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main.pack(fill="both", expand=True)
 
         self.title_label = ctk.CTkLabel(self.frame_main, text="My Bookings", font=("Arial", 16, "bold"))
-        self.title_label.grid(row=0, column=0, pady=10)
+        self.title_label.grid(row=0, column=0, pady=20,)
 
-        self.tree = ttk.Treeview(
-            self.frame_main,
-            columns=("Status", "Departure", "Destination", "Flight Info"),
-            show="headings",
-            height=6)
 
         self.user_id = user_id
         self.create_widgets()
@@ -50,6 +48,13 @@ class MyBookings:
         self.frame_main.grid_columnconfigure(0, weight=1)
 
     def go_back(self):
+        """Restores the previous window when going back"""
+        if self.previous_window:
+            self.previous_window.deiconify()
+        self.root.destroy()
+
+    def on_close(self):
+        """Restore the previous window when closing"""
         if self.previous_window:
             self.previous_window.deiconify()
         self.root.destroy()
@@ -101,3 +106,4 @@ class MyBookings:
         if destination_location:
             return destination_location[0]
         return "Unknown Destination Location"
+

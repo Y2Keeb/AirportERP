@@ -13,7 +13,7 @@ class TicketSystem:
         self.root = root
         self.cursor = mydb.cursor()
         self.previous_window = previous_window
-
+        self.root.geometry("800x500")
         self.user_id = user_id
         self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
         self.frame_main.pack(fill="both", expand=True)
