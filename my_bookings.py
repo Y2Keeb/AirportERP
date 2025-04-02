@@ -1,109 +1,116 @@
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk, messagebox
-from config import mydb, set_theme, get_logger
+from config import mydb, get_logger
 
-logger = get_logger(__name__) #zet module naam als log naam
+logger = get_logger(__name__)
+
 
 class MyBookings:
-    def __init__(self, root, user_id,previous_window=None):
-        """Initialize the My Bookings window"""
-        logger.debug("Initializing MyBookings window...")
-
-        self.root = root
-        self.cursor = mydb.cursor()
-        self.root.title("My Bookings")
-        self.root.geometry("800x500")
-        self.previous_window = previous_window
-
-        set_theme()
-
-        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
-        self.frame_main.pack(fill="both", expand=True)
-
-        self.title_label = ctk.CTkLabel(self.frame_main, text="My Bookings", font=("Arial", 16, "bold"))
-        self.title_label.grid(row=0, column=0, pady=20,)
-
-
+    def __init__(self, parent_frame, user_id, parent=None):
+        """Initialize the bookings frame"""
+        self.parent = parent  # Reference to UserScreen
         self.user_id = user_id
-        self.create_widgets()
+
+        # Main frame
+        self.frame_main = ctk.CTkFrame(parent_frame)
+        self.frame_main.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Back button
+        btn_back = ctk.CTkButton(
+            self.frame_main,
+            text="← Back to Dashboard",
+            command=self.go_back,
+            fg_color="transparent",
+            border_width=1
+        )
+        btn_back.pack(anchor="nw", pady=10)
+
+        # Title
+        ctk.CTkLabel(
+            self.frame_main,
+            text="My Bookings",
+            font=("Arial", 20, "bold")
+        ).pack(pady=10)
+
+        # Treeview for bookings
+        self.create_bookings_table()
         self.load_bookings()
 
-    def create_widgets(self):
-        btn_back = ctk.CTkButton(self.frame_main, text="<-", command=self.go_back)
-        btn_back.grid(row=0, column=1, padx=10, sticky="e")
-        # -> Create and position the Back button
+    def create_bookings_table(self):
+        """Create the bookings display table"""
+        style = ttk.Style()
+        style.configure("Treeview", rowheight=30)
 
-        columns = [("Status", 100), ("Departure", 100), ("Destination", 100), ("Flight Info", 350)]
+        columns = [
+            ("Flight", 150),
+            ("Departure", 120),
+            ("From", 120),
+            ("To", 120),
+            ("Status", 100),
+            ("Booking Date", 120)
+        ]
 
-        self.tree = ttk.Treeview(self.frame_main, columns=[col[0] for col in columns], show="headings", height=6)
+        self.tree = ttk.Treeview(
+            self.frame_main,
+            columns=[col[0] for col in columns],
+            show="headings",
+            height=10,
+            selectmode="none"
+        )
 
-        self.tree.grid(row=1, column=0, columnspan=2, padx=20, pady=20)
-
+        # Configure columns
         for col_name, width in columns:
             self.tree.heading(col_name, text=col_name)
-            self.tree.column(col_name, width=width)
+            self.tree.column(col_name, width=width, anchor="center")
 
-        self.frame_main.grid_rowconfigure(1, weight=1)
-        self.frame_main.grid_columnconfigure(0, weight=1)
+        # Add scrollbar
+        scrollbar = ttk.Scrollbar(self.frame_main, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
 
-    def go_back(self):
-        """Restores the previous window when going back"""
-        if self.previous_window:
-            self.previous_window.deiconify()
-        self.root.destroy()
-
-    def on_close(self):
-        """Restore the previous window when closing"""
-        if self.previous_window:
-            self.previous_window.deiconify()
-        self.root.destroy()
+        self.tree.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
     def load_bookings(self):
-        """Fetches and displays user bookings from the database"""
-        self.cursor.execute("SELECT id, flight_id, booking_date, status FROM bookings WHERE user_id = %s",
-                            (self.user_id,))
-        bookings = self.cursor.fetchall()
-        if bookings:
+        """Fetch and display bookings from database"""
+        try:
+            cursor = mydb.cursor(dictionary=True)
+            cursor.execute("""
+                SELECT 
+                    b.id,
+                    f.airline as flight,
+                    f.departure,
+                    f.from_location,
+                    f.to_location,
+                    b.status,
+                    DATE_FORMAT(b.booking_date, '%%Y-%%m-%%d') as booking_date
+                FROM bookings b
+                JOIN flights f ON b.flight_id = f.id
+                WHERE b.user_id = %s
+                ORDER BY f.departure DESC
+            """, (self.user_id,))
+
+            bookings = cursor.fetchall()
+
+            if not bookings:
+                messagebox.showinfo("No Bookings", "You don't have any bookings yet.")
+                return
+
             for booking in bookings:
-                flight_info = self.get_flight_info(booking[1])
-                departure_info = self.get_departure_location(booking[0])
-                destination_info = self.get_destination_location(booking[0])
-                self.tree.insert("", tk.END, values=(booking[3], departure_info, destination_info, flight_info))
-        else:
-            messagebox.showinfo("No Bookings", "No bookings found for this user.")
+                self.tree.insert("", "end", values=(
+                    booking["flight"],
+                    booking["departure"],
+                    booking["from_location"],
+                    booking["to_location"],
+                    booking["status"],
+                    booking["booking_date"]
+                ))
 
-    def get_flight_info(self, flight_id):
-        """Fetches flight information based on the flight_id."""
-        self.cursor.execute("SELECT airline, departure, arrival FROM flights WHERE id = %s", (flight_id,))
-        flight = self.cursor.fetchone()
-        if flight:
-            return f"{flight[0]} ({flight[1]} - {flight[2]})"
-        return "Unknown Flight"
+        except Exception as e:
+            logger.error(f"Error loading bookings: {e}")
+            messagebox.showerror("Error", "Failed to load bookings")
 
-    def get_departure_location(self, booking_id):
-        """Fetches the departure location (from_location) for a given booking."""
-        self.cursor.execute("""
-            SELECT f.from_location
-            FROM bookings b
-            JOIN flights f ON b.flight_id = f.id
-            WHERE b.id = %s
-        """, (booking_id,))
-        departure_location = self.cursor.fetchone()
-        if departure_location:
-            return departure_location[0]
-        return "Unknown Departure Location"
-
-    def get_destination_location(self, booking_id):
-        """Fetches the destination location (to_location) for a given booking."""
-        self.cursor.execute("""
-            SELECT f.to_location
-            FROM bookings b
-            JOIN flights f ON b.flight_id = f.id
-            WHERE b.id = %s
-        """, (booking_id,))
-        destination_location = self.cursor.fetchone()
-        if destination_location:
-            return destination_location[0]
-        return "Unknown Destination Location"
-
+    def go_back(self):
+        """Return to the dashboard"""
+        if self.parent:
+            self.parent.show_home_view()

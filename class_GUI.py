@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import Menu
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
-#import tksheet
 import importlib
 from config import mydb,set_theme
 
@@ -130,7 +129,6 @@ class StaffScreen(BaseWindow):
         greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
 
 
-
 class UserScreen(BaseWindow):
     """User dashboard"""
 
@@ -138,29 +136,82 @@ class UserScreen(BaseWindow):
         super().__init__(root, "User Dashboard")
         self.username = username
         self.root.geometry("800x500")
-        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
-        self.frame_main.pack(fill="both", expand=True)
-        self.frame_upcoming_flight = ctk.CTkFrame(self.frame_main)
-        self.frame_upcoming_flight.grid(row=2,column=0,columnspan=3,pady=10, padx=20)
-        set_theme()
-        self.create_widgets()
 
-    def create_widgets(self):
+        # Get user_id from database
+        cursor = mydb.cursor()
+        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
+        user_id_result = cursor.fetchone()
+        self.user_id = user_id_result[0] if user_id_result else None
 
-        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Hi {self.username}!", font=("Arial", 20))
-        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
+        # Main container frame
+        self.main_frame = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.main_frame.pack(fill="both", expand=True)
 
-        btn_buy_tickets = ctk.CTkButton(self.frame_main, text="Buy Tickets", command=self.buy_tickets)
-        btn_buy_tickets.grid(row=1, column=0, pady=10, padx=20, sticky="w")
+        # Initialize the home view
+        self.show_home_view()
 
-        btn_my_bookings = ctk.CTkButton(self.frame_main, text="My Bookings", command=self.my_bookings)
-        btn_my_bookings.grid(row=1, column=1, pady=10, padx=20, sticky="w")
+    def show_home_view(self):
+        """Show the default dashboard view"""
+        # Clear existing widgets
+        for widget in self.main_frame.winfo_children():
+            widget.destroy()
 
+        # Create content frame
+        content_frame = ctk.CTkFrame(self.main_frame)
+        content_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Greeting label
+        greeting_label = ctk.CTkLabel(content_frame, text=f"Hi {self.username}!", font=("Arial", 20))
+        greeting_label.pack(pady=10)
+
+        # Buttons frame
+        buttons_frame = ctk.CTkFrame(content_frame)
+        buttons_frame.pack(pady=20)
+
+        # Buy Tickets button
+        btn_buy_tickets = ctk.CTkButton(
+            buttons_frame,
+            text="Buy Tickets",
+            command=self.buy_tickets
+        )
+        btn_buy_tickets.pack(side="left", padx=10)
+
+        # My Bookings button
+        btn_my_bookings = ctk.CTkButton(
+            buttons_frame,
+            text="My Bookings",
+            command=self.my_bookings
+        )
+        btn_my_bookings.pack(side="left", padx=10)
+
+        # Upcoming flights frame
+        self.upcoming_flight_frame = ctk.CTkFrame(content_frame)
+        self.upcoming_flight_frame.pack(pady=20)
         self.display_upcoming_flight()
 
-    def display_upcoming_flight(self):
-        """Fetch and display the user's closest upcoming flight"""
+    def buy_tickets(self):
+        """Open ticket purchase in new window (your original working version)"""
+        self.root.withdraw()  # Hide main window
+        cursor = mydb.cursor()
+        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
+        user_id_result = cursor.fetchone()
+        user_id = user_id_result[0]
 
+        new_window = tk.Toplevel(self.root)
+        ticket_module = importlib.import_module('ticket_system')
+        ticket_system = ticket_module.TicketSystem(new_window, user_id, previous_window=self.root)
+    def my_bookings(self):
+        """Open bookings in the same window"""
+        # Clear current view
+        for widget in self.main_frame.winfo_children():
+            widget.destroy()
+
+        # Import and show bookings
+        my_bookings_module = importlib.import_module('my_bookings')
+        my_bookings = my_bookings_module.MyBookings(self.main_frame, self.user_id, parent=self)
+
+    def display_upcoming_flight(self):
+        """Fetch and display upcoming flight"""
         cursor = mydb.cursor()
         cursor.execute("""
             SELECT f.departure, f.to_location, f.from_location, f.airline, f.gate
@@ -174,9 +225,12 @@ class UserScreen(BaseWindow):
 
         upcoming_flight = cursor.fetchone()
 
+        # Clear previous widgets
+        for widget in self.upcoming_flight_frame.winfo_children():
+            widget.destroy()
+
         if upcoming_flight:
             departure, to_location, from_location, airline, gate = upcoming_flight
-
             flight_text = (f"Next Flight: {airline}\n"
                            f"From: {from_location} → To: {to_location}\n"
                            f"Departure: {departure}\n"
@@ -184,36 +238,9 @@ class UserScreen(BaseWindow):
         else:
             flight_text = "No upcoming flights found."
 
-        for widget in self.frame_upcoming_flight.winfo_children():
-            widget.destroy()
-
-        lbl_upcoming_flight = ctk.CTkLabel(self.frame_upcoming_flight, text=flight_text, font=("Arial", 14))
-        lbl_upcoming_flight.pack(pady=5, padx=10)
-
-    def buy_tickets(self):
-        """Handles the Buy Tickets button"""
-        self.root.withdraw()
-        cursor = mydb.cursor()
-        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
-        user_id_result = cursor.fetchone()
-        user_id = user_id_result[0]
-
-        new_window = tk.Toplevel(self.root)
-        ticket_module = importlib.import_module('ticket_system')
-        print(f"Initializing TicketSystem with user_id: {user_id}")
-        ticket_system = ticket_module.TicketSystem(new_window,user_id,previous_window=self.root)
-
-    def my_bookings(self):
-        """Handles the My Bookings button"""
-        cursor = mydb.cursor()
-        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
-        user_id_result = cursor.fetchone()
-        if not user_id_result:
-            print("User not found!")
-            return
-        user_id = user_id_result[0]
-
-        new_window = tk.Toplevel(self.root)
-
-        my_bookings_module = importlib.import_module('my_bookings')
-        my_bookings_window = my_bookings_module.MyBookings(new_window, user_id, previous_window=self.root)
+        lbl_upcoming_flight = ctk.CTkLabel(
+            self.upcoming_flight_frame,
+            text=flight_text,
+            font=("Arial", 14)
+        )
+        lbl_upcoming_flight.pack()
