@@ -143,32 +143,25 @@ class UserScreen(BaseWindow):
         user_id_result = cursor.fetchone()
         self.user_id = user_id_result[0] if user_id_result else None
 
-        # Main container frame
         self.main_frame = ctk.CTkFrame(self.root, border_color="black", border_width=5)
         self.main_frame.pack(fill="both", expand=True)
 
-        # Initialize the home view
         self.show_home_view()
 
     def show_home_view(self):
         """Show the default dashboard view"""
-        # Clear existing widgets
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
-        # Create content frame
         content_frame = ctk.CTkFrame(self.main_frame)
         content_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # Greeting label
         greeting_label = ctk.CTkLabel(content_frame, text=f"Hi {self.username}!", font=("Arial", 20))
         greeting_label.pack(pady=10)
 
-        # Buttons frame
         buttons_frame = ctk.CTkFrame(content_frame)
         buttons_frame.pack(pady=20)
 
-        # Buy Tickets button
         btn_buy_tickets = ctk.CTkButton(
             buttons_frame,
             text="Buy Tickets",
@@ -176,7 +169,6 @@ class UserScreen(BaseWindow):
         )
         btn_buy_tickets.pack(side="left", padx=10)
 
-        # My Bookings button
         btn_my_bookings = ctk.CTkButton(
             buttons_frame,
             text="My Bookings",
@@ -184,7 +176,6 @@ class UserScreen(BaseWindow):
         )
         btn_my_bookings.pack(side="left", padx=10)
 
-        # Upcoming flights frame
         self.upcoming_flight_frame = ctk.CTkFrame(content_frame)
         self.upcoming_flight_frame.pack(pady=20)
         self.display_upcoming_flight()
@@ -202,11 +193,9 @@ class UserScreen(BaseWindow):
         ticket_system = ticket_module.TicketSystem(new_window, user_id, previous_window=self.root)
     def my_bookings(self):
         """Open bookings in the same window"""
-        # Clear current view
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
-        # Import and show bookings
         my_bookings_module = importlib.import_module('my_bookings')
         my_bookings = my_bookings_module.MyBookings(self.main_frame, self.user_id, parent=self)
 
@@ -225,7 +214,6 @@ class UserScreen(BaseWindow):
 
         upcoming_flight = cursor.fetchone()
 
-        # Clear previous widgets
         for widget in self.upcoming_flight_frame.winfo_children():
             widget.destroy()
 

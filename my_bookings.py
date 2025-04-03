@@ -9,14 +9,12 @@ logger = get_logger(__name__)
 class MyBookings:
     def __init__(self, parent_frame, user_id, parent=None):
         """Initialize the bookings frame"""
-        self.parent = parent  # Reference to UserScreen
+        self.parent = parent
         self.user_id = user_id
 
-        # Main frame
         self.frame_main = ctk.CTkFrame(parent_frame)
         self.frame_main.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # Back button
         btn_back = ctk.CTkButton(
             self.frame_main,
             text="← Back to Dashboard",
@@ -26,14 +24,12 @@ class MyBookings:
         )
         btn_back.pack(anchor="nw", pady=10)
 
-        # Title
         ctk.CTkLabel(
             self.frame_main,
             text="My Bookings",
             font=("Arial", 20, "bold")
         ).pack(pady=10)
 
-        # Treeview for bookings
         self.create_bookings_table()
         self.load_bookings()
 
@@ -59,12 +55,10 @@ class MyBookings:
             selectmode="none"
         )
 
-        # Configure columns
         for col_name, width in columns:
             self.tree.heading(col_name, text=col_name)
             self.tree.column(col_name, width=width, anchor="center")
 
-        # Add scrollbar
         scrollbar = ttk.Scrollbar(self.frame_main, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
 
