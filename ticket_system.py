@@ -8,15 +8,14 @@ logger = get_logger(__name__) #zet module naam als log naam
 
 
 class TicketSystem:
-    def __init__(self, root,user_id,previous_window=None):
+    def __init__(self, parent_frame,user_id,parent=None):
         """Sets up the UI and prepares the database connection."""
-        self.root = root
-        self.cursor = mydb.cursor()
-        self.previous_window = previous_window
-
+        self.parent = parent
         self.user_id = user_id
-        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
-        self.frame_main.pack(fill="both", expand=True)
+        self.cursor = mydb.cursor()
+
+        self.frame_main = ctk.CTkFrame(parent_frame)
+        self.frame_main.pack(fill="both", expand=True, padx=20, pady=20)
         # -> Create main frame that holds everything.
 
         self.frame_search = ctk.CTkFrame(self.frame_main)
@@ -62,7 +61,7 @@ class TicketSystem:
         self.entry_date.grid(row=1, column=3, padx=5)
         # -> Position the date selection widget
 
-        btn_back = ctk.CTkButton(self.frame_main, text="<-",command=self.go_back)
+        btn_back = ctk.CTkButton(self.frame_main,text="← Back to Dashboard",command=self.go_back,fg_color="transparent",border_width=1)
         btn_back.grid(row=0, column=1, padx=10,sticky="e")
         # -> Create and position the Back button
 
@@ -88,9 +87,8 @@ class TicketSystem:
         btn_book_ticket.grid(row=3, column=1, padx=10)
 
     def go_back(self):
-        if self.previous_window:
-            self.previous_window.deiconify()
-        self.root.destroy()
+        if self.parent:
+            self.parent.show_home_view()
 
     def swap_locations(self):
         """Swap the locations in the 'From' and 'To' fields."""

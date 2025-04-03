@@ -22,7 +22,7 @@ class MyBookings:
             fg_color="transparent",
             border_width=1
         )
-        btn_back.pack(anchor="nw", pady=10)
+        btn_back.pack(anchor="e", pady=10)
 
         ctk.CTkLabel(
             self.frame_main,

@@ -182,15 +182,16 @@ class UserScreen(BaseWindow):
 
     def buy_tickets(self):
         """Open ticket purchase in new window (your original working version)"""
-        self.root.withdraw()  # Hide main window
+        for widget in self.main_frame.winfo_children():
+            widget.destroy()
+
         cursor = mydb.cursor()
         cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
         user_id_result = cursor.fetchone()
         user_id = user_id_result[0]
 
-        new_window = tk.Toplevel(self.root)
         ticket_module = importlib.import_module('ticket_system')
-        ticket_system = ticket_module.TicketSystem(new_window, user_id, previous_window=self.root)
+        ticket_system = ticket_module.TicketSystem(self.main_frame, user_id, parent=self)
     def my_bookings(self):
         """Open bookings in the same window"""
         for widget in self.main_frame.winfo_children():
