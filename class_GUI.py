@@ -48,16 +48,13 @@ class BaseWindow:
 
     def logout(self):
         """Logs out the user and returns to the login screen."""
-        try:
-            self.root.quit()
-            self.root.destroy()
-        except tk.TclError:
-            pass
-        except Exception as e:
-            print(f"Error while logging out: {e}")
+
+        self.root.quit()
+        self.root.destroy()
 
         login_module = importlib.import_module('login_screen')
         login_screen = login_module.LoginScreen(tk.Tk())
+        self.root.mainloop()
 
     def kill_window(self):
         """quit"""
