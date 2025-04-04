@@ -13,7 +13,7 @@ class MyBookings:
         self.user_id = user_id
 
         self.frame_main = ctk.CTkFrame(parent_frame)
-        self.frame_main.pack(fill="both", expand=True, padx=20, pady=20)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
 
         btn_back = ctk.CTkButton(
             self.frame_main,
@@ -36,7 +36,18 @@ class MyBookings:
     def create_bookings_table(self):
         """Create the bookings display table"""
         style = ttk.Style()
-        style.configure("Treeview", rowheight=30)
+
+        style.configure("Treeview",
+                        rowheight=30,
+                        font=("Helvetica", 10),
+                        background="#2e2e2e",  # Dark grey background
+                        foreground="white")  # White text
+        style.configure("Treeview.Heading",
+                        font=("Helvetica", 12, "bold"),
+                        background="#3c3c3c",  # Dark grey header background
+                        foreground="grey")  #header text
+        style.map("Treeview",
+                  background=[('selected', '#555555')])  # Change selected row color
 
         columns = [
             ("Flight", 150),
@@ -51,12 +62,14 @@ class MyBookings:
             columns=[col[0] for col in columns],
             show="headings",
             height=10,
-            selectmode="none"
+            selectmode="browse"
         )
 
         for col_name, width in columns:
             self.tree.heading(col_name, text=col_name)
-            self.tree.column(col_name, width=width, anchor="center")
+            self.tree.column(col_name, width=width, anchor="center", minwidth=50)
+
+        self.tree.tag_configure("empty", background="#2e2e2e")  # Ensure empty columns are dark as well
 
         scrollbar = ttk.Scrollbar(self.frame_main, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)

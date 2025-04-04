@@ -15,7 +15,7 @@ class TicketSystem:
         self.cursor = mydb.cursor()
 
         self.frame_main = ctk.CTkFrame(parent_frame)
-        self.frame_main.pack(fill="both", expand=True, padx=20, pady=20)
+        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
         # -> Create main frame that holds everything.
 
         self.frame_search = ctk.CTkFrame(self.frame_main)
@@ -166,21 +166,26 @@ class AdditionalPackageScreen:
         flight_info = f"Flight: {airline} | {from_location} to {to_location} | {departure} | Price: {price}"
         self.package_price = package_price
 
-        self.frame_main = ctk.CTkFrame(parent_frame)  # Use the same parent frame
+        # frame main
+        self.frame_main = ctk.CTkFrame(parent_frame)
         self.frame_main.pack(fill="both", expand=True)
+        # frame with prices
+        self.frame_total_price = ctk.CTkFrame(self.frame_main, corner_radius=10, border_width=2, border_color="black")
+        self.frame_total_price.grid(row=2, column=1, padx=10, pady=10)
+        # frame with additions
+        self.frame_additions = ctk.CTkFrame(self.frame_main)
+        self.frame_additions.grid(row=2, column=0, padx=10, pady=10,sticky="w")
 
         # Widgets setup
         self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
-        self.success_label = ctk.CTkLabel(self.frame_main, text="Ticket reserved! Now choose your additional packages.")
-        self.package1_button = ctk.CTkButton(self.frame_main, text="Package 1: 30 EUR", command=lambda: self.package1_selected(price))
-        self.package2_button = ctk.CTkButton(self.frame_main, text="Package 2: 25 EUR", command=lambda: self.package2_selected(price))
+        self.lbl_success = ctk.CTkLabel(self.frame_main, text="Ticket reserved! Now choose your additional packages.")
+        self.btn_package1 = ctk.CTkButton(self.frame_additions, text="Package 1: 30 EUR", command=lambda: self.package1_selected(price))
+        self.lbl_package1 = ctk.CTkLabel(self.frame_additions, text="info over package 1")
+        self.btn_package2 = ctk.CTkButton(self.frame_additions, text="Package 2: 25 EUR", command=lambda: self.package2_selected(price))
 
-        self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self.finalize_purchase)
+        self.buy_button = ctk.CTkButton(self.frame_additions, text="Buy", command=self.finalize_purchase)
 
         # Create widgets for the price frame
-        self.frame_total_price = ctk.CTkFrame(self.frame_main)
-        self.frame_total_price.grid(row=2, column=0, padx=10, pady=10)
-
         self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
         self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=price)
         self.lbl_additional_package_label = ctk.CTkLabel(self.frame_total_price, text="Selected packages: +")
@@ -192,12 +197,13 @@ class AdditionalPackageScreen:
         self.create_widgets()
 
     def create_widgets(self):
-        # Only create widgets when necessary
-        self.flight_info_label.grid(row=0, column=0, padx=10, pady=10)
-        self.success_label.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
-        self.package1_button.grid(row=2, column=0, padx=10, pady=5,sticky="w")
-        self.package2_button.grid(row=3, column=0, padx=10, pady=5,sticky="w")
-        self.buy_button.grid(row=4, column=0, padx=10, pady=10)
+        self.flight_info_label.grid(row=0, column=0,columnspan = 2,padx=10, pady=10,sticky="ew")
+        self.lbl_success.grid(row=1, column=0, columnspan = 2,padx=10, pady=10, sticky="ew")
+        self.btn_package1.grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        self.lbl_package1.grid(row=3, column=0, padx=10, pady=5, sticky="w")
+        self.btn_package2.grid(row=4, column=0, padx=10, pady=5, sticky="w")
+        self.buy_button.grid(row=5, column=0, padx=10, pady=10)
+        #price frame
         self.lbl_flight_price_label.grid(row=2, column=1, padx=10, pady=10)
         self.lbl_flight_price.grid(row=2, column=2, padx=10, pady=10)
         self.lbl_additional_package_label.grid(row=3, column=1, padx=10, pady=10)

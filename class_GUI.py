@@ -163,7 +163,6 @@ class UserScreen(BaseWindow):
         )
         greeting_label.grid(row=0, column=0, columnspan=2, padx=20, pady=(10, 5), sticky="e")
 
-        # Buttons Frame (Now Below Greeting)
         buttons_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
         buttons_frame.grid(row=1, column=0, columnspan=2, sticky="e", padx=20)
 
@@ -173,18 +172,15 @@ class UserScreen(BaseWindow):
         btn_my_bookings = ctk.CTkButton(buttons_frame, text="My Bookings", command=self.my_bookings)
         btn_my_bookings.grid(row=0, column=1, padx=5)
 
-        # Upcoming Flight Label
         upcoming_label = ctk.CTkLabel(content_frame, text="Upcoming flight:", font=("Arial", 16, "bold"))
         upcoming_label.grid(row=2, column=0, columnspan=2, sticky="w", padx=20, pady=(10, 2))
 
-        # Upcoming Flight Frame
         self.upcoming_flight_frame = ctk.CTkFrame(content_frame, border_width=2, border_color="black")
         self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
 
         self.display_upcoming_flight()
 
-        # Adjust grid proportions
-        content_frame.grid_rowconfigure(3, weight=1)  # Allow flight section to expand
+        content_frame.grid_rowconfigure(3, weight=1)
         content_frame.grid_columnconfigure((0, 1), weight=1)
 
     def buy_tickets(self):
@@ -211,11 +207,9 @@ class UserScreen(BaseWindow):
     def display_upcoming_flight(self):
         """Displays flight details dynamically from the database"""
         if not hasattr(self, 'upcoming_flight_frame') or not self.upcoming_flight_frame.winfo_exists():
-            # Re-create the frame if it was destroyed
             self.upcoming_flight_frame = ctk.CTkFrame(self.main_frame, border_width=2, border_color="black")
             self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
 
-        # Now proceed to clear and update the flight data as before
         for widget in self.upcoming_flight_frame.winfo_children():
             widget.destroy()
 
@@ -245,11 +239,11 @@ class UserScreen(BaseWindow):
             flight_info_label = ctk.CTkLabel(
                 self.upcoming_flight_frame,
                 text=f"{flight['airline']} Flight\n"
-                     f"{flight['from_location']} ➝ {flight['to_location']}",
+                     f"{flight['from_location']} ➝ {flight['to_location']}\n",
                 font=("Arial", 16, "bold"),
                 justify="center"
             )
-            flight_info_label.grid(row=0, column=0, columnspan=2, pady=(10, 10))
+            flight_info_label.grid(row=0, column=0, columnspan=2, pady=(15, 15))
 
             details = [
                 ("Departure:", f"{flight['departure']}"),
