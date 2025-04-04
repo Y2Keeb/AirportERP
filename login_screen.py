@@ -5,6 +5,7 @@ This module provides a login screen for the Airport ERP system.
 import tkinter as tk
 from tkinter import messagebox, Menu
 import customtkinter as ctk
+from CTkMessagebox import *
 from class_GUI import BaseWindow,UserScreen,AdminScreen,StaffScreen
 from config import mydb,set_theme
 
@@ -60,7 +61,6 @@ class LoginScreen(BaseWindow):
         result = cursor.fetchone()
         if result:
             role = result[4]
-            messagebox.showinfo("Login Success", f"Welcome, {username}!")
             self.root.destroy()
             self.new_root = tk.Tk()
             if role == "admin":
