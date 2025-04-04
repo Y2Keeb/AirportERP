@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import ttk
+from tkinter import ttk,messagebox
 import tkinter as tk
 from tkcalendar import DateEntry
 from config import *
@@ -137,11 +137,11 @@ class TicketSystem:
             print("No flight selected!")
             return
 
-        package_window = tk.Toplevel(self.root)
+        package_window = tk.Toplevel(self.frame_main)
         package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id,package_price=0)
 
     def open_package_screen(self):
-        package_window = tk.Toplevel(self.master)
+        package_window = tk.Toplevel(self.frame_main)
         package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
 
     def refresh_flights(self):
@@ -235,3 +235,5 @@ class AdditionalPackageScreen:
         self.cursor.execute(update_query, (flight_id,))
         mydb.commit()
         logger.info(f"Booking for user ID '{self.user_id}' succesful!")
+        messagebox.showinfo("Nice", "yep, that worked, ticket booked!")
+

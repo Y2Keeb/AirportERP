@@ -43,8 +43,7 @@ class MyBookings:
             ("Departure", 120),
             ("From", 120),
             ("To", 120),
-            ("Status", 100),
-            ("Booking Date", 120)
+            ("Status", 100)
         ]
 
         self.tree = ttk.Treeview(
@@ -76,8 +75,7 @@ class MyBookings:
                     f.departure,
                     f.from_location,
                     f.to_location,
-                    b.status,
-                    DATE_FORMAT(b.booking_date, '%%Y-%%m-%%d') as booking_date
+                    b.status
                 FROM bookings b
                 JOIN flights f ON b.flight_id = f.id
                 WHERE b.user_id = %s
@@ -96,8 +94,7 @@ class MyBookings:
                     booking["departure"],
                     booking["from_location"],
                     booking["to_location"],
-                    booking["status"],
-                    booking["booking_date"]
+                    booking["status"]
                 ))
 
         except Exception as e:

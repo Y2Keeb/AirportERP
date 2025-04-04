@@ -143,8 +143,7 @@ class UserScreen(BaseWindow):
         self.main_frame.pack(fill="both", expand=True)
 
         self.show_home_view()
-
-
+        self.display_upcoming_flight()
     def show_home_view(self):
         """Show the default dashboard view using grid layout"""
         for widget in self.main_frame.winfo_children():
@@ -160,10 +159,11 @@ class UserScreen(BaseWindow):
             content_frame, text=f"Hi {self.username}!",
             font=("Arial", 24, "bold")
         )
-        greeting_label.grid(row=0, column=0, padx=20, pady=(10, 10), sticky="w")
+        greeting_label.grid(row=0, column=0, columnspan=2, padx=20, pady=(10, 5), sticky="e")
 
+        # Buttons Frame (Now Below Greeting)
         buttons_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
-        buttons_frame.grid(row=0, column=1, sticky="e", padx=20)
+        buttons_frame.grid(row=1, column=0, columnspan=2, sticky="e", padx=20)
 
         btn_buy_tickets = ctk.CTkButton(buttons_frame, text="Buy Tickets", command=self.buy_tickets)
         btn_buy_tickets.grid(row=0, column=0, padx=5)
@@ -171,19 +171,21 @@ class UserScreen(BaseWindow):
         btn_my_bookings = ctk.CTkButton(buttons_frame, text="My Bookings", command=self.my_bookings)
         btn_my_bookings.grid(row=0, column=1, padx=5)
 
+        # Upcoming Flight Label
         upcoming_label = ctk.CTkLabel(content_frame, text="Upcoming flight:", font=("Arial", 16, "bold"))
-        upcoming_label.grid(row=1, column=0, columnspan=2, sticky="w", padx=20, pady=(20, 5))
+        upcoming_label.grid(row=2, column=0, columnspan=2, sticky="w", padx=20, pady=(10, 2))
 
+        # Upcoming Flight Frame
         self.upcoming_flight_frame = ctk.CTkFrame(content_frame, border_width=2, border_color="black")
-        self.upcoming_flight_frame.grid(row=2, column=0, columnspan=2, padx=20, pady=10, sticky="nsew")
+        self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
 
         self.display_upcoming_flight()
 
-        content_frame.grid_rowconfigure(2, weight=1)
+        # Adjust grid proportions
+        content_frame.grid_rowconfigure(3, weight=1)  # Allow flight section to expand
         content_frame.grid_columnconfigure((0, 1), weight=1)
 
     def buy_tickets(self):
-        """Open ticket purchase in new window (your original working version)"""
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
@@ -194,47 +196,84 @@ class UserScreen(BaseWindow):
 
         ticket_module = importlib.import_module('ticket_system')
         ticket_system = ticket_module.TicketSystem(self.main_frame, user_id, parent=self)
+        self.display_upcoming_flight()
+
     def my_bookings(self):
-        """Open bookings in the same window"""
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
         my_bookings_module = importlib.import_module('my_bookings')
         my_bookings = my_bookings_module.MyBookings(self.main_frame, self.user_id, parent=self)
+        self.display_upcoming_flight()
 
     def display_upcoming_flight(self):
-        """Displays flight details in the upcoming flight frame"""
+        """Displays flight details dynamically from the database"""
+        if not hasattr(self, 'upcoming_flight_frame') or not self.upcoming_flight_frame.winfo_exists():
+            # Re-create the frame if it was destroyed
+            self.upcoming_flight_frame = ctk.CTkFrame(self.main_frame, border_width=2, border_color="black")
+            self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
 
+        # Now proceed to clear and update the flight data as before
         for widget in self.upcoming_flight_frame.winfo_children():
             widget.destroy()
 
-        # Flight Header
-        flight_info_label = ctk.CTkLabel(
-            self.upcoming_flight_frame,
-            text="Flight # : SN2054\nBrussels (BRU)   ➝   Barcelona (BCN)",
-            font=("Arial", 16, "bold"),
-            justify="center"
-        )
-        flight_info_label.grid(row=0, column=0, columnspan=2, pady=(10, 10))
+        try:
+            cursor = mydb.cursor(dictionary=True)
 
-        # Flight Details Grid
-        details = [
-            ("Departure:", "March 20, 2025  10:15 AM"),
-            ("Arrival:", "March 20, 2025  2:30 PM"),
-            ("Gate:", "B22"),
-            ("Status:", "Boarding Soon"),
-        ]
+            query = """
+                    SELECT f.airline, f.departure, f.arrival, f.status, f.gate, f.plane_type,
+                           f.total_seats, f.seats_taken, f.from_location, f.to_location, f.airline_icon
+                    FROM bookings b
+                    JOIN flights f ON b.flight_id = f.id
+                    WHERE b.user_id = %s AND f.departure > NOW()  -- Only flights with departure in the future
+                    ORDER BY f.departure ASC  -- Get the earliest upcoming flight
+                    LIMIT 1
+                    """
+            cursor.execute(query, (self.user_id,))
+            flight = cursor.fetchone()
 
-        for i, (label, value) in enumerate(details):
-            ctk.CTkLabel(self.upcoming_flight_frame, text=label, font=("Arial", 14)).grid(row=i + 1, column=0,
-                                                                                          sticky="w", padx=10, pady=2)
-            ctk.CTkLabel(self.upcoming_flight_frame, text=value, font=("Arial", 14)).grid(row=i + 1, column=1,
-                                                                                          sticky="w", padx=10, pady=2)
+            if not flight:
+                no_flight_label = ctk.CTkLabel(
+                    self.upcoming_flight_frame, text="No upcoming flights.",
+                    font=("Arial", 14, "italic")
+                )
+                no_flight_label.grid(row=0, column=0, padx=10, pady=10)
+                return
 
-        # QR Code (Placeholder Image)
-        qr_code = ctk.CTkLabel(self.upcoming_flight_frame, text="🔳 QR",
-                               font=("Arial", 20))  # Replace with an actual image
-        qr_code.grid(row=1, column=2, rowspan=3, padx=20, pady=5, sticky="e")
+            flight_info_label = ctk.CTkLabel(
+                self.upcoming_flight_frame,
+                text=f"{flight['airline']} Flight\n"
+                     f"{flight['from_location']} ➝ {flight['to_location']}",
+                font=("Arial", 16, "bold"),
+                justify="center"
+            )
+            flight_info_label.grid(row=0, column=0, columnspan=2, pady=(10, 10))
 
-        # Make columns expand
-        self.upcoming_flight_frame.grid_columnconfigure(1, weight=1)
+            details = [
+                ("Departure:", f"{flight['departure']}"),
+                ("Arrival:", f"{flight['arrival']}"),
+                ("Gate:", f"{flight['gate']}"),
+                ("Status:", f"{flight['status']}"),
+                ("Plane Type:", f"{flight['plane_type']}"),
+            ]
+
+            for i, (label, value) in enumerate(details):
+                ctk.CTkLabel(self.upcoming_flight_frame, text=label, font=("Arial", 14)).grid(
+                    row=i + 1, column=0, sticky="w", padx=10, pady=2
+                )
+                ctk.CTkLabel(self.upcoming_flight_frame, text=value, font=("Arial", 14)).grid(
+                    row=i + 1, column=1, sticky="w", padx=10, pady=2
+                )
+
+            # QR code placeholder
+            airline_icon = ctk.CTkLabel(self.upcoming_flight_frame, text="QR CODE HERE",
+                                        font=("Arial", 20))  # Placeholder
+            airline_icon.grid(row=1, column=2, rowspan=3, padx=20, pady=5, sticky="e")
+
+            self.upcoming_flight_frame.grid_columnconfigure(1, weight=1)
+
+        except Exception as e:
+            print("Error fetching flight data:", e)
+
+        finally:
+            cursor.close()
