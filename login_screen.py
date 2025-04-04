@@ -10,14 +10,17 @@ from class_GUI import BaseWindow, UserScreen, AdminScreen, StaffScreen
 from config import mydb, set_theme
 
 
+
+
+
 class LoginScreen(BaseWindow):
     """Login screen class"""
 
     def __init__(self, root):
         super().__init__(root, "Login Window")
-        self.root.geometry("300x500")
-        self.frame_main = ctk.CTkFrame(self.root)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        self.root.geometry("350x550")
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main.pack(fill="both", expand=True)
         set_theme()
         self.create_widgets()
 
@@ -46,30 +49,27 @@ class LoginScreen(BaseWindow):
         btn_login.pack(pady=20)
 
     def create_menu(self):
-        menubar = Menu(self.root)
-        help_ = Menu(menubar, tearoff=0)
+        menubar = Menu(self.root, bg="black", fg="white", activebackground="gray", activeforeground="white")
+        help_ = Menu(menubar, tearoff=0, bg="black", fg="white", activebackground="gray", activeforeground="white")
         menubar.add_cascade(label="Help", menu=help_)
         help_.add_command(label="Help", command=self.help_menu)
         help_.add_separator()
         help_.add_command(label="About AirportERP", command=self.about)
         self.root.config(menu=menubar)
 
+
     def login(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
-
         cursor = mydb.cursor()
         query = "SELECT id, username, first_name, last_name, role FROM users WHERE username = %s AND password = %s"
         cursor.execute(query, (username, password))
         result = cursor.fetchone()
-
         if result:
             role = result[4]
             CTkMessagebox(title="Login Success", message=f"Welcome, {username}!")
             self.root.destroy()
-
             self.new_root = tk.Tk()
-
             if role == "admin":
                 AdminScreen(self.new_root)
             elif role == "staff":
@@ -81,14 +81,16 @@ class LoginScreen(BaseWindow):
             tk.messagebox.showerror("Login Failed", "Invalid username or password.")
 
     def about(self):
-        tk.messagebox.showinfo(
-            message="(c) AirportERP\n BY \n Lindsey, Reza And Thomas"
+        CTkMessagebox(
+            title="Info", message="(c) AirportERP\n BY \n Lindsey, Reza And Thomas"
         )
 
     def help_menu(self):
-        tk.messagebox.showinfo(
-            message="login by entering your username and password\n"
-            "if you don't have a login contact your administrator"
+        CTkMessagebox(
+            title="Info",
+            icon="question",
+            message="• Login by entering your username and password.\n"
+            "• If you don't have a login, contact your administrator.",
         )
 
 

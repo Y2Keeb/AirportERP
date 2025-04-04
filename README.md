@@ -54,18 +54,4 @@ Security is a priority, and we will implement the following measures:
 - **Password Hashing**: All user passwords will be hashed using **bcrypt** to ensure that plain-text passwords are not stored in the database.
 - **Access Control**: Different roles (Admin, User, etc.) will have access to different parts of the application, ensuring proper access control.
 
-
-# TO DO
-- add comments to all code
-- Admin page (Thomas)
-- login screen: use bcrypt to encrypt passwords of our users so its not in our DB as plain text
-- user screen: add my bookings page
-- user screen: if booking is found, add info on user screen 1 as a main overview
-- user screen: qr code generator
-- ticket system: add kill when switching from user screen to ticket finder since it now stays open.
-- ticket system: add little airline icons instead of airline name in the flight finder treeview, can't get this to work just yet
-- ticket system: user selects flight from available flights
-- ticket system: user can add additional packages which should be added to price and database
-- ticket system: user confirms - dummy payment screen
-- ticket system: in background program will remove 1 available seat after user confirms from flight
   
