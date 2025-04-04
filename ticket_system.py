@@ -158,6 +158,8 @@ class TicketSystem:
 
 class AdditionalPackageScreen:
     def __init__(self, parent_frame, selected_flight, user_id, package_price):
+        self.user_id = user_id
+        self.cursor = mydb.cursor()
         self.parent_frame = parent_frame  # Use the parent frame passed in
         self.selected_flight = selected_flight
         flight_id, airline, from_location, departure, to_location, price = self.selected_flight
@@ -177,7 +179,7 @@ class AdditionalPackageScreen:
 
         # Create widgets for the price frame
         self.frame_total_price = ctk.CTkFrame(self.frame_main)
-        self.frame_total_price.grid(row=2, column=1, padx=10, pady=10)
+        self.frame_total_price.grid(row=2, column=0, padx=10, pady=10)
 
         self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
         self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=price)
@@ -192,9 +194,9 @@ class AdditionalPackageScreen:
     def create_widgets(self):
         # Only create widgets when necessary
         self.flight_info_label.grid(row=0, column=0, padx=10, pady=10)
-        self.success_label.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
-        self.package1_button.grid(row=2, column=0, padx=10, pady=5)
-        self.package2_button.grid(row=3, column=0, padx=10, pady=5)
+        self.success_label.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
+        self.package1_button.grid(row=2, column=0, padx=10, pady=5,sticky="w")
+        self.package2_button.grid(row=3, column=0, padx=10, pady=5,sticky="w")
         self.buy_button.grid(row=4, column=0, padx=10, pady=10)
         self.lbl_flight_price_label.grid(row=2, column=1, padx=10, pady=10)
         self.lbl_flight_price.grid(row=2, column=2, padx=10, pady=10)

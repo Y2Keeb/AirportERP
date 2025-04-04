@@ -140,8 +140,10 @@ class UserScreen(BaseWindow):
         self.user_id = user_id_result[0] if user_id_result else None
 
         self.main_frame = ctk.CTkFrame(self.root, border_color="black", border_width=5)
-        self.main_frame.pack(fill="both", expand=True)
+        self.root.grid_rowconfigure(0, weight=1, minsize=1)
+        self.root.grid_columnconfigure(0, weight=1, minsize=1)
 
+        self.main_frame.grid(row=0, column=0,sticky="nsew")
         self.show_home_view()
         self.display_upcoming_flight()
     def show_home_view(self):
