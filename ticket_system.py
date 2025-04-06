@@ -168,7 +168,7 @@ class AdditionalPackageScreen:
 
         # frame main
         self.frame_main = ctk.CTkFrame(parent_frame)
-        self.frame_main.pack(fill="both", expand=True)
+        self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         # frame with prices
         self.frame_total_price = ctk.CTkFrame(self.frame_main, corner_radius=10, border_width=2, border_color="black")
         self.frame_total_price.grid(row=2, column=1, padx=10, pady=10)
