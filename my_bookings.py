@@ -13,7 +13,7 @@ class MyBookings:
         self.user_id = user_id
 
         self.frame_main = ctk.CTkFrame(parent_frame)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
+        self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         btn_back = ctk.CTkButton(
             self.frame_main,

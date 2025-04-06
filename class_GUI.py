@@ -202,7 +202,6 @@ class UserScreen(BaseWindow):
 
         my_bookings_module = importlib.import_module('my_bookings')
         my_bookings = my_bookings_module.MyBookings(self.main_frame, self.user_id, parent=self)
-        self.display_upcoming_flight()
 
     def display_upcoming_flight(self):
         """Displays flight details dynamically from the database"""
