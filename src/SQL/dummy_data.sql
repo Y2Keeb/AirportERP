@@ -20,3 +20,22 @@ INSERT INTO users (id, username, first_name, last_name, role, password) VALUES
 (8, 'staff3', 'Henry', 'Moore', 'staff', 'flightstaff2025'),
 (9, 'admin3', 'Isabel', 'Taylor', 'admin', 'rootadmin987'),
 (10, 'user4', 'Jack', 'Anderson', 'user', 'welcomeuser');
+INSERT INTO pending_flights (airline, departure, arrival, status, plane_type, total_seats, price, from_location, to_location, submitted_by)
+VALUES
+('Brussels Airlines', '2025-07-01 08:30:00', '2025-07-01 12:45:00', 'Pending', 'Boeing 737', 150, 299.99, 'Brussels', 'Berlin', 1),
+('Ryanair', '2025-07-02 10:15:00', '2025-07-02 12:30:00', 'Pending', 'Airbus A320', 180, 149.50, 'Brussels', 'Rome', 2),
+('KLM','2025-07-03 13:45:00', '2025-07-03 16:00:00', 'Pending', 'Boeing 777', 250, 399.75, 'Brussels', 'Madrid', 3),
+('Turkish Airlines', '2025-07-04 17:30:00', '2025-07-04 21:00:00', 'Pending', 'Airbus A330', 200, 275.00, 'Brussels', 'Istanbul', 4),
+('Emirates', '2025-07-05 22:00:00', '2025-07-06 02:30:00', 'Pending', 'Boeing 787', 220, 599.99, 'Brussels', 'Dubai', 5);
+INSERT INTO discount_codes (code, discount_percent, valid_from, valid_until, max_uses, is_active) 
+VALUES 
+    ('WELCOME10', 10.00, '2024-01-01', '2024-12-31', 100, TRUE),
+    ('SUMMER20', 20.00, '2024-06-01', '2024-08-31', 50, TRUE),
+    ('FLY15', 15.00, '2024-01-01', '2024-12-31', NULL, TRUE), -- Unlimited uses
+    ('EXPIRED5', 5.00, '2023-01-01', '2023-12-31', 200, TRUE), -- Expired code
+    ('INACTIVE25', 25.00, '2024-01-01', '2024-12-31', 30, FALSE), -- Inactive code
+    ('ONETIME50', 50.00, '2024-01-01', '2024-12-31', 1, TRUE), -- Single use only
+    ('WEEKEND10', 10.00, '2024-01-01', '2024-12-31', NULL, TRUE),
+    ('BUSINESS15', 15.00, '2024-01-01', '2024-12-31', 100, TRUE),
+    ('STUDENT20', 20.00, '2024-09-01', '2024-12-31', 200, TRUE), -- Valid only in second half of year
+    ('FREQUENT25', 25.00, '2024-01-01', '2024-12-31', 10, TRUE); -- Limited to 10 uses
