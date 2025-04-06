@@ -5,9 +5,12 @@ This module provides a login screen for the Airport ERP system.
 import tkinter as tk
 from tkinter import messagebox, Menu
 import customtkinter as ctk
+from customtkinter import CTkImage
 from CTkMessagebox import *
 from class_GUI import BaseWindow,UserScreen,AdminScreen,StaffScreen
 from config import mydb,set_theme
+from PIL import Image
+
 
 
 
@@ -20,13 +23,22 @@ class LoginScreen(BaseWindow):
         self.root.geometry("350x550")
         self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
         self.frame_main.pack(fill="both", expand=True)
+
+        pil_image = Image.open("docs/icons/plane-prop.png")
+        pil_image = pil_image.resize((150, 150))
+        self.ctk_image = ctk.CTkImage(light_image=pil_image,
+                                      dark_image=pil_image,
+                                      size=(150, 150))
+
+        self.lbl_image = ctk.CTkLabel(self.frame_main,
+                                      image=self.ctk_image,
+                                      text="")
+        self.lbl_image.pack(pady=20)
+
         set_theme()
         self.create_widgets()
 
     def create_widgets(self):
-        image = tk.PhotoImage(file="docs/icons/plane-prop.png")
-        ctk.CTkLabel(self.frame_main,text=" ", image=image).pack()
-        self.root.image = image
 
         ctk.CTkLabel(self.frame_main, text="Welcome Back!", font=("Comics-sans", 25)).pack()
         ctk.CTkLabel(self.frame_main, text="Log in to your account").pack()
