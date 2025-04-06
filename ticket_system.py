@@ -180,29 +180,29 @@ class AdditionalPackageScreen:
         # Widgets setup
         self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
         self.lbl_success = ctk.CTkLabel(self.frame_main, text="Ticket reserved! Now choose your additional packages.")
-        self.btn_package1 = ctk.CTkButton(self.frame_additions, text="Package 1: 30 EUR", command=lambda: self.package1_selected(price))
+        self.btn_package1 = ctk.CTkButton(self.frame_additions, text="Package 1: 30 €", command=lambda: self.package1_selected(price))
         self.lbl_package1 = ctk.CTkLabel(self.frame_additions, text="info over package 1")
-        self.btn_package2 = ctk.CTkButton(self.frame_additions, text="Package 2: 25 EUR", command=lambda: self.package2_selected(price))
+        self.btn_package2 = ctk.CTkButton(self.frame_additions, text="Package 2: 25 €", command=lambda: self.package2_selected(price))
         self.lbl_package2 = ctk.CTkLabel(self.frame_additions, text="info over package 2")
 
         self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self.finalize_purchase)
 
         # Create widgets for the price frame
         self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
-        self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=f"{float(price):.2f} EUR")
+        self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=f"{float(price):.2f} €")
         self.lbl_additional_package_label = ctk.CTkLabel(self.frame_total_price, text="Selected packages:")
-        self.lbl_addpackage_price = ctk.CTkLabel(self.frame_total_price, text="0.00 EUR")
+        self.lbl_addpackage_price = ctk.CTkLabel(self.frame_total_price, text="0.00 €")
 
         total_price = float(package_price) + float(price)
         self.total_price_label = ctk.CTkLabel(self.frame_total_price, text="Total: ")
-        self.total_price = ctk.CTkLabel(self.frame_total_price, text=f"{total_price:.2f} EUR")
+        self.total_price = ctk.CTkLabel(self.frame_total_price, text=f"{total_price:.2f} €")
 
         self.lbl_discount = ctk.CTkLabel(self.frame_additions, text="Discount Code:")
         self.entry_discount = ctk.CTkEntry(self.frame_additions, width=150)
         self.btn_apply_discount = ctk.CTkButton(self.frame_additions,text="Apply Discount",width=100,command=self.apply_discount)
 
         self.lbl_discount_label = ctk.CTkLabel(self.frame_total_price, text="Discount:")
-        self.lbl_discount_amount = ctk.CTkLabel(self.frame_total_price, text="0.00 EUR")
+        self.lbl_discount_amount = ctk.CTkLabel(self.frame_total_price, text="0.00 E€")
 
 
         self.create_widgets()
