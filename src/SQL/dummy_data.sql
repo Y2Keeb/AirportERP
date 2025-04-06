@@ -29,13 +29,13 @@ VALUES
 ('Emirates', '2025-07-05 22:00:00', '2025-07-06 02:30:00', 'Pending', 'Boeing 787', 220, 599.99, 'Brussels', 'Dubai', 5);
 INSERT INTO discount_codes (code, discount_percent, valid_from, valid_until, max_uses, is_active) 
 VALUES 
-    ('WELCOME10', 10.00, '2024-01-01', '2024-12-31', 100, TRUE),
-    ('SUMMER20', 20.00, '2024-06-01', '2024-08-31', 50, TRUE),
-    ('FLY15', 15.00, '2024-01-01', '2024-12-31', NULL, TRUE), -- Unlimited uses
+    ('WELCOME10', 10.00, '2025-01-01', '2025-12-31', 100, TRUE),
+    ('SUMMER20', 20.00, '2025-06-01', '2025-08-31', 50, TRUE),
+    ('FLY15', 15.00, '2025-01-01', '2025-12-31', NULL, TRUE), -- Unlimited uses
     ('EXPIRED5', 5.00, '2023-01-01', '2023-12-31', 200, TRUE), -- Expired code
-    ('INACTIVE25', 25.00, '2024-01-01', '2024-12-31', 30, FALSE), -- Inactive code
-    ('ONETIME50', 50.00, '2024-01-01', '2024-12-31', 1, TRUE), -- Single use only
-    ('WEEKEND10', 10.00, '2024-01-01', '2024-12-31', NULL, TRUE),
-    ('BUSINESS15', 15.00, '2024-01-01', '2024-12-31', 100, TRUE),
-    ('STUDENT20', 20.00, '2024-09-01', '2024-12-31', 200, TRUE), -- Valid only in second half of year
-    ('FREQUENT25', 25.00, '2024-01-01', '2024-12-31', 10, TRUE); -- Limited to 10 uses
+    ('INACTIVE25', 25.00, '2025-01-01', '2025-12-31', 30, FALSE), -- Inactive code
+    ('ONETIME50', 50.00, '2025-01-01', '2025-12-31', 1, TRUE), -- Single use only
+    ('WEEKEND10', 10.00, '2025-01-01', '2025-12-31', NULL, TRUE),
+    ('BUSINESS15', 15.00, '2025-01-01', '2025-12-31', 100, TRUE),
+    ('STUDENT20', 20.00, '2025-09-01', '2025-12-31', 200, TRUE), -- Valid only in second half of year
+    ('FREQUENT25', 25.00, '2025-01-01', '2025-12-31', 10, TRUE); -- Limited to 10 uses
