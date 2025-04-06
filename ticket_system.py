@@ -140,13 +140,9 @@ class TicketSystem:
 
         for widget in self.frame_main.winfo_children():
             widget.grid_forget()
+            widget.pack_forget()
 
-        self.additional_package_screen = AdditionalPackageScreen(
-            self.frame_main,
-            selected_flight=self.selected_flight,
-            user_id=self.user_id,
-            package_price=0
-        )
+        self.additional_package_screen = AdditionalPackageScreen(self.frame_main,selected_flight=self.selected_flight,user_id=self.user_id,package_price=0)
 
     def open_package_screen(self):
         package_window = tk.Toplevel(self.frame_main)
@@ -193,7 +189,7 @@ class AdditionalPackageScreen:
 
         # Create widgets for the price frame
         self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
-        self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=f"{price:.2f} EUR")
+        self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=f"{float(price):.2f} EUR")
         self.lbl_additional_package_label = ctk.CTkLabel(self.frame_total_price, text="Selected packages:")
         self.lbl_addpackage_price = ctk.CTkLabel(self.frame_total_price, text="0.00 EUR")
 
@@ -292,44 +288,48 @@ class AdditionalPackageScreen:
                         WHERE id = %s
                     """
             self.cursor.execute(update_query, (code_id,))
-            mydb.commit()  # Don't forget to commit!
+            mydb.commit()
 
-            # 2. THEN: Update the UI prices
-            self.update_total_price(self.selected_flight[-1])  # <-- This comes AFTER database update
+            self.update_total_price(self.selected_flight[-1])
 
-            # 3. FINALLY: Show success message
             messagebox.showinfo("Success", f"{discount_percent}% discount applied!")
 
         except Exception as e:
-            mydb.rollback()  # Rollback if error occurs
+            mydb.rollback()
             messagebox.showerror("Error", f"Failed to apply discount: {str(e)}")
-
 
     def update_total_price(self, flight_price):
         """Update all price displays with proper type conversion"""
         try:
+            # Convert all values to float to ensure proper math
             flight_price = float(flight_price)
             package_price = float(self.package_price)
             discount_amount = float(getattr(self, 'discount_amount', 0))
 
+            # Calculate the correct total
             subtotal = flight_price + package_price
             total = subtotal - discount_amount
 
+            # Update package price display
+            self.lbl_addpackage_price.configure(text=f"+ {package_price:.2f} €")
 
+            # Update discount display
             if hasattr(self, 'discount_applied') and self.discount_applied:
-                self.lbl_discount_amount.configure(text=f"- {discount_amount:.2f} EUR")
+                self.lbl_discount_amount.configure(text=f"- {discount_amount:.2f} €")
                 self.lbl_discount_label.configure(text=f"Discount ({getattr(self, 'discount_percent', 0)}%): -")
             else:
-                self.lbl_discount_amount.configure(text="- 0.00 EUR ")
+                self.lbl_discount_amount.configure(text="- 0.00 €")
                 self.lbl_discount_label.configure(text="Discount: -")
 
-            self.lbl_addpackage_price.configure(text=f"+ {package_price:.2f} EUR")
-            self.total_price.configure(text=f"{total:.2f} EUR")
+            # Update total price (THIS WAS MISSING PROPER UPDATE)
+            self.total_price.configure(text=f"{total:.2f} €")
+
+            # Force immediate GUI update
+            self.frame_main.update_idletasks()
 
         except Exception as e:
             print(f"Error in update_total_price: {str(e)}")
             messagebox.showerror("Error", f"Failed to update prices: {str(e)}")
-
     def package1_selected(self, price):
         self.package_price += 30  # Add package price
         self.update_total_price(price)
