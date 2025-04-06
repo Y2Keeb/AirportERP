@@ -16,8 +16,7 @@ class TicketSystem:
         self.cursor = mydb.cursor()
 
         self.frame_main = ctk.CTkFrame(parent_frame)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
-        # -> Create main frame that holds everything.
+        self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         self.frame_search = ctk.CTkFrame(self.frame_main)
         self.frame_search.grid(row=1, column=0,columnspan=2, pady=10, padx=20, sticky="w")

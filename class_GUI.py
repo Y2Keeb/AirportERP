@@ -184,6 +184,7 @@ class UserScreen(BaseWindow):
         content_frame.grid_columnconfigure((0, 1), weight=1)
 
     def buy_tickets(self):
+
         for widget in self.main_frame.winfo_children():
             widget.destroy()
 
@@ -194,7 +195,6 @@ class UserScreen(BaseWindow):
 
         ticket_module = importlib.import_module('ticket_system')
         ticket_system = ticket_module.TicketSystem(self.main_frame, user_id, parent=self)
-        self.display_upcoming_flight()
 
     def my_bookings(self):
         for widget in self.main_frame.winfo_children():
