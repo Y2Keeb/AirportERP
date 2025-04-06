@@ -64,9 +64,49 @@ Tracks flight bookings by users.
 
 ---
 
-## Relationships
-- A **User** can be linked to **Employees** if they have a staff role (foreign key `user_id` in **Employees**).
-- A **Flight** can have multiple **Bookings** (foreign key `flight_id` in **Bookings**).
-- A **User** can have multiple **Bookings** (foreign key `user_id` in **Bookings**).
+## 5. Pending Flights Table
+Stores flight proposals awaiting approval.
+
+| Column Name     | Data Type     | Description                                      |
+|-----------------|---------------|--------------------------------------------------|
+| `id`            | INTEGER       | Primary Key, Unique ID for each pending flight   |
+| `airline`       | VARCHAR(255)  | Proposed airline company name                    |
+| `departure`     | DATETIME      | Proposed departure date and time                 |
+| `arrival`       | DATETIME      | Proposed arrival date and time                   |
+| `status`        | VARCHAR(50)   | Approval status (default: 'Pending')             |
+| `plane_type`    | VARCHAR(50)   | Proposed aircraft type                           |
+| `total_seats`   | INTEGER       | Proposed total seats                             |
+| `price`         | FLOAT         | Proposed price                                   |
+| `from_location` | VARCHAR(255)  | Proposed departure location                      |
+| `to_location`   | VARCHAR(255)  | Proposed arrival location                        |
+| `submitted_by`  | INTEGER       | Foreign Key referencing `id` in Users table      |
+| `submitted_at`  | TIMESTAMP     | Timestamp when flight was proposed               |
 
 ---
+
+## 6. Discount Codes Table
+Manages promotional discount codes.
+
+| Column Name        | Data Type     | Description                                      |
+|--------------------|---------------|--------------------------------------------------|
+| `id`               | INTEGER       | Primary Key, Unique ID for each code             |
+| `code`             | VARCHAR(20)   | Unique discount code (case-sensitive)            |
+| `discount_percent` | DECIMAL(5,2)  | Percentage discount (e.g., 10.00 for 10%)        |
+| `valid_from`       | DATE          | Date when code becomes active                    |
+| `valid_until`      | DATE          | Date when code expires                           |
+| `max_uses`         | INTEGER       | Maximum number of times code can be used         |
+| `current_uses`     | INTEGER       | Number of times code has been used               |
+| `is_active`        | BOOLEAN       | Whether code is currently active                 |
+
+---
+
+## Relationships
+- **Users** can be linked to **Employees** if they have a staff role
+- A **Flight** can have multiple **Bookings**
+- A **User** can have multiple **Bookings**
+- A **User** can submit multiple **Pending Flights**
+- A **Discount Code** can be applied to multiple **Bookings** (tracked via current_uses)
+- **Pending Flights** can be approved and moved to the **Flights** table
+
+---
+
