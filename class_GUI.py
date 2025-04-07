@@ -47,18 +47,14 @@ class BaseWindow:
         )
 
     def logout(self):
-        """Logs out the user and returns to the login screen."""
-
-        self.root.quit()
-        self.root.destroy()
+        self.frame_main.destroy()
 
         login_module = importlib.import_module('login_screen')
-        login_screen = login_module.LoginScreen(tk.Tk())
-        self.root.mainloop()
+        login_screen = login_module.LoginScreen(self.root)
 
     def kill_window(self):
-        """quit"""
-        self.root.destroy()
+        self.root.quit()
+        self.root.after(100, self.root.destroy)
 
 
 class MainWindow(BaseWindow):
@@ -139,23 +135,23 @@ class UserScreen(BaseWindow):
         user_id_result = cursor.fetchone()
         self.user_id = user_id_result[0] if user_id_result else None
 
-        self.main_frame = ctk.CTkFrame(self.root, border_color="black", border_width=5)
+        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
         self.root.grid_rowconfigure(0, weight=1, minsize=1)
         self.root.grid_columnconfigure(0, weight=1, minsize=1)
 
-        self.main_frame.grid(row=0, column=0,sticky="nsew")
+        self.frame_main.grid(row=0, column=0, sticky="nsew")
         self.show_home_view()
         self.display_upcoming_flight()
     def show_home_view(self):
         """Show the default dashboard view using grid layout"""
-        for widget in self.main_frame.winfo_children():
+        for widget in self.frame_main.winfo_children():
             widget.destroy()
 
-        content_frame = ctk.CTkFrame(self.main_frame)
+        content_frame = ctk.CTkFrame(self.frame_main)
         content_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        self.main_frame.grid_rowconfigure(0, weight=1)
-        self.main_frame.grid_columnconfigure(0, weight=1)
+        self.frame_main.grid_rowconfigure(0, weight=1)
+        self.frame_main.grid_columnconfigure(0, weight=1)
 
         greeting_label = ctk.CTkLabel(
             content_frame, text=f"Hi {self.username}!",
@@ -185,7 +181,7 @@ class UserScreen(BaseWindow):
 
     def buy_tickets(self):
 
-        for widget in self.main_frame.winfo_children():
+        for widget in self.frame_main.winfo_children():
             widget.destroy()
 
         cursor = mydb.cursor()
@@ -194,19 +190,19 @@ class UserScreen(BaseWindow):
         user_id = user_id_result[0]
 
         ticket_module = importlib.import_module('ticket_system')
-        ticket_system = ticket_module.TicketSystem(self.main_frame, user_id, parent=self)
+        ticket_system = ticket_module.TicketSystem(self.frame_main, user_id, parent=self)
 
     def my_bookings(self):
-        for widget in self.main_frame.winfo_children():
+        for widget in self.frame_main.winfo_children():
             widget.destroy()
 
         my_bookings_module = importlib.import_module('my_bookings')
-        my_bookings = my_bookings_module.MyBookings(self.main_frame, self.user_id, parent=self)
+        my_bookings = my_bookings_module.MyBookings(self.frame_main, self.user_id, parent=self)
 
     def display_upcoming_flight(self):
         """Displays flight details dynamically from the database"""
         if not hasattr(self, 'upcoming_flight_frame') or not self.upcoming_flight_frame.winfo_exists():
-            self.upcoming_flight_frame = ctk.CTkFrame(self.main_frame, border_width=2, border_color="black")
+            self.upcoming_flight_frame = ctk.CTkFrame(self.frame_main, border_width=2, border_color="black")
             self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
 
         for widget in self.upcoming_flight_frame.winfo_children():

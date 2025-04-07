@@ -7,7 +7,6 @@ from datetime import datetime
 
 logger = get_logger(__name__) #zet module naam als log naam
 
-
 class TicketSystem:
     def __init__(self, parent_frame,user_id,parent=None):
         """Sets up the UI and prepares the database connection."""

@@ -5,7 +5,6 @@ This module provides a login screen for the Airport ERP system.
 import tkinter as tk
 from tkinter import messagebox, Menu
 import customtkinter as ctk
-from customtkinter import CTkImage
 from CTkMessagebox import *
 from class_GUI import BaseWindow,UserScreen,AdminScreen,StaffScreen
 from config import mydb,set_theme
@@ -71,16 +70,16 @@ class LoginScreen(BaseWindow):
         query = "SELECT id, username, first_name, last_name, role FROM users WHERE username = %s AND password = %s"
         cursor.execute(query, (username, password))
         result = cursor.fetchone()
+
         if result:
             role = result[4]
-            self.root.destroy()
-            self.new_root = tk.Tk()
+            self.frame_main.destroy()
             if role == "admin":
-                AdminScreen(self.new_root)
+                AdminScreen(self.root)
             elif role == "staff":
-                StaffScreen(self.new_root)
+                StaffScreen(self.root)
             else:
-                UserScreen(self.new_root,username)
+                UserScreen(self.root,username)
         else:
             tk.messagebox.showerror("Login Failed", "Invalid username or password.")
 
