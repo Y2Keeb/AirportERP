@@ -1,24 +1,21 @@
 import customtkinter as ctk
-from tkinter import ttk
+from tkinter import ttk,messagebox
 import tkinter as tk
 from tkcalendar import DateEntry
 from config import *
+from datetime import datetime
 
 logger = get_logger(__name__) #zet module naam als log naam
 
-
 class TicketSystem:
-    def __init__(self, root,user_id,previous_window=None):
+    def __init__(self, parent_frame,user_id,parent=None):
         """Sets up the UI and prepares the database connection."""
-        self.root = root
-        self.cursor = mydb.cursor()
-        self.previous_window = previous_window
-
+        self.parent = parent
         self.user_id = user_id
+        self.cursor = mydb.cursor()
 
-        self.frame_main = ctk.CTkFrame(self.root)
-        self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
-        # -> Create main frame that holds everything.
+        self.frame_main = ctk.CTkFrame(parent_frame)
+        self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         self.frame_search = ctk.CTkFrame(self.frame_main)
         self.frame_search.grid(row=1, column=0,columnspan=2, pady=10, padx=20, sticky="w")
@@ -63,7 +60,7 @@ class TicketSystem:
         self.entry_date.grid(row=1, column=3, padx=5)
         # -> Position the date selection widget
 
-        btn_back = ctk.CTkButton(self.frame_main, text="<-",command=self.go_back)
+        btn_back = ctk.CTkButton(self.frame_main,text="← Back to Dashboard",command=self.go_back,fg_color="transparent",border_width=1)
         btn_back.grid(row=0, column=1, padx=10,sticky="e")
         # -> Create and position the Back button
 
@@ -89,9 +86,8 @@ class TicketSystem:
         btn_book_ticket.grid(row=3, column=1, padx=10)
 
     def go_back(self):
-        if self.previous_window:
-            self.previous_window.deiconify()
-        self.root.destroy()
+        if self.parent:
+            self.parent.show_home_view()
 
     def swap_locations(self):
         """Swap the locations in the 'From' and 'To' fields."""
@@ -140,11 +136,14 @@ class TicketSystem:
             print("No flight selected!")
             return
 
-        package_window = tk.Toplevel(self.root)
-        package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
+        for widget in self.frame_main.winfo_children():
+            widget.grid_forget()
+            widget.pack_forget()
+
+        self.additional_package_screen = AdditionalPackageScreen(self.frame_main,selected_flight=self.selected_flight,user_id=self.user_id,package_price=0)
 
     def open_package_screen(self):
-        package_window = tk.Toplevel(self.master)
+        package_window = tk.Toplevel(self.frame_main)
         package_screen = AdditionalPackageScreen(package_window, selected_flight=self.selected_flight,user_id=self.user_id)
 
     def refresh_flights(self):
@@ -153,40 +152,192 @@ class TicketSystem:
         self.fetch_flights()
 
 class AdditionalPackageScreen:
-    def __init__(self, root, selected_flight, user_id):
-        self.root = root
-        self.selected_flight = selected_flight
-        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
-        self.frame_main.pack(fill="both", expand=True)
+    def __init__(self, parent_frame, selected_flight, user_id, package_price):
         self.user_id = user_id
         self.cursor = mydb.cursor()
-        set_theme()
-
+        self.parent_frame = parent_frame  # Use the parent frame passed in
+        self.selected_flight = selected_flight
         flight_id, airline, from_location, departure, to_location, price = self.selected_flight
         flight_info = f"Flight: {airline} | {from_location} to {to_location} | {departure} | Price: {price}"
+        self.package_price = package_price
 
+        self.discount_applied = False
+        self.discount_amount = 0
+        self.discount_percent = 0
+
+        # frame main
+        self.frame_main = ctk.CTkFrame(parent_frame)
+        self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        # frame with prices
+        self.frame_total_price = ctk.CTkFrame(self.frame_main, corner_radius=10, border_width=2, border_color="black")
+        self.frame_total_price.grid(row=2, column=1, padx=10, pady=10)
+        # frame with additions
+        self.frame_additions = ctk.CTkFrame(self.frame_main)
+        self.frame_additions.grid(row=2, column=0, padx=10, pady=10,sticky="w")
+
+        # Widgets setup
         self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
-        self.flight_info_label.pack(pady=10)
-
-        self.success_label = ctk.CTkLabel(self.frame_main, text="Ticket reserved! Now choose your additional packages.")
-        self.success_label.pack(pady=10)
-
-        self.package1_button = ctk.CTkButton(self.frame_main, text="Package 1", command=self.package1_selected)
-        self.package1_button.pack(pady=5)
-
-        self.package2_button = ctk.CTkButton(self.frame_main, text="Package 2", command=self.package2_selected)
-        self.package2_button.pack(pady=5)
+        self.lbl_success = ctk.CTkLabel(self.frame_main, text="Ticket reserved! Now choose your additional packages.")
+        self.btn_package1 = ctk.CTkButton(self.frame_additions, text="Package 1: 30 €", command=lambda: self.package1_selected(price))
+        self.lbl_package1 = ctk.CTkLabel(self.frame_additions, text="info over package 1")
+        self.btn_package2 = ctk.CTkButton(self.frame_additions, text="Package 2: 25 €", command=lambda: self.package2_selected(price))
+        self.lbl_package2 = ctk.CTkLabel(self.frame_additions, text="info over package 2")
 
         self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self.finalize_purchase)
-        self.buy_button.pack(pady=10)
 
-    def package1_selected(self):
-        print("Package 1 selected")
+        # Create widgets for the price frame
+        self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
+        self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=f"{float(price):.2f} €")
+        self.lbl_additional_package_label = ctk.CTkLabel(self.frame_total_price, text="Selected packages:")
+        self.lbl_addpackage_price = ctk.CTkLabel(self.frame_total_price, text="0.00 €")
 
-    def package2_selected(self):
-        print("Package 2 selected")
+        total_price = float(package_price) + float(price)
+        self.total_price_label = ctk.CTkLabel(self.frame_total_price, text="Total: ")
+        self.total_price = ctk.CTkLabel(self.frame_total_price, text=f"{total_price:.2f} €")
+
+        self.lbl_discount = ctk.CTkLabel(self.frame_additions, text="Discount Code:")
+        self.entry_discount = ctk.CTkEntry(self.frame_additions, width=150)
+        self.btn_apply_discount = ctk.CTkButton(self.frame_additions,text="Apply Discount",width=100,command=self.apply_discount)
+
+        self.lbl_discount_label = ctk.CTkLabel(self.frame_total_price, text="Discount:")
+        self.lbl_discount_amount = ctk.CTkLabel(self.frame_total_price, text="0.00 E€")
+
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.flight_info_label.grid(row=0, column=0,columnspan = 2,padx=10, pady=10,sticky="ew")
+        self.lbl_success.grid(row=1, column=0, columnspan = 2,padx=10, pady=10, sticky="ew")
+        self.btn_package1.grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        self.lbl_package1.grid(row=3, column=0, padx=10, pady=5, sticky="w")
+        self.btn_package2.grid(row=4, column=0, padx=10, pady=5, sticky="w")
+        self.lbl_package2.grid(row=5, column=0, padx=10, pady=5, sticky="w")
+        self.buy_button.grid(row=9, column=0, padx=10, pady=10)
+        #price frame
+        self.lbl_flight_price_label.grid(row=2, column=1, padx=10, pady=10)
+        self.lbl_flight_price.grid(row=2, column=2, padx=10, pady=10)
+        self.lbl_additional_package_label.grid(row=3, column=1, padx=10, pady=10)
+        self.lbl_addpackage_price.grid(row=3, column=2, padx=10, pady=10)
+        self.total_price_label.grid(row=6, column=1, padx=10, pady=10)
+        self.total_price.grid(row=6, column=2, padx=10, pady=10)
+        self.lbl_discount_label.grid(row=5, column=1, padx=10, pady=10)
+        self.lbl_discount_amount.grid(row=5, column=2, padx=10, pady=10)
+
+        self.lbl_discount.grid(row=7, column=0, padx=10, pady=(20, 5), sticky="w")
+        self.entry_discount.grid(row=8, column=0, padx=10, pady=5, sticky="w")
+        self.btn_apply_discount.grid(row=8, column=1, padx=10, pady=5, sticky="w")
+
+    def apply_discount(self):
+        """Apply discount code if valid and update prices"""
+        try:
+            entered_code = self.entry_discount.get().strip()
+            if not entered_code:
+                messagebox.showwarning("Error", "Please enter a discount code")
+                return
+
+            if hasattr(self, 'discount_applied') and self.discount_applied:
+                messagebox.showinfo("Notice", "Discount already applied")
+                return
+
+            flight_price = float(self.selected_flight[-1])
+
+            query = """
+                SELECT id, discount_percent, valid_from, valid_until, 
+                       max_uses, current_uses, is_active
+                FROM discount_codes
+                WHERE UPPER(code) = UPPER(%s)
+            """
+            self.cursor.execute(query, (entered_code,))
+            result = self.cursor.fetchone()
+
+            if not result:
+                messagebox.showwarning("Invalid", "Discount code not found")
+                return
+
+            (code_id, discount_percent, valid_from, valid_until,
+             max_uses, current_uses, is_active) = result
+
+            today = datetime.now().date()
+            if not is_active:
+                messagebox.showwarning("Invalid", "This code is inactive")
+                return
+
+            if today < valid_from:
+                messagebox.showwarning("Invalid", f"Code valid from {valid_from}")
+                return
+
+            if today > valid_until:
+                messagebox.showwarning("Invalid", f"Code expired on {valid_until}")
+                return
+
+            if max_uses and current_uses >= max_uses:
+                messagebox.showwarning("Invalid", "Usage limit reached")
+                return
+
+            discount_percent = float(result[1])  # Convert the DECIMAL to float
+            subtotal = float(flight_price) + float(self.package_price)
+            self.discount_amount = subtotal * (discount_percent / 100)
+            self.discount_applied = True
+            self.discount_percent = discount_percent
+
+            update_query = """
+                        UPDATE discount_codes
+                        SET current_uses = current_uses + 1
+                        WHERE id = %s
+                    """
+            self.cursor.execute(update_query, (code_id,))
+            mydb.commit()
+
+            self.update_total_price(self.selected_flight[-1])
+
+            messagebox.showinfo("Success", f"{discount_percent}% discount applied!")
+
+        except Exception as e:
+            mydb.rollback()
+            messagebox.showerror("Error", f"Failed to apply discount: {str(e)}")
+
+    def update_total_price(self, flight_price):
+        """Update all price displays with proper type conversion"""
+        try:
+            # Convert all values to float to ensure proper math
+            flight_price = float(flight_price)
+            package_price = float(self.package_price)
+            discount_amount = float(getattr(self, 'discount_amount', 0))
+
+            # Calculate the correct total
+            subtotal = flight_price + package_price
+            total = subtotal - discount_amount
+
+            # Update package price display
+            self.lbl_addpackage_price.configure(text=f"+ {package_price:.2f} €")
+
+            # Update discount display
+            if hasattr(self, 'discount_applied') and self.discount_applied:
+                self.lbl_discount_amount.configure(text=f"- {discount_amount:.2f} €")
+                self.lbl_discount_label.configure(text=f"Discount ({getattr(self, 'discount_percent', 0)}%): -")
+            else:
+                self.lbl_discount_amount.configure(text="- 0.00 €")
+                self.lbl_discount_label.configure(text="Discount: -")
+
+            # Update total price (THIS WAS MISSING PROPER UPDATE)
+            self.total_price.configure(text=f"{total:.2f} €")
+
+            # Force immediate GUI update
+            self.frame_main.update_idletasks()
+
+        except Exception as e:
+            print(f"Error in update_total_price: {str(e)}")
+            messagebox.showerror("Error", f"Failed to update prices: {str(e)}")
+    def package1_selected(self, price):
+        self.package_price += 30  # Add package price
+        self.update_total_price(price)
+
+    def package2_selected(self, price):
+        self.package_price += 25  # Add package price
+        self.update_total_price(price)
 
     def finalize_purchase(self):
+        # Finalize booking and update the database
         if not hasattr(self, "selected_flight"):
             print("No flight selected!")
             return
@@ -209,3 +360,5 @@ class AdditionalPackageScreen:
         self.cursor.execute(update_query, (flight_id,))
         mydb.commit()
         logger.info(f"Booking for user ID '{self.user_id}' succesful!")
+        messagebox.showinfo("Success", "Ticket booked successfully!")
+

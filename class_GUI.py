@@ -4,7 +4,6 @@ import tkinter as tk
 from tkinter import Menu
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
-#import tksheet
 import importlib
 from config import mydb,set_theme
 
@@ -48,18 +47,14 @@ class BaseWindow:
         )
 
     def logout(self):
-        """Logs out the user and returns to the login screen."""
-
-        self.root.quit()
-        self.root.destroy()
+        self.frame_main.destroy()
 
         login_module = importlib.import_module('login_screen')
-        login_screen = login_module.LoginScreen(tk.Tk())
-        self.root.mainloop()
+        login_screen = login_module.LoginScreen(self.root)
 
     def kill_window(self):
-        """quit"""
-        self.root.destroy()
+        self.root.quit()
+        self.root.after(100, self.root.destroy)
 
 
 class MainWindow(BaseWindow):
@@ -127,94 +122,149 @@ class StaffScreen(BaseWindow):
         greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
 
 
-
 class UserScreen(BaseWindow):
     """User dashboard"""
 
     def __init__(self, root, username):
         super().__init__(root, "User Dashboard")
         self.username = username
+        self.root.geometry("800x500")
+
+        cursor = mydb.cursor()
+        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
+        user_id_result = cursor.fetchone()
+        self.user_id = user_id_result[0] if user_id_result else None
+
         self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
-        self.frame_main.pack(fill="both", expand=True)
-        self.frame_upcoming_flight = ctk.CTkFrame(self.frame_main)
-        self.frame_upcoming_flight.grid(row=2,column=0,columnspan=3,pady=10, padx=20)
-        set_theme()
-        self.create_widgets()
+        self.root.grid_rowconfigure(0, weight=1, minsize=1)
+        self.root.grid_columnconfigure(0, weight=1, minsize=1)
 
-    def create_widgets(self):
+        self.frame_main.grid(row=0, column=0, sticky="nsew")
+        self.show_home_view()
+        self.display_upcoming_flight()
+    def show_home_view(self):
+        """Show the default dashboard view using grid layout"""
+        for widget in self.frame_main.winfo_children():
+            widget.destroy()
 
-        greeting_label = ctk.CTkLabel(self.frame_main, text=f"Hi {self.username}!", font=("Arial", 20))
-        greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")
+        content_frame = ctk.CTkFrame(self.frame_main)
+        content_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        btn_buy_tickets = ctk.CTkButton(self.frame_main, text="Buy Tickets", command=self.buy_tickets)
-        btn_buy_tickets.grid(row=1, column=0, pady=10, padx=20, sticky="w")
+        self.frame_main.grid_rowconfigure(0, weight=1)
+        self.frame_main.grid_columnconfigure(0, weight=1)
 
-        btn_my_bookings = ctk.CTkButton(self.frame_main, text="My Bookings", command=self.my_bookings)
-        btn_my_bookings.grid(row=1, column=1, pady=10, padx=20, sticky="w")
+        greeting_label = ctk.CTkLabel(
+            content_frame, text=f"Hi {self.username}!",
+            font=("Arial", 24, "bold")
+        )
+        greeting_label.grid(row=0, column=0, columnspan=2, padx=20, pady=(10, 5), sticky="e")
+
+        buttons_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
+        buttons_frame.grid(row=1, column=0, columnspan=2, sticky="e", padx=20)
+
+        btn_buy_tickets = ctk.CTkButton(buttons_frame, text="Buy Tickets", command=self.buy_tickets)
+        btn_buy_tickets.grid(row=0, column=0, padx=5)
+
+        btn_my_bookings = ctk.CTkButton(buttons_frame, text="My Bookings", command=self.my_bookings)
+        btn_my_bookings.grid(row=0, column=1, padx=5)
+
+        upcoming_label = ctk.CTkLabel(content_frame, text="Upcoming flight:", font=("Arial", 16, "bold"))
+        upcoming_label.grid(row=2, column=0, columnspan=2, sticky="w", padx=20, pady=(10, 2))
+
+        self.upcoming_flight_frame = ctk.CTkFrame(content_frame, border_width=2, border_color="black")
+        self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
 
         self.display_upcoming_flight()
 
-    def display_upcoming_flight(self):
-        """Fetch and display the user's closest upcoming flight"""
-
-        cursor = mydb.cursor()
-        cursor.execute("""
-            SELECT f.departure, f.to_location, f.from_location, f.airline, f.gate
-            FROM flights f
-            INNER JOIN bookings b ON f.id = b.flight_id
-            INNER JOIN users u ON b.user_id = u.id
-            WHERE u.username = %s AND f.departure > NOW()
-            ORDER BY f.departure ASC
-            LIMIT 1
-        """, (self.username,))
-
-        upcoming_flight = cursor.fetchone()
-
-        if upcoming_flight:
-            departure, to_location, from_location, airline, gate = upcoming_flight
-
-            flight_text = (f"Next Flight: {airline}\n"
-                           f"From: {from_location} → To: {to_location}\n"
-                           f"Departure: {departure}\n"
-                           f"Gate: {gate}")
-        else:
-            flight_text = "No upcoming flights found."
-
-        for widget in self.frame_upcoming_flight.winfo_children():
-            widget.destroy()
-
-        lbl_upcoming_flight = ctk.CTkLabel(self.frame_upcoming_flight, text=flight_text, font=("Arial", 14))
-        lbl_upcoming_flight.pack(pady=5, padx=10)
+        content_frame.grid_rowconfigure(3, weight=1)
+        content_frame.grid_columnconfigure((0, 1), weight=1)
 
     def buy_tickets(self):
-        """Handles the Buy Tickets button"""
-        self.root.withdraw()
+
+        for widget in self.frame_main.winfo_children():
+            widget.destroy()
+
         cursor = mydb.cursor()
         cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
         user_id_result = cursor.fetchone()
         user_id = user_id_result[0]
-        new_window = tk.Toplevel(self.root)
 
         ticket_module = importlib.import_module('ticket_system')
-        print(f"Initializing TicketSystem with user_id: {user_id}")
-        ticket_system = ticket_module.TicketSystem(new_window,user_id,previous_window=self.root)
+        ticket_system = ticket_module.TicketSystem(self.frame_main, user_id, parent=self)
 
     def my_bookings(self):
-        """Handles the My Bookings button"""
-        self.root.withdraw()
-        cursor = mydb.cursor()
-        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
-        user_id_result = cursor.fetchone()
-        user_id = user_id_result[0]
-        # -> om user_id te krijgen ipv username, dus 5 ipv "user_1"
+        for widget in self.frame_main.winfo_children():
+            widget.destroy()
 
-        new_window = tk.Toplevel(self.root)
         my_bookings_module = importlib.import_module('my_bookings')
-        my_bookings_window = my_bookings_module.MyBookings(new_window, user_id, previous_window=self.root)
+        my_bookings = my_bookings_module.MyBookings(self.frame_main, self.user_id, parent=self)
 
-    def on_my_bookings_close(self):
-        """When MyBookings is closed, show UserScreen again"""
-        self.root.deiconify()
+    def display_upcoming_flight(self):
+        """Displays flight details dynamically from the database"""
+        if not hasattr(self, 'upcoming_flight_frame') or not self.upcoming_flight_frame.winfo_exists():
+            self.upcoming_flight_frame = ctk.CTkFrame(self.frame_main, border_width=2, border_color="black")
+            self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
 
-    def on_buytickets_close(self):
-        self.root.deiconify()
+        for widget in self.upcoming_flight_frame.winfo_children():
+            widget.destroy()
+
+        try:
+            cursor = mydb.cursor(dictionary=True)
+
+            query = """
+                    SELECT f.airline, f.departure, f.arrival, f.status, f.gate, f.plane_type,
+                           f.total_seats, f.seats_taken, f.from_location, f.to_location, f.airline_icon
+                    FROM bookings b
+                    JOIN flights f ON b.flight_id = f.id
+                    WHERE b.user_id = %s AND f.departure > NOW()  -- Only flights with departure in the future
+                    ORDER BY f.departure ASC  -- Get the earliest upcoming flight
+                    LIMIT 1
+                    """
+            cursor.execute(query, (self.user_id,))
+            flight = cursor.fetchone()
+
+            if not flight:
+                no_flight_label = ctk.CTkLabel(
+                    self.upcoming_flight_frame, text="No upcoming flights.",
+                    font=("Arial", 14, "italic")
+                )
+                no_flight_label.grid(row=0, column=0, padx=10, pady=10)
+                return
+
+            flight_info_label = ctk.CTkLabel(
+                self.upcoming_flight_frame,
+                text=f"{flight['airline']} Flight\n"
+                     f"{flight['from_location']} ➝ {flight['to_location']}\n",
+                font=("Arial", 16, "bold"),
+                justify="center"
+            )
+            flight_info_label.grid(row=0, column=0, columnspan=2, pady=(15, 15))
+
+            details = [
+                ("Departure:", f"{flight['departure']}"),
+                ("Arrival:", f"{flight['arrival']}"),
+                ("Gate:", f"{flight['gate']}"),
+                ("Status:", f"{flight['status']}"),
+                ("Plane Type:", f"{flight['plane_type']}"),
+            ]
+
+            for i, (label, value) in enumerate(details):
+                ctk.CTkLabel(self.upcoming_flight_frame, text=label, font=("Arial", 14)).grid(
+                    row=i + 1, column=0, sticky="w", padx=10, pady=2
+                )
+                ctk.CTkLabel(self.upcoming_flight_frame, text=value, font=("Arial", 14)).grid(
+                    row=i + 1, column=1, sticky="w", padx=10, pady=2
+                )
+
+            # QR code placeholder
+            airline_icon = ctk.CTkLabel(self.upcoming_flight_frame, text="QR CODE HERE",
+                                        font=("Arial", 20))  # Placeholder
+            airline_icon.grid(row=1, column=2, rowspan=3, padx=20, pady=5, sticky="e")
+
+            self.upcoming_flight_frame.grid_columnconfigure(1, weight=1)
+
+        except Exception as e:
+            print("Error fetching flight data:", e)
+
+        finally:
+            cursor.close()
