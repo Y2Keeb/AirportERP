@@ -2,7 +2,9 @@ import tkinter as tk
 from tkinter import messagebox, Menu
 import customtkinter as ctk
 from CTkMessagebox import *
-from class_GUI import BaseWindow, AdminScreen, StaffScreen
+from basewindow import BaseWindow
+from views.admin_screen import AdminScreen
+from views.staff_screen import StaffScreen
 from views.user_screen import UserScreen
 from config import mydb, set_theme
 from PIL import Image
@@ -11,7 +13,7 @@ from PIL import Image
 class LoginScreen(BaseWindow):
     """Login screen class"""
 
-    def __init__(self, root, **kwargs):
+    def __init__(self, root):
         super().__init__(root, "Login Window")
         self.root = root
         self.root.geometry("800x500")
@@ -29,6 +31,8 @@ class LoginScreen(BaseWindow):
                                       image=self.ctk_image,
                                       text="")
         self.lbl_image.pack(pady=20)
+        self.entry_username = ctk.CTkEntry(self.frame_main)
+        self.entry_password = ctk.CTkEntry(self.frame_main, show="*")
 
         set_theme()
         self.create_widgets()
@@ -40,11 +44,9 @@ class LoginScreen(BaseWindow):
         ctk.CTkLabel(self.frame_main, text="Log in to your account").pack()
 
         ctk.CTkLabel(self.frame_main, text="Username:").pack(pady=5)
-        self.entry_username = ctk.CTkEntry(self.frame_main)
         self.entry_username.pack(pady=5)
 
         ctk.CTkLabel(self.frame_main, text="Password:").pack(pady=5)
-        self.entry_password = ctk.CTkEntry(self.frame_main, show="*")
         self.entry_password.pack(pady=5)
 
         btn_login = ctk.CTkButton(self.frame_main, text="Login", command=self.login)
@@ -80,11 +82,6 @@ class LoginScreen(BaseWindow):
                 self.root.view_manager.show_view(UserScreen, username=username)
         else:
             tk.messagebox.showerror("Login Failed", "Invalid username or password.")
-
-    def about(self):
-        CTkMessagebox(
-            title="Info", message="(c) AirportERP\nBY Lindsey, Reza and Thomas"
-        )
 
     def help_menu(self):
         CTkMessagebox(

@@ -1,4 +1,4 @@
-from class_GUI import BaseWindow
+from basewindow import BaseWindow
 import customtkinter as ctk
 from tkinter import ttk,messagebox
 from config import mydb,get_logger

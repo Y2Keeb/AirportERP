@@ -1,4 +1,4 @@
-from class_GUI import BaseWindow
+from basewindow import BaseWindow
 import customtkinter as ctk
 from config import mydb
 from views.ticket_booking_screen import TicketSystem

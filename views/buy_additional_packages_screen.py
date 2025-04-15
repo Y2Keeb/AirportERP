@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import messagebox
-from class_GUI import BaseWindow
+from basewindow import BaseWindow
 from config import mydb,get_logger
 from datetime import datetime
 
