@@ -1,10 +1,7 @@
 """The admin dashboard"""
 
 import tkinter as tk
-import customtkinter as ctk
-from class_GUI import MainWindow, AdminScreen
-from config import mydb
-
+from class_GUI import AdminScreen
 
 root = tk.Tk()
 app = AdminScreen(root)
