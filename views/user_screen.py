@@ -6,9 +6,10 @@ from views.user_bookings_overview_screen import MyBookings
 
 
 class UserScreen(BaseWindow):
-    def __init__(self, root, username=None,user_id=None):
+    def __init__(self, root, username=None, user_id=None, view_manager=None):
         super().__init__(root, f"User Dashboard - {username}")
         self.username = username
+        self.view_manager = view_manager
         self.root.geometry("800x500")
         self.user_id = self._get_user_id()
 
@@ -67,18 +68,27 @@ class UserScreen(BaseWindow):
         content_frame.grid_columnconfigure((0, 1), weight=1)
 
     def _navigate_to_tickets(self):
-        self.root.view_manager.push_view(
-            TicketSystem,
-            user_id=self.user_id,
-            username=self.username,
-        )
+        if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
+            self.frame_main.pack_forget()
+
+        if self.view_manager:
+            self.view_manager.push_view(
+                TicketSystem,
+                user_id=self.user_id,
+                username=self.username
+            )
+        else:
+            TicketSystem(self.root, user_id=self.user_id, username=self.username)
 
     def _navigate_to_bookings(self):
-        self.root.view_manager.push_view(
-            MyBookings,
-            user_id=self.user_id,
-            username=self.username
-        )
+        if self.view_manager:
+            self.view_manager.push_view(
+                MyBookings,
+                user_id=self.user_id,
+                username=self.username
+            )
+        else:
+            MyBookings(self.root, user_id=self.user_id, username=self.username)
 
     def display_upcoming_flight(self):
 
@@ -151,5 +161,6 @@ class UserScreen(BaseWindow):
             cursor.close()
 
     def cleanup(self):
-        if hasattr(self, 'frame_main'):
+        """Clean up resources when screen is closed"""
+        if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
             self.frame_main.destroy()

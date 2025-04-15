@@ -13,9 +13,10 @@ from PIL import Image
 class LoginScreen(BaseWindow):
     """Login screen class"""
 
-    def __init__(self, root):
+    def __init__(self, root,view_manager=None):
         super().__init__(root, "Login Window")
         self.root = root
+        self.view_manager = view_manager
         self.root.geometry("800x500")
 
         self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)

@@ -3,19 +3,20 @@ from tkinter import messagebox
 from basewindow import BaseWindow
 from config import mydb,get_logger
 from datetime import datetime
+from views.payment_simulation import PaymentScreen
 
 logger = get_logger(__name__)
 
 class AdditionalPackageScreen(BaseWindow):
-    def __init__(self, root, selected_flight, user_id, package_price=0, username=None):
+    def __init__(self, root,view_manager, selected_flight, user_id, package_price=0, username=None):
         super().__init__(root, title=f"Additional Packages - {username}" if username else "Additional Packages")
         self.user_id = user_id
         self.cursor = mydb.cursor()
+        self.view_manager = view_manager
         self.selected_flight = selected_flight
         flight_id, airline, from_location, departure, to_location, price = self.selected_flight
         flight_info = f"Flight: {airline} | {from_location} to {to_location} | {departure} | Price: {price}"
         self.package_price = package_price
-
         self.discount_applied = False
         self.discount_amount = 0
         self.discount_percent = 0
@@ -62,6 +63,11 @@ class AdditionalPackageScreen(BaseWindow):
         self.lbl_discount_label = ctk.CTkLabel(self.frame_total_price, text="Discount:")
         self.lbl_discount_amount = ctk.CTkLabel(self.frame_total_price, text="0.00 €")
 
+        self.view_state = {
+            'selected_flight' : self.selected_flight,
+            'user_id': self.user_id,
+            'package_price': self.package_price
+        }
         self.create_widgets()
 
     def create_widgets(self):
@@ -85,47 +91,6 @@ class AdditionalPackageScreen(BaseWindow):
         self.lbl_discount.grid(row=7, column=0, padx=10, pady=(20, 5), sticky="w")
         self.entry_discount.grid(row=8, column=0, padx=10, pady=5, sticky="w")
         self.btn_apply_discount.grid(row=8, column=1, padx=10, pady=5, sticky="w")
-
-    def _setup_price_widgets(self):
-        """Create price display widgets"""
-        self.lbl_flight_price_label = ctk.CTkLabel(
-            self.frame_total_price,
-            text="Flight: "
-        )
-
-        self.lbl_flight_price = ctk.CTkLabel(
-            self.frame_total_price,
-            text=f"{float(self.selected_flight[-1]):.2f} €"
-        )
-
-        self.total_price_label = ctk.CTkLabel(
-            self.frame_total_price,
-            text="Total: "
-        )
-
-        self.total_price = ctk.CTkLabel(
-            self.frame_total_price,
-            text=f"{float(self.selected_flight[-1]) + float(self.package_price):.2f} €"
-        )
-
-    def _setup_discount_widgets(self):
-        """Create discount-related widgets"""
-        self.lbl_discount = ctk.CTkLabel(
-            self.frame_additions,
-            text="Discount Code:"
-        )
-
-        self.entry_discount = ctk.CTkEntry(
-            self.frame_additions,
-            width=150
-        )
-
-        self.btn_apply_discount = ctk.CTkButton(
-            self.frame_additions,
-            text="Apply Discount",
-            width=100,
-            command=self.apply_discount
-        )
 
     def _place_widgets(self):
         """Position all widgets in the layout"""
@@ -175,21 +140,34 @@ class AdditionalPackageScreen(BaseWindow):
         self.total_price.configure(text=f"{total:.2f} €")
 
     def _finalize_purchase(self):
-        """Complete the booking process"""
+        """Complete the booking process with proper argument passing"""
         try:
-            # Ensure selected_flight is properly structured
-            if not hasattr(self, 'selected_flight') or not isinstance(self.selected_flight, (tuple, list)):
-                raise ValueError("Invalid flight data")
+            # Validate selected flight exists
+            if not hasattr(self, 'selected_flight') or not self.selected_flight:
+                raise ValueError("No flight selected")
 
-            # Unpack flight details
-            flight_id = self.selected_flight[0]  # This should be the actual database ID
-            airline, from_loc, departure, to_loc, price = self.selected_flight[1:]
+            # Extract flight data
+            flight_id = self.selected_flight[0]
+            base_price = float(self.selected_flight[5])
 
-            # Insert booking
+            # Calculate total price
+            package_price = float(getattr(self, 'package_price', 0))
+            total_price = base_price + package_price
+
+            # Apply discount if available
+            if getattr(self, 'discount_applied', False):
+                discount = float(getattr(self, 'discount_amount', 0))
+                total_price = max(0, total_price - discount)
+
+            # Create booking and get booking ID
             self.cursor.execute(
-                "INSERT INTO bookings (user_id, flight_id, booking_date, status) VALUES (%s, %s, NOW(), 'Pending Payment')",
-                (self.user_id, flight_id)
+                "INSERT INTO bookings (user_id, flight_id, booking_date, status, total_price) "
+                "VALUES (%s, %s, NOW(), 'Pending Payment', %s)",
+                (self.user_id, flight_id, total_price)
             )
+
+            # Get the newly created booking ID
+            booking_id = self.cursor.lastrowid
 
             # Update seat count
             self.cursor.execute(
@@ -199,57 +177,50 @@ class AdditionalPackageScreen(BaseWindow):
 
             mydb.commit()
 
-            # Open payment screen
-            self._open_payment_screen()
+            self._open_payment_screen(booking_id, total_price)
 
         except Exception as e:
             mydb.rollback()
             messagebox.showerror("Error", f"Failed to complete booking: {str(e)}")
 
-    def _open_payment_screen(self):
-        """Open payment screen with countdown"""
-        self.frame_main.pack_forget()
+    def _open_payment_screen(self, booking_id, total_amount):
+        """Open payment screen with proper callback handling"""
+        if self.view_manager:
+            def payment_completed(success):
+                if success:
+                    messagebox.showinfo("Success", "Payment completed successfully!")
+                else:
+                    messagebox.showwarning("Payment Cancelled", "Payment was not completed")
+                self.view_manager.show_view(
+                    'UserScreen',
+                    user_id=self.user_id,
+                    username=self.username
+                )
 
-        self.payment_frame = ctk.CTkFrame(self.root)
-        self.payment_frame.pack(fill='both', expand=True)
-
-        ctk.CTkLabel(
-            self.payment_frame,
-            text="Please complete your payment within 5 minutes",
-            font=("Arial", 16)
-        ).pack(pady=20)
-
-        # Countdown label
-        self.countdown_label = ctk.CTkLabel(
-            self.payment_frame,
-            text="05:00",
-            font=("Arial", 24, "bold")
-        )
-        self.countdown_label.pack(pady=10)
-
-        # Payment options
-        ctk.CTkLabel(
-            self.payment_frame,
-            text="Payment Options:",
-            font=("Arial", 14)
-        ).pack(pady=10)
-
-        # Add your payment buttons here
-        ctk.CTkButton(
-            self.payment_frame,
-            text="Credit Card",
-            command=self._process_credit_card_payment
-        ).pack(pady=5)
-
-        ctk.CTkButton(
-            self.payment_frame,
-            text="Cancel Payment",
-            command=self._cancel_payment
-        ).pack(pady=20)
-
-        # Start countdown
-        self.remaining_time = 300  # 5 minutes in seconds
-        self._update_countdown()
+            self.view_manager.push_view(
+                PaymentScreen,
+                booking_id=booking_id,
+                amount=total_amount,
+                user_id=self.user_id,
+                return_callback=payment_completed
+            )
+        else:
+            # Fallback without view manager
+            PaymentScreen(
+                self.root,
+                booking_id=booking_id,
+                amount=total_amount,
+                user_id=self.user_id
+            )
+    def _payment_completed(self, success):
+        """Handle payment completion callback"""
+        if success:
+            messagebox.showinfo("Success", "Payment completed successfully!")
+            # You might want to navigate to a confirmation screen here
+        else:
+            # Handle payment failure or cancellation
+            messagebox.showwarning("Notice", "Payment was not completed")
+            self.frame_main.grid()  # Show the packages screen again
 
     def _update_countdown(self):
         """Update the countdown timer"""
@@ -262,39 +233,6 @@ class AdditionalPackageScreen(BaseWindow):
         else:
             self._payment_timeout()
 
-    def _payment_timeout(self):
-        """Handle payment timeout"""
-        messagebox.showwarning("Timeout", "Payment time has expired")
-        self._cancel_payment()
-
-    def _process_credit_card_payment(self):
-        """Process credit card payment"""
-        messagebox.showinfo("Success", "Payment processed successfully!")
-        self._complete_booking()
-
-    def _cancel_payment(self):
-        """Cancel payment and return to packages screen"""
-        self.payment_frame.pack_forget()
-        self.frame_main.pack(fill='both', expand=True)
-
-    def _complete_booking(self):
-        """Finalize the booking after successful payment"""
-        try:
-            flight_id = self.selected_flight[0]
-
-            # Update booking status to confirmed
-            self.cursor.execute(
-                "UPDATE bookings SET status = 'Confirmed' WHERE user_id = %s AND flight_id = %s",
-                (self.user_id,flight_id)
-            )
-            mydb.commit()
-
-            messagebox.showinfo("Success", "Booking confirmed!")
-            #navigate to a confirmation screen here
-
-        except Exception as e:
-            mydb.rollback()
-            messagebox.showerror("Error", f"Failed to confirm booking: {str(e)}")
 
     def apply_discount(self):
         """Apply discount code if valid and update prices"""
