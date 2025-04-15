@@ -72,6 +72,7 @@ class PaymentScreen(ctk.CTkFrame):
                 self.return_callback(False)  # Payment failed
             else:
                 messagebox.showerror("Error", f"Payment failed: {str(e)}")
+
     def simulate_payment(self):
         self.pay_button.configure(state="disabled")
         self.cancel_button.configure(state="disabled")

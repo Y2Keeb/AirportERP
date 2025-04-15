@@ -186,32 +186,21 @@ class AdditionalPackageScreen(BaseWindow):
     def _open_payment_screen(self, booking_id, total_amount):
         """Open payment screen with proper callback handling"""
         if self.view_manager:
-            def payment_completed(success):
-                if success:
-                    messagebox.showinfo("Success", "Payment completed successfully!")
-                else:
-                    messagebox.showwarning("Payment Cancelled", "Payment was not completed")
-                self.view_manager.show_view(
-                    'UserScreen',
-                    user_id=self.user_id,
-                    username=self.username
-                )
 
-            self.view_manager.push_view(
+             self.view_manager.push_view(
                 PaymentScreen,
                 booking_id=booking_id,
                 amount=total_amount,
-                user_id=self.user_id,
-                return_callback=payment_completed
+                user_id=self.user_id
             )
         else:
-            # Fallback without view manager
             PaymentScreen(
                 self.root,
                 booking_id=booking_id,
                 amount=total_amount,
                 user_id=self.user_id
             )
+
     def _payment_completed(self, success):
         """Handle payment completion callback"""
         if success:
@@ -221,18 +210,6 @@ class AdditionalPackageScreen(BaseWindow):
             # Handle payment failure or cancellation
             messagebox.showwarning("Notice", "Payment was not completed")
             self.frame_main.grid()  # Show the packages screen again
-
-    def _update_countdown(self):
-        """Update the countdown timer"""
-        minutes, seconds = divmod(self.remaining_time, 60)
-        self.countdown_label.configure(text=f"{minutes:02d}:{seconds:02d}")
-
-        if self.remaining_time > 0:
-            self.remaining_time -= 1
-            self.root.after(1000, self._update_countdown)
-        else:
-            self._payment_timeout()
-
 
     def apply_discount(self):
         """Apply discount code if valid and update prices"""
