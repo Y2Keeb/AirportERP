@@ -205,20 +205,14 @@ class AdditionalPackageScreen(BaseWindow):
         except Exception as e:
             mydb.rollback()
             messagebox.showerror("Error", f"Failed to complete booking: {str(e)}")
-            # Print full error for debugging
-            import traceback
-            traceback.print_exc()
 
     def _open_payment_screen(self):
         """Open payment screen with countdown"""
-        # Hide current screen
         self.frame_main.pack_forget()
 
-        # Create payment frame
         self.payment_frame = ctk.CTkFrame(self.root)
         self.payment_frame.pack(fill='both', expand=True)
 
-        # Payment instructions
         ctk.CTkLabel(
             self.payment_frame,
             text="Please complete your payment within 5 minutes",
@@ -275,7 +269,6 @@ class AdditionalPackageScreen(BaseWindow):
 
     def _process_credit_card_payment(self):
         """Process credit card payment"""
-        # Add your payment processing logic here
         messagebox.showinfo("Success", "Payment processed successfully!")
         self._complete_booking()
 
@@ -288,17 +281,16 @@ class AdditionalPackageScreen(BaseWindow):
         """Finalize the booking after successful payment"""
         try:
             flight_id = self.selected_flight[0]
-            numeric_flight_id = int(flight_id[1:]) if flight_id[0].isalpha() else int(flight_id)
 
             # Update booking status to confirmed
             self.cursor.execute(
                 "UPDATE bookings SET status = 'Confirmed' WHERE user_id = %s AND flight_id = %s",
-                (self.user_id, numeric_flight_id)
+                (self.user_id,flight_id)
             )
             mydb.commit()
 
             messagebox.showinfo("Success", "Booking confirmed!")
-            # You might want to navigate to a confirmation screen here
+            #navigate to a confirmation screen here
 
         except Exception as e:
             mydb.rollback()

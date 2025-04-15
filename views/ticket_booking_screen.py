@@ -132,6 +132,8 @@ class TicketSystem(BaseWindow):
 
     def _navigate_to_packages(self):
         """Navigate to additional packages screen"""
+        print("[DEBUG] Before passing to AdditionalPackageScreen, selected_flight:",
+              self.selected_flight, type(self.selected_flight))
         if hasattr(self, 'selected_flight') and self.selected_flight:
             self.root.view_manager.push_view(
                 AdditionalPackageScreen,
