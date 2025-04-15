@@ -145,28 +145,20 @@ class TicketSystem(BaseWindow):
     def _on_flight_select(self, event):
         """Handle flight selection event"""
         selected_items = self.tree.selection()
-        if selected_items:  # Check if anything is selected
-            tree_item_id = selected_items[0]  # This is the Treeview's internal ID (like 'I001')
-
-            # Get the actual flight ID from our flights_data mapping
-            flight_id = self.flights_data[tree_item_id]
+        if selected_items:
+            values = self.tree.item(selected_items[0], 'values')
+            flight_id = self.flights_data[selected_items[0]]  # Get DB ID
 
             self.btn_book_ticket.configure(state="normal")
 
-            # Get displayed values
-            selected_values = self.tree.item(tree_item_id, 'values')
-
-            # Create tuple with actual flight ID from database
-            full_flight_details = (
-                flight_id,  # Actual database ID (integer)
-                selected_values[0],  # airline
-                selected_values[1],  # from_location
-                selected_values[2],  # departure
-                selected_values[3],  # to_location
-                float(selected_values[4])  # price
+            self.selected_flight = (
+                flight_id,  # Actual DB ID (int)
+                values[0],  # Airline (str)
+                values[1],  # From (str)
+                values[2],  # Departure (str)
+                values[3],  # To (str)
+                float(values[4])  # Price (float)
             )
-            self.selected_flight = full_flight_details
-            print(f"Full flight details: {full_flight_details}")
         else:
             self.selected_flight = None
             self.btn_book_ticket.configure(state="disabled")
