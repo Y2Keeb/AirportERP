@@ -141,6 +141,8 @@ class AdditionalPackageScreen(BaseWindow):
 
     def _finalize_purchase(self):
         """Complete the booking process with proper argument passing"""
+        print("Finalize purchase called")  # First line of _finalize_purchase
+
         try:
             # Validate selected flight exists
             if not hasattr(self, 'selected_flight') or not self.selected_flight:
@@ -177,39 +179,38 @@ class AdditionalPackageScreen(BaseWindow):
 
             mydb.commit()
 
-            self._open_payment_screen(booking_id, total_price)
+            # Hide the current window
+            self.frame_main.pack_forget()
+
+            # Open payment screen with proper callback
+            self.payment_screen = PaymentScreen(
+                root=self.root,  # parent window
+                view_manager=self.view_manager,
+                booking_id=booking_id,
+                amount=total_price,
+                user_id=self.user_id,
+                return_callback=self._payment_completed
+            )
 
         except Exception as e:
+            logger.exception("Error finalizing purchase")
             mydb.rollback()
             messagebox.showerror("Error", f"Failed to complete booking: {str(e)}")
-
-    def _open_payment_screen(self, booking_id, total_amount):
-        """Open payment screen with proper callback handling"""
-        if self.view_manager:
-
-             self.view_manager.push_view(
-                PaymentScreen,
-                booking_id=booking_id,
-                amount=total_amount,
-                user_id=self.user_id
-            )
-        else:
-            PaymentScreen(
-                self.root,
-                booking_id=booking_id,
-                amount=total_amount,
-                user_id=self.user_id
-            )
 
     def _payment_completed(self, success):
         """Handle payment completion callback"""
         if success:
+            # Show success message and close
             messagebox.showinfo("Success", "Payment completed successfully!")
-            # You might want to navigate to a confirmation screen here
+            self.view_manager.show_view(
+                'UserScreen',
+                user_id=self.user_id,
+                username=self.view_manager.current_username
+            )
         else:
-            # Handle payment failure or cancellation
+            # Show the package screen again
             messagebox.showwarning("Notice", "Payment was not completed")
-            self.frame_main.grid()  # Show the packages screen again
+            self.frame_main.pack()
 
     def apply_discount(self):
         """Apply discount code if valid and update prices"""
@@ -320,3 +321,5 @@ class AdditionalPackageScreen(BaseWindow):
     def package2_selected(self, price):
         self.package_price += 25  # Add package price
         self.update_total_price(price)
+
+

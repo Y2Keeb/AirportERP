@@ -1,18 +1,16 @@
 import customtkinter as ctk
-import random
-import string
+import random,string
 from tkinter import messagebox
-from view_manager import ViewManager
 
-class PaymentScreen(ctk.CTkFrame):
+class PaymentScreen(ctk.CTkToplevel):
     def __init__(self, root,view_manager,booking_id=None, amount=0,user_id=None,return_callback=None):
-        super().__init__(root)
+        super().__init__(root)  # Remove title from here
+        self.title("Pay here")
         self.booking_id = booking_id
+        self.return_callback = return_callback
         self.view_manager = view_manager
         self.amount = amount
         self.user_id = user_id
-
-        self.return_callback = return_callback
         self.remaining_time = 15 * 60  # 15 minutes in seconds
         self._active = True  # Flag to track if screen is active
 
@@ -59,14 +57,11 @@ class PaymentScreen(ctk.CTkFrame):
     def _process_payment(self):
         try:
             # Process payment logic...
-
-            # On successful payment
             if self.return_callback:
-                self.return_callback(True)  # Payment succeeded
+                self.simulate_payment()  # This should eventually call the callback
             else:
                 messagebox.showinfo("Success", "Payment completed!")
                 self.destroy()
-
         except Exception as e:
             if self.return_callback:
                 self.return_callback(False)  # Payment failed

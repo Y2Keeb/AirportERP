@@ -227,10 +227,12 @@ class TicketSystem(BaseWindow):
             else:
                 # Fallback without view manager
                 self.cleanup()
-                AdditionalPackageScreen(
+                self.view_manager.push_view(
+                    AdditionalPackageScreen,
                     self.root,
-                    selected_flight=self.selected_flight,
-                    user_id=self.user_id,
+                    self.view_manager,
+                    self.selected_flight,
+                    self.user_id,
                     username=self.username
                 )
         else:
