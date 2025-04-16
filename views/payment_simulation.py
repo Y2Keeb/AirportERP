@@ -4,7 +4,7 @@ from tkinter import messagebox
 
 class PaymentScreen(ctk.CTkToplevel):
     def __init__(self, root,view_manager,booking_id=None, amount=0,user_id=None,return_callback=None):
-        super().__init__(root)  # Remove title from here
+        super().__init__(root)
         self.title("Pay here")
         self.booking_id = booking_id
         self.return_callback = return_callback
@@ -16,7 +16,6 @@ class PaymentScreen(ctk.CTkToplevel):
         self.view_state = {
             'user_id': self.user_id
         }
-        # Add amount display
         ctk.CTkLabel(
             self,
             text=f"Amount to pay: €{self.amount:.2f}",
@@ -44,7 +43,7 @@ class PaymentScreen(ctk.CTkToplevel):
         self._update_countdown()
 
     def _update_countdown(self):
-        if not self._active:  # Check if screen is still active
+        if not self._active:
             return
 
         minutes, seconds = divmod(self.remaining_time, 60)
@@ -58,15 +57,14 @@ class PaymentScreen(ctk.CTkToplevel):
 
     def _process_payment(self):
         try:
-            # Process payment logic...
             if self.return_callback:
-                self.simulate_payment()  # This should eventually call the callback
+                self.simulate_payment()
             else:
                 messagebox.showinfo("Success", "Payment completed!")
                 self.destroy()
         except Exception as e:
             if self.return_callback:
-                self.return_callback(False)  # Payment failed
+                self.return_callback(False)
             else:
                 messagebox.showerror("Error", f"Payment failed: {str(e)}")
 
@@ -104,7 +102,7 @@ class PaymentScreen(ctk.CTkToplevel):
             self.view_manager.go_back()
 
     def _timeout(self):
-        if self._active:  # Only proceed if screen is still active
+        if self._active:
             messagebox.showwarning("Timeout", "Payment time has expired.")
             self._go_back(False)
 

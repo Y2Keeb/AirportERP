@@ -11,7 +11,6 @@ from PIL import Image
 
 
 class LoginScreen(BaseWindow):
-    """Login screen class"""
 
     def __init__(self, root,view_manager=None):
         super().__init__(root, "Login Window")

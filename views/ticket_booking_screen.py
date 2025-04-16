@@ -21,20 +21,17 @@ class TicketSystem(BaseWindow):
             'user_id': user_id,
             'username': username
         }
-        # Explicitly remove any existing frames
+
         for widget in root.winfo_children():
             if isinstance(widget, ctk.CTkFrame):
                 widget.destroy()
 
-        # Main container setup
         self.frame_main = ctk.CTkFrame(root)
         self.frame_main.pack(fill='both', expand=True, padx=10, pady=10)
 
-        # Configure grid layout
         self.frame_main.grid_columnconfigure(0, weight=1)
-        self.frame_main.grid_rowconfigure(2, weight=1)  # Treeview row
+        self.frame_main.grid_rowconfigure(2, weight=1)
 
-        # UI Components
         self._create_header()
         self._create_search_frame()
         self._create_flights_table()
@@ -45,14 +42,12 @@ class TicketSystem(BaseWindow):
         header_frame = ctk.CTkFrame(self.frame_main, fg_color="transparent")
         header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10))
 
-        # Title
         ctk.CTkLabel(
             header_frame,
             text="Buy Tickets",
             font=("Arial", 25, "bold")
         ).pack(side="left", padx=10)
 
-        # Back button
         btn_back = ctk.CTkButton(
             header_frame,
             text="← Back to Dashboard",
@@ -76,7 +71,6 @@ class TicketSystem(BaseWindow):
         self.entry_to = ctk.CTkEntry(search_frame, width=150, placeholder_text="To")
         self.entry_to.grid(row=0, column=2, padx=5)
 
-        # Swap button
         btn_swap = ctk.CTkButton(
             search_frame,
             text="↔",
@@ -85,7 +79,6 @@ class TicketSystem(BaseWindow):
         )
         btn_swap.grid(row=0, column=1, padx=5)
 
-        # Date picker
         self.entry_date = DateEntry(
             search_frame,
             width=12,
@@ -95,7 +88,6 @@ class TicketSystem(BaseWindow):
         )
         self.entry_date.grid(row=0, column=3, padx=5)
 
-        # Search button
         btn_search = ctk.CTkButton(
             search_frame,
             text="Search Flights",
@@ -105,7 +97,6 @@ class TicketSystem(BaseWindow):
 
     def _create_flights_table(self):
         """Create flights results table"""
-        # Style configuration
         style = ttk.Style()
         style.theme_use('default')
         style.configure("Treeview",
@@ -119,7 +110,6 @@ class TicketSystem(BaseWindow):
                         font=('Arial', 10, 'bold'))
         style.map('Treeview', background=[('selected', '#22559b')])
 
-        # Treeview setup
         self.tree = ttk.Treeview(
             self.frame_main,
             columns=("Airline", "From", "Schedule", "To", "Price"),
@@ -128,7 +118,6 @@ class TicketSystem(BaseWindow):
             selectmode="browse"
         )
 
-        # Configure columns
         columns = [
             ("Airline", 150),
             ("From", 120),
@@ -141,7 +130,6 @@ class TicketSystem(BaseWindow):
             self.tree.heading(col_name, text=col_name)
             self.tree.column(col_name, width=width, anchor="center")
 
-        # Add scrollbar
         scrollbar = ttk.Scrollbar(
             self.frame_main,
             orient="vertical",
@@ -149,11 +137,9 @@ class TicketSystem(BaseWindow):
         )
         self.tree.configure(yscrollcommand=scrollbar.set)
 
-        # Grid layout
         self.tree.grid(row=2, column=0, sticky="nsew", padx=10, pady=10)
         scrollbar.grid(row=2, column=1, sticky="ns")
 
-        # Bind selection event
         self.tree.bind("<<TreeviewSelect>>", self._on_flight_select)
 
     def _create_action_buttons(self):
@@ -196,7 +182,6 @@ class TicketSystem(BaseWindow):
             self.cursor.execute(query, (from_loc, to_loc))
 
             for row in self.cursor.fetchall():
-                # Format price as string without currency symbol
                 price_str = f"{float(row['price']):.2f}" if row['price'] else "0.00"
 
                 values = (
@@ -225,7 +210,6 @@ class TicketSystem(BaseWindow):
                     username=self.username
                 )
             else:
-                # Fallback without view manager
                 self.cleanup()
                 self.view_manager.push_view(
                     AdditionalPackageScreen,
@@ -250,18 +234,14 @@ class TicketSystem(BaseWindow):
             values = self.tree.item(selected_items[0], 'values')
             flight_id = self.flights_data[selected_items[0]]
 
-            # Debug print to see the actual values being processed
             print(f"Selected flight values: {values}")
 
-            # Ensure we have all required values
             if len(values) < 5:
                 raise ValueError("Incomplete flight data")
 
-            # Convert price to float safely
             try:
                 price = float(values[4])
             except ValueError:
-                # Handle cases where price might have unexpected characters
                 price_str = ''.join(c for c in values[4] if c.isdigit() or c == '.')
                 price = float(price_str) if price_str else 0.0
 

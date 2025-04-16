@@ -134,7 +134,6 @@ class MyBookings(BaseWindow):
         if self.view_manager:
             self.view_manager.pop_view()
         else:
-            # Fallback direct navigation
             self.frame_main.destroy()
             from views.user_screen import UserScreen
             UserScreen(self.root, username=self.username, user_id=self.user_id)

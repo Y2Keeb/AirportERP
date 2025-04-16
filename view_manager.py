@@ -8,7 +8,7 @@ class ViewManager:
     def show_view(self, view_class, *args, **kwargs):
         """Completely replace current view"""
         self._cleanup_current_view()
-        kwargs['view_manager'] = self  # Pass self to new view
+        kwargs['view_manager'] = self
         self.current_view = view_class(self.root, *args, **kwargs)
         return self.current_view
 

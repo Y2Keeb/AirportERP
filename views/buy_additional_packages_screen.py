@@ -21,18 +21,14 @@ class AdditionalPackageScreen(BaseWindow):
         self.discount_amount = 0
         self.discount_percent = 0
 
-        # frame main
         self.frame_main = ctk.CTkFrame(root)
         self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-        # frame with prices
         self.frame_total_price = ctk.CTkFrame(self.frame_main, corner_radius=10, border_width=2,
                                               border_color="black")
         self.frame_total_price.grid(row=2, column=1, padx=10, pady=10)
-        # frame with additions
         self.frame_additions = ctk.CTkFrame(self.frame_main)
         self.frame_additions.grid(row=2, column=0, padx=10, pady=10, sticky="w")
 
-        # Widgets setup
         self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
         self.lbl_success = ctk.CTkLabel(self.frame_main,
                                         text="Ticket reserved! Now choose your additional packages.")
@@ -45,7 +41,6 @@ class AdditionalPackageScreen(BaseWindow):
 
         self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self._finalize_purchase)
 
-        # Create widgets for the price frame
         self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
         self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=f"{float(price):.2f} €")
         self.lbl_additional_package_label = ctk.CTkLabel(self.frame_total_price, text="Selected packages:")
@@ -144,7 +139,6 @@ class AdditionalPackageScreen(BaseWindow):
         print("Finalize purchase called")  # First line of _finalize_purchase
 
         try:
-            # Validate selected flight exists
             if not hasattr(self, 'selected_flight') or not self.selected_flight:
                 raise ValueError("No flight selected")
 
@@ -291,19 +285,15 @@ class AdditionalPackageScreen(BaseWindow):
     def update_total_price(self, flight_price):
         """Update all price displays with proper type conversion"""
         try:
-            # Convert all values to float to ensure proper math
             flight_price = float(flight_price)
             package_price = float(self.package_price)
             discount_amount = float(getattr(self, 'discount_amount', 0))
 
-            # Calculate the correct total
             subtotal = flight_price + package_price
             total = subtotal - discount_amount
 
-            # Update package price display
             self.lbl_addpackage_price.configure(text=f"+ {package_price:.2f} €")
 
-            # Update discount display
             if hasattr(self, 'discount_applied') and self.discount_applied:
                 self.lbl_discount_amount.configure(text=f"- {discount_amount:.2f} €")
                 self.lbl_discount_label.configure(text=f"Discount ({getattr(self, 'discount_percent', 0)}%): -")
@@ -311,10 +301,8 @@ class AdditionalPackageScreen(BaseWindow):
                 self.lbl_discount_amount.configure(text="- 0.00 €")
                 self.lbl_discount_label.configure(text="Discount: -")
 
-            # Update total price (THIS WAS MISSING PROPER UPDATE)
             self.total_price.configure(text=f"{total:.2f} €")
 
-            # Force immediate GUI update
             self.frame_main.update_idletasks()
 
         except Exception as e:

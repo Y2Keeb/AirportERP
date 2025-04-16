@@ -4,7 +4,6 @@ from config import mydb
 from views.ticket_booking_screen import TicketSystem
 from views.user_bookings_overview_screen import MyBookings
 
-
 class UserScreen(BaseWindow):
     def __init__(self, root, username=None, user_id=None, view_manager=None):
         super().__init__(root, f"User Dashboard - {username}")
@@ -13,11 +12,9 @@ class UserScreen(BaseWindow):
         self.root.geometry("800x500")
         self.user_id = self._get_user_id()
 
-        # Main container
         self.frame_main = ctk.CTkFrame(root)
         self.frame_main.pack(fill='both', expand=True)
 
-        # Save state
         self.view_state = {
             'username': self.username,
             'user_id': self.user_id

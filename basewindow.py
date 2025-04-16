@@ -5,7 +5,6 @@ from CTkMessagebox import CTkMessagebox
 from view_manager import ViewManager
 from config import set_theme
 
-
 class BaseWindow:
     def __init__(self, root, title):
         self.root = root
