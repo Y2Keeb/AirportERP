@@ -191,6 +191,13 @@ class AdditionalPackageScreen(BaseWindow):
                 user_id=self.user_id,
                 return_callback=self._payment_completed
             )
+            self.payment_screen.after(100, lambda: (
+                self.payment_screen.focus_force(),  # Force keyboard focus
+                self.payment_screen.lift(),  # Bring above all windows
+                self.payment_screen.attributes('-topmost', True),  # Force to top
+                self.payment_screen.attributes('-topmost', False)  # Allow normal behavior after
+            ))
+            self.payment_screen.grab_set()  # Make modal
 
         except Exception as e:
             logger.exception("Error finalizing purchase")

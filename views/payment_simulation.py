@@ -13,7 +13,9 @@ class PaymentScreen(ctk.CTkToplevel):
         self.user_id = user_id
         self.remaining_time = 15 * 60  # 15 minutes in seconds
         self._active = True  # Flag to track if screen is active
-
+        self.view_state = {
+            'user_id': self.user_id
+        }
         # Add amount display
         ctk.CTkLabel(
             self,
