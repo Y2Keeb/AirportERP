@@ -17,6 +17,7 @@ class AdditionalPackageScreen(BaseWindow):
         flight_id, airline, from_location, departure, to_location, price = self.selected_flight
         flight_info = f"Flight: {airline} | {from_location} to {to_location} | {departure} | Price: {price}"
         self.package_price = package_price
+        self.username=username
         self.discount_applied = False
         self.discount_amount = 0
         self.discount_percent = 0
@@ -183,6 +184,7 @@ class AdditionalPackageScreen(BaseWindow):
                 booking_id=booking_id,
                 amount=total_price,
                 user_id=self.user_id,
+                username=self.username,
                 return_callback=self._payment_completed
             )
             self.payment_screen.after(100, lambda: (
@@ -206,7 +208,7 @@ class AdditionalPackageScreen(BaseWindow):
             self.view_manager.show_view(
                 'UserScreen',
                 user_id=self.user_id,
-                username=self.view_manager.current_username
+                username=self.username
             )
         else:
             # Show the package screen again

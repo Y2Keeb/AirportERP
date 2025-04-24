@@ -2,8 +2,9 @@ import customtkinter as ctk
 import random,string
 from tkinter import messagebox
 
+
 class PaymentScreen(ctk.CTkToplevel):
-    def __init__(self, root,view_manager,booking_id=None, amount=0,user_id=None,return_callback=None):
+    def __init__(self, root,view_manager,booking_id=None, amount=0,user_id=None,username=None,return_callback=None):
         super().__init__(root)
         self.title("Pay here")
         self.booking_id = booking_id
@@ -11,10 +12,13 @@ class PaymentScreen(ctk.CTkToplevel):
         self.view_manager = view_manager
         self.amount = amount
         self.user_id = user_id
+        self.username =username
+        self.txn_id = None
         self.remaining_time = 15 * 60  # 15 minutes in seconds
         self._active = True  # Flag to track if screen is active
         self.view_state = {
-            'user_id': self.user_id
+            'user_id': self.user_id,
+            'username': self.username
         }
         ctk.CTkLabel(
             self,
@@ -82,21 +86,24 @@ class PaymentScreen(ctk.CTkToplevel):
             widget.destroy()
 
         transaction_id = "TXN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-
+        self.txn_id = transaction_id
         ctk.CTkLabel(self, text="Payment Successful!", font=("Arial", 20)).pack(pady=15)
         ctk.CTkLabel(self, text=f"Transaction ID: {transaction_id}", font=("Arial", 14)).pack(pady=5)
         ctk.CTkLabel(self, text=f"Amount Paid: €{self.amount:.2f}", font=("Arial", 14)).pack(pady=5)
 
         ctk.CTkButton(self, text="Finish", command=self._go_back).pack(pady=10)
+        ctk.CTkButton(self, text="View Receipt", command=self.view_receipt).pack(pady=10)
+
 
     def _go_back(self, success=True):
         """Return to previous screen using ViewManager"""
+        from views.user_screen import UserScreen
         self._active = False
         if success:
             self.view_manager.show_view(
-                'UserScreen',
-                user_id=self.view_manager.current_user_id,
-                username=self.view_manager.current_username
+                UserScreen,
+                username=self.username,
+                user_id=self.user_id
             )
         else:
             self.view_manager.go_back()
@@ -110,7 +117,8 @@ class PaymentScreen(ctk.CTkToplevel):
         if self.return_callback:
             self.return_callback(success=False)
 
-    def view_receipt(self, txn_id):
+    def view_receipt(self):
+        txn_id = self.txn_id
         receipt_window = ctk.CTkToplevel(self)
         receipt_window.title("Receipt")
         receipt_window.geometry("350x200")
@@ -125,16 +133,3 @@ class PaymentScreen(ctk.CTkToplevel):
         ctk.CTkLabel(receipt_window, text=receipt_text, font=("Courier", 12), justify="left").pack(pady=20)
         ctk.CTkButton(receipt_window, text="Close", command=receipt_window.destroy).pack()
 
-if __name__ == "__main__":
-    app = ctk.CTk()
-    app.title("Payment Screen")
-    app.geometry("400x400")
-
-    def return_callback(success):
-        print("Payment success:", success)
-        app.destroy()
-
-    screen = PaymentScreen(app, return_callback)
-    screen.pack(fill='both', expand=True)
-
-    app.mainloop()
