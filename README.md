@@ -62,12 +62,18 @@ We will be using **MySQL** as the relational database management system. MySQL i
 
 
 ### User Interface (UI)
-We will use **Custom Tkinter** for the graphical user interface (GUI) because it is simple to implement and suitable for creating desktop applications. Tkinter allows us to create an interface quickly, which is ideal for building interactive forms, data displays, and flight management screens.
 
-Key screens include:
-- **Login Page**: Allows users and admins to authenticate.
-- **Flight Management Page**: For admins and flight planners to add and modify flight details.
-- **User Dashboard**: Allows passengers to view flight details, book tickets, and manage bookings.
+We will use **Custom Tkinter** for the graphical user interface (GUI) because it is simple to implement and well-suited for creating desktop applications. Tkinter allows for rapid development of interactive forms, data displays, and flight management screens.
+
+Our application follows a **Model-View-Controller (MVC)** architecture. In this setup:
+
+- **Models** handle the core data and logic (e.g., flight data, user info, bookings).
+- **Views** represent individual screens (e.g., login screen, booking page, payment screen).
+- A custom **ViewManager** acts as the controller and navigator, managing transitions between views and ensuring a modular, maintainable structure.
+
+This pattern keeps our code organized and scalable, making it easier to update or expand the system as needed.
+
+
 
 ### External Packages
 We will use **Pillow** for handling image processing. Specifically, we will use Pillow to load and display airline logos within the user interface. Pillow is lightweight and supports many image formats, making it ideal for our needs.
