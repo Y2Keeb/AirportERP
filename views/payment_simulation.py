@@ -1,3 +1,4 @@
+import datetime
 import customtkinter as ctk
 import random,string
 from tkinter import messagebox
@@ -99,6 +100,7 @@ class PaymentScreen(ctk.CTkToplevel):
         """Return to previous screen using ViewManager"""
         from views.user_screen import UserScreen
         self._active = False
+        self.destroy()
         if success:
             self.view_manager.show_view(
                 UserScreen,
@@ -117,19 +119,75 @@ class PaymentScreen(ctk.CTkToplevel):
         if self.return_callback:
             self.return_callback(success=False)
 
-    def view_receipt(self):
-        txn_id = self.txn_id
+    def payment_successful(self):
+        self._active = False  # Stop countdown updates
+
+        # Clear current widgets
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        # Generate transaction ID
+        transaction_id = "TXN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        self.txn_id = transaction_id
+
+        # Show success message
+        ctk.CTkLabel(self, text="Payment Successful!", font=("Arial", 20)).pack(pady=15)
+        ctk.CTkLabel(self, text=f"Transaction ID: {transaction_id}", font=("Arial", 14)).pack(pady=5)
+        ctk.CTkLabel(self, text=f"Amount Paid: €{self.amount:.2f}", font=("Arial", 14)).pack(pady=5)
+
+        # Buttons - both will return to user screen
+        ctk.CTkButton(self,
+                      text="Finish",
+                      command=lambda: self._go_back_to_user()).pack(pady=10)
+
+        ctk.CTkButton(self,
+                      text="View Receipt",
+                      command=lambda: self._view_receipt_and_return()).pack(pady=10)
+
+    def _go_back_to_user(self):
+        """Directly return to user screen"""
+        from views.user_screen import UserScreen
+        self._active = False
+        self.destroy()
+        self.view_manager.show_view(
+            UserScreen,
+            username=self.username,
+            user_id=self.user_id
+        )
+
+    def _view_receipt_and_return(self):
+        """Show receipt and return to user screen after receipt is closed"""
+        # Create receipt window first
         receipt_window = ctk.CTkToplevel(self)
         receipt_window.title("Receipt")
-        receipt_window.geometry("350x200")
+        receipt_window.geometry("400x300")
+
+        # Make it modal so it stays on top
+        receipt_window.grab_set()
 
         receipt_text = (
-            f"--- Receipt ---\n"
-            f"Transaction ID: {txn_id}\n"
-            f"Amount Paid: {self.amount}\n"
-            f"Payment Method: VISA\n"
+            f"--- Payment Receipt ---\n\n"
+            f"Transaction ID: {self.txn_id}\n\n"
+            f"Amount Paid: €{self.amount:.2f}\n\n"
+            f"Date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
             f"Status: Completed\n"
         )
-        ctk.CTkLabel(receipt_window, text=receipt_text, font=("Courier", 12), justify="left").pack(pady=20)
-        ctk.CTkButton(receipt_window, text="Close", command=receipt_window.destroy).pack()
+
+        ctk.CTkLabel(receipt_window, text=receipt_text,
+                     font=("Courier", 14), justify="left").pack(pady=20)
+
+        # Center the window
+        receipt_window.update_idletasks()
+        width = receipt_window.winfo_width()
+        height = receipt_window.winfo_height()
+        x = (receipt_window.winfo_screenwidth() // 2) - (width // 2)
+        y = (receipt_window.winfo_screenheight() // 2) - (height // 2)
+        receipt_window.geometry(f'+{x}+{y}')
+
+        def close_and_return():
+            receipt_window.destroy()
+            self._go_back_to_user()
+
+        ctk.CTkButton(receipt_window, text="Close",
+                      command=close_and_return).pack(pady=10)
 
