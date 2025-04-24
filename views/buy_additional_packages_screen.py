@@ -33,11 +33,17 @@ class AdditionalPackageScreen(BaseWindow):
         self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
         self.lbl_success = ctk.CTkLabel(self.frame_main,
                                         text="Ticket reserved! Now choose your additional packages.")
-        self.btn_package1 = ctk.CTkButton(self.frame_additions, text="Package 1: 30 €",
-                                          command=lambda: self.package1_selected(price))
+        self.package1_var = ctk.BooleanVar()
+        self.checkbox_package1 = ctk.CTkCheckBox(self.frame_additions, text="Package 1: 30 €",
+                                                 variable=self.package1_var,
+                                                 command=self.update_checkbox_total)
+
+        self.package2_var = ctk.BooleanVar()
+        self.checkbox_package2 = ctk.CTkCheckBox(self.frame_additions, text="Package 2: 25 €",
+                                                 variable=self.package2_var,
+                                                 command=self.update_checkbox_total)
+
         self.lbl_package1 = ctk.CTkLabel(self.frame_additions, text="info over package 1")
-        self.btn_package2 = ctk.CTkButton(self.frame_additions, text="Package 2: 25 €",
-                                          command=lambda: self.package2_selected(price))
         self.lbl_package2 = ctk.CTkLabel(self.frame_additions, text="info over package 2")
 
         self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self._finalize_purchase)
@@ -69,9 +75,9 @@ class AdditionalPackageScreen(BaseWindow):
     def create_widgets(self):
         self.flight_info_label.grid(row=0, column=0,columnspan = 2,padx=10, pady=10,sticky="ew")
         self.lbl_success.grid(row=1, column=0, columnspan = 2,padx=10, pady=10, sticky="ew")
-        self.btn_package1.grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        self.checkbox_package1.grid(row=2, column=0, padx=10, pady=5, sticky="w")
         self.lbl_package1.grid(row=3, column=0, padx=10, pady=5, sticky="w")
-        self.btn_package2.grid(row=4, column=0, padx=10, pady=5, sticky="w")
+        self.checkbox_package2.grid(row=4, column=0, padx=10, pady=5, sticky="w")
         self.lbl_package2.grid(row=5, column=0, padx=10, pady=5, sticky="w")
         self.buy_button.grid(row=9, column=0, padx=10, pady=10)
         #price frame
@@ -311,12 +317,13 @@ class AdditionalPackageScreen(BaseWindow):
             print(f"Error in update_total_price: {str(e)}")
             messagebox.showerror("Error", f"Failed to update prices: {str(e)}")
 
-    def package1_selected(self, price):
-        self.package_price += 30  # Add package price
-        self.update_total_price(price)
+    def update_checkbox_total(self):
+        base_price = float(self.selected_flight[-1])
+        self.package_price = 0
 
-    def package2_selected(self, price):
-        self.package_price += 25  # Add package price
-        self.update_total_price(price)
+        if self.package1_var.get():
+            self.package_price += 30
+        if self.package2_var.get():
+            self.package_price += 25
 
-
+        self.update_total_price(base_price)
