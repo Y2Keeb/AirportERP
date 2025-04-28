@@ -4,6 +4,8 @@ from basewindow import BaseWindow
 from config import mydb,get_logger
 from datetime import datetime
 from views.payment_simulation import PaymentScreen
+from views.bjorn_easter_egg import BjornEasterEgg
+
 
 logger = get_logger(__name__)
 
@@ -21,7 +23,7 @@ class AdditionalPackageScreen(BaseWindow):
         self.discount_applied = False
         self.discount_amount = 0
         self.discount_percent = 0
-
+        self.total_price = 0
         self.frame_main = ctk.CTkFrame(root)
         self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         self.frame_total_price = ctk.CTkFrame(self.frame_main, corner_radius=10, border_width=2,
@@ -34,17 +36,17 @@ class AdditionalPackageScreen(BaseWindow):
         self.lbl_success = ctk.CTkLabel(self.frame_main,
                                         text="Ticket reserved! Now choose your additional packages.")
         self.package1_var = ctk.BooleanVar()
-        self.checkbox_package1 = ctk.CTkCheckBox(self.frame_additions, text="Package 1: 30 €",
+        self.checkbox_package1 = ctk.CTkCheckBox(self.frame_additions, text="Sky Karaoke Add-On – 20 €",
                                                  variable=self.package1_var,
                                                  command=self.update_checkbox_total)
 
         self.package2_var = ctk.BooleanVar()
-        self.checkbox_package2 = ctk.CTkCheckBox(self.frame_additions, text="Package 2: 25 €",
+        self.checkbox_package2 = ctk.CTkCheckBox(self.frame_additions, text="Emergency Pizza Button – 35 €",
                                                  variable=self.package2_var,
                                                  command=self.update_checkbox_total)
 
-        self.lbl_package1 = ctk.CTkLabel(self.frame_additions, text="info over package 1")
-        self.lbl_package2 = ctk.CTkLabel(self.frame_additions, text="info over package 2")
+        self.lbl_package1 = ctk.CTkLabel(self.frame_additions, text="Sing your heart out at 30,000 feet. Mic provided, pitch not guaranteed.")
+        self.lbl_package2 = ctk.CTkLabel(self.frame_additions, text="Hit the button, receive pizza. Don’t ask where it comes from.")
 
         self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self._finalize_purchase)
 
@@ -126,21 +128,6 @@ class AdditionalPackageScreen(BaseWindow):
         # Purchase button
         self.buy_button.grid(row=3, column=0, columnspan=2, padx=10, pady=20)
 
-    def _package_selected(self, amount):
-        """Handle package selection"""
-        self.package_price += amount
-        self._update_total_price()
-
-    def _update_total_price(self):
-        """Update the total price display"""
-        flight_price = float(self.selected_flight[-1])
-        total = flight_price + self.package_price
-
-        if self.discount_applied:
-            total -= self.discount_amount
-
-        self.total_price.configure(text=f"{total:.2f} €")
-
     def _finalize_purchase(self):
         """Complete the booking process with proper argument passing"""
         print("Finalize purchase called")  # First line of _finalize_purchase
@@ -155,18 +142,18 @@ class AdditionalPackageScreen(BaseWindow):
 
             # Calculate total price
             package_price = float(getattr(self, 'package_price', 0))
-            total_price = base_price + package_price
+            self.total_price = base_price + package_price
 
             # Apply discount if available
             if getattr(self, 'discount_applied', False):
                 discount = float(getattr(self, 'discount_amount', 0))
-                total_price = max(0, total_price - discount)
+                self.total_price = max(0, self.total_price - discount)
 
             # Create booking and get booking ID
             self.cursor.execute(
                 "INSERT INTO bookings (user_id, flight_id, booking_date, status, total_price) "
                 "VALUES (%s, %s, NOW(), 'Pending Payment', %s)",
-                (self.user_id, flight_id, total_price)
+                (self.user_id, flight_id, self.total_price)
             )
 
             # Get the newly created booking ID
@@ -188,7 +175,7 @@ class AdditionalPackageScreen(BaseWindow):
                 root=self.root,  # parent window
                 view_manager=self.view_manager,
                 booking_id=booking_id,
-                amount=total_price,
+                amount=self.total_price,
                 user_id=self.user_id,
                 username=self.username,
                 return_callback=self._payment_completed
@@ -224,9 +211,14 @@ class AdditionalPackageScreen(BaseWindow):
     def apply_discount(self):
         """Apply discount code if valid and update prices"""
         try:
-            entered_code = self.entry_discount.get().strip()
+            entered_code = self.entry_discount.get().strip().upper()
             if not entered_code:
                 messagebox.showwarning("Error", "Please enter a discount code")
+                return
+
+            # Easter Egg
+            if entered_code == "BJORN":
+                BjornEasterEgg(self.root)
                 return
 
             if hasattr(self, 'discount_applied') and self.discount_applied:
@@ -322,8 +314,8 @@ class AdditionalPackageScreen(BaseWindow):
         self.package_price = 0
 
         if self.package1_var.get():
-            self.package_price += 30
+            self.package_price += 20
         if self.package2_var.get():
-            self.package_price += 25
+            self.package_price += 35
 
         self.update_total_price(base_price)

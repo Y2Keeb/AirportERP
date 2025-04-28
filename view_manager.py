@@ -23,8 +23,11 @@ class ViewManager:
         if hasattr(self.current_view, 'view_state'):
             self.view_stack.append((self.current_view.__class__, self.current_view.view_state))
 
-        kwargs['view_manager'] = self
-        self.current_view = view_class(self.root, *args, **kwargs)
+        final_kwargs = kwargs.copy()
+        final_kwargs['view_manager'] = self
+        final_kwargs['root'] = self.root
+
+        self.current_view = view_class(**final_kwargs)
         return self.current_view
 
     def pop_view(self):

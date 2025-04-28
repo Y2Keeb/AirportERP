@@ -80,22 +80,6 @@ class PaymentScreen(ctk.CTkToplevel):
 
         self.after(3000, self.payment_successful)
 
-    def payment_successful(self):
-        self._active = False
-
-        for widget in self.winfo_children():
-            widget.destroy()
-
-        transaction_id = "TXN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-        self.txn_id = transaction_id
-        ctk.CTkLabel(self, text="Payment Successful!", font=("Arial", 20)).pack(pady=15)
-        ctk.CTkLabel(self, text=f"Transaction ID: {transaction_id}", font=("Arial", 14)).pack(pady=5)
-        ctk.CTkLabel(self, text=f"Amount Paid: €{self.amount:.2f}", font=("Arial", 14)).pack(pady=5)
-
-        ctk.CTkButton(self, text="Finish", command=self._go_back).pack(pady=10)
-        ctk.CTkButton(self, text="View Receipt", command=self.view_receipt).pack(pady=10)
-
-
     def _go_back(self, success=True):
         """Return to previous screen using ViewManager"""
         from views.user_screen import UserScreen
@@ -120,22 +104,17 @@ class PaymentScreen(ctk.CTkToplevel):
             self.return_callback(success=False)
 
     def payment_successful(self):
-        self._active = False  # Stop countdown updates
-
-        # Clear current widgets
+        self._active = False
         for widget in self.winfo_children():
             widget.destroy()
-
-        # Generate transaction ID
+        print("test")
         transaction_id = "TXN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
         self.txn_id = transaction_id
 
-        # Show success message
         ctk.CTkLabel(self, text="Payment Successful!", font=("Arial", 20)).pack(pady=15)
         ctk.CTkLabel(self, text=f"Transaction ID: {transaction_id}", font=("Arial", 14)).pack(pady=5)
         ctk.CTkLabel(self, text=f"Amount Paid: €{self.amount:.2f}", font=("Arial", 14)).pack(pady=5)
 
-        # Buttons - both will return to user screen
         ctk.CTkButton(self,
                       text="Finish",
                       command=lambda: self._go_back_to_user()).pack(pady=10)
@@ -151,6 +130,7 @@ class PaymentScreen(ctk.CTkToplevel):
         self.destroy()
         self.view_manager.show_view(
             UserScreen,
+            view_manager=self.view_manager,
             username=self.username,
             user_id=self.user_id
         )

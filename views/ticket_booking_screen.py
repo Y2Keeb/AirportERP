@@ -1,3 +1,5 @@
+import time
+
 from tkcalendar import DateEntry
 from basewindow import BaseWindow
 import customtkinter as ctk
@@ -201,26 +203,33 @@ class TicketSystem(BaseWindow):
 
     def _navigate_to_packages(self):
         """Navigate to additional packages screen"""
-        if self.selected_flight:
+        time.sleep(0.1)
+
+        if not self.selected_flight:
+            messagebox.showwarning("Selection Required", "Please select a flight first")
+            return
+
+        try:
+            params = {
+                'selected_flight': self.selected_flight,
+                'user_id': self.user_id,
+                'username': self.username,
+                'package_price': 0  # Default value
+            }
+
             if self.view_manager:
-                self.view_manager.push_view(
-                    AdditionalPackageScreen,
-                    selected_flight=self.selected_flight,
-                    user_id=self.user_id,
-                    username=self.username
-                )
+                self.view_manager.push_view(AdditionalPackageScreen, **params)
             else:
                 self.cleanup()
-                self.view_manager.push_view(
-                    AdditionalPackageScreen,
-                    self.root,
-                    self.view_manager,
-                    self.selected_flight,
-                    self.user_id,
-                    username=self.username
+                AdditionalPackageScreen(
+                    root=self.root,
+                    view_manager=self.view_manager,
+                    **params
                 )
-        else:
-            messagebox.showwarning("Selection Required", "Please select a flight first")
+        except Exception as e:
+            logger.error(f"Navigation error: {str(e)}")
+            messagebox.showerror("Error", f"Failed to navigate: {str(e)}")
+
 
     def _on_flight_select(self, event):
         """Handle flight selection event with robust error handling"""
