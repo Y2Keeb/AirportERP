@@ -24,18 +24,24 @@ class KioskLoginScreen(BaseWindow):
         self.frame_login= ctk.CTkFrame(self.frame_main, border_width=5)
         self.frame_login.pack(side="right",fill="both", expand=True)
 
+        self.frame_login_content = ctk.CTkFrame(self.frame_login, fg_color="transparent")
+        self.frame_login_content.place(relx=0.5, rely=0.5, anchor="center")
+
+        self.frame_welcome_content = ctk.CTkFrame(self.frame_welcome, fg_color="transparent")
+        self.frame_welcome_content.place(relx=0.5, rely=0.5, anchor="center")
+
         pil_image = Image.open("docs/icons/plane-prop.png")
         pil_image = pil_image.resize((150, 150))
         self.ctk_image = ctk.CTkImage(light_image=pil_image,
                                       dark_image=pil_image,
                                       size=(150, 150))
 
-        self.lbl_image = ctk.CTkLabel(self.frame_welcome,
+        self.lbl_image = ctk.CTkLabel(self.frame_welcome_content,
                                       image=self.ctk_image,
                                       text="")
         self.lbl_image.pack(pady=20)
-        self.entry_username = ctk.CTkEntry(self.frame_login)
-        self.entry_password = ctk.CTkEntry(self.frame_login, show="*")
+        self.entry_username = ctk.CTkEntry(self.frame_login_content)
+        self.entry_password = ctk.CTkEntry(self.frame_login_content, show="*")
 
         set_theme()
         self.create_widgets()
@@ -43,18 +49,18 @@ class KioskLoginScreen(BaseWindow):
         self.create_menu()
 
     def create_widgets(self):
-        ctk.CTkLabel(self.frame_welcome, text="Welcome!", font=("Comic Sans", 25)).pack()
-        ctk.CTkLabel(self.frame_welcome, text="Log in to your account or create one.").pack()
+        ctk.CTkLabel(self.frame_welcome_content, text="Welcome!", font=("Comic Sans", 25)).pack()
+        ctk.CTkLabel(self.frame_welcome_content, text="Log in to your account or create one.").pack()
 
-        ctk.CTkLabel(self.frame_login, text="Username:").pack(pady=5)
+        ctk.CTkLabel(self.frame_login_content, text="Username:").pack(pady=5)
         self.entry_username.pack(pady=5)
 
-        ctk.CTkLabel(self.frame_login, text="Password:").pack(pady=5)
+        ctk.CTkLabel(self.frame_login_content, text="Password:").pack(pady=5)
         self.entry_password.pack(pady=5)
 
-        btn_login = ctk.CTkButton(self.frame_login, text="Login", command=self.login)
+        btn_login = ctk.CTkButton(self.frame_login_content, text="Login", command=self.login)
         btn_login.pack(pady=20)
-        btn_register = ctk.CTkButton(self.frame_login, text="Register")
+        btn_register = ctk.CTkButton(self.frame_login_content, text="Register")
         btn_register.pack(pady=20)
 
     def create_menu(self):

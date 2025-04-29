@@ -137,7 +137,6 @@ class PaymentScreen(ctk.CTkToplevel):
 
     def _view_receipt_and_return(self):
         """Show receipt and return to user screen after receipt is closed"""
-        # Create receipt window first
         receipt_window = ctk.CTkToplevel(self)
         receipt_window.title("Receipt")
         receipt_window.geometry("400x300")
@@ -156,7 +155,6 @@ class PaymentScreen(ctk.CTkToplevel):
         ctk.CTkLabel(receipt_window, text=receipt_text,
                      font=("Courier", 14), justify="left").pack(pady=20)
 
-        # Center the window
         receipt_window.update_idletasks()
         width = receipt_window.winfo_width()
         height = receipt_window.winfo_height()
