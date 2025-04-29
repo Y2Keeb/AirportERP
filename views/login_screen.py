@@ -8,6 +8,7 @@ from views.staff_screen import StaffScreen
 from views.user_screen import UserScreen
 from views.kiosk_screen import KioskLoginScreen
 from config import mydb, set_theme
+import PIL
 from PIL import Image
 
 
@@ -19,19 +20,31 @@ class LoginScreen(BaseWindow):
         self.view_manager = view_manager
         self.root.geometry("800x500")
 
-        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
-        self.frame_main.pack(fill="both", expand=True)
+        bg_image = PIL.Image.open("docs/icons/background.jpg")
+        bg_image = bg_image.resize((800, 500))
+        self.bg_ctk_image = ctk.CTkImage(light_image=bg_image, dark_image=bg_image, size=(800, 500))
 
-        pil_image = Image.open("docs/icons/plane-prop.png")
-        pil_image = pil_image.resize((150, 150))
+        self.bg_label = ctk.CTkLabel(self.root, image=self.bg_ctk_image, text="")
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)  # Fill full window
+
+        self.frame_main = ctk.CTkFrame(
+            self.root,
+            border_color="black",
+            border_width=2,
+            corner_radius=20,
+        )
+        self.frame_main.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.4, relheight=0.98)
+
+        pil_image = Image.open("docs/icons/login_logo.png")
+        pil_image = pil_image.resize((120, 120))
         self.ctk_image = ctk.CTkImage(light_image=pil_image,
                                       dark_image=pil_image,
-                                      size=(150, 150))
+                                      size=(120, 120))
 
         self.lbl_image = ctk.CTkLabel(self.frame_main,
                                       image=self.ctk_image,
                                       text="")
-        self.lbl_image.pack(pady=20)
+        self.lbl_image.pack(pady=35)
         self.entry_username = ctk.CTkEntry(self.frame_main)
         self.entry_password = ctk.CTkEntry(self.frame_main, show="*")
 
@@ -41,8 +54,13 @@ class LoginScreen(BaseWindow):
         self.create_menu()
 
     def create_widgets(self):
-        ctk.CTkLabel(self.frame_main, text="Welcome Back!", font=("Comic Sans", 25)).pack()
-        ctk.CTkLabel(self.frame_main, text="Log in to your account").pack()
+        ctk.CTkLabel(
+            self.frame_main,
+            text="Welcome Back!",
+            fg_color="transparent",
+            font=("Arial", 22)
+        ).pack()
+        ctk.CTkLabel(self.frame_main, text="Log in to your account",fg_color="transparent").pack()
 
         ctk.CTkLabel(self.frame_main, text="Username:").pack(pady=5)
         self.entry_username.pack(pady=5)

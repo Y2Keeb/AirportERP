@@ -1,12 +1,11 @@
 import tkinter as tk
 from tkinter import Menu,messagebox
-from CTkMessagebox import CTkMessagebox
-
-from basewindow import BaseWindow
 import customtkinter as ctk
-from config import mydb, set_theme
+from CTkMessagebox import CTkMessagebox
 from PIL import Image
 
+from config import mydb, set_theme
+from basewindow import BaseWindow
 from views.user_screen import UserScreen
 
 
@@ -45,7 +44,6 @@ class KioskLoginScreen(BaseWindow):
 
         set_theme()
         self.create_widgets()
-
         self.create_menu()
 
     def create_widgets(self):
