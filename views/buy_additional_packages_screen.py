@@ -23,7 +23,7 @@ class AdditionalPackageScreen(BaseWindow):
         self.discount_applied = False
         self.discount_amount = 0
         self.discount_percent = 0
-        self.total_price = 0
+        self.total_price_label = 0
         self.frame_main = ctk.CTkFrame(root)
         self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
         self.frame_total_price = ctk.CTkFrame(self.frame_main, corner_radius=10, border_width=2,
@@ -56,8 +56,8 @@ class AdditionalPackageScreen(BaseWindow):
         self.lbl_addpackage_price = ctk.CTkLabel(self.frame_total_price, text="0.00 €")
 
         total_price = float(package_price) + float(price)
-        self.total_price_label = ctk.CTkLabel(self.frame_total_price, text="Total: ")
-        self.total_price = ctk.CTkLabel(self.frame_total_price, text=f"{total_price:.2f} €")
+        self.total_label = ctk.CTkLabel(self.frame_total_price, text="Total: ")
+        self.total_price_label = ctk.CTkLabel(self.frame_total_price, text=f"{total_price:.2f} €")
 
         self.lbl_discount = ctk.CTkLabel(self.frame_additions, text="Discount Code:")
         self.entry_discount = ctk.CTkEntry(self.frame_additions, width=150)
@@ -87,8 +87,8 @@ class AdditionalPackageScreen(BaseWindow):
         self.lbl_flight_price.grid(row=2, column=2, padx=10, pady=10)
         self.lbl_additional_package_label.grid(row=3, column=1, padx=10, pady=10)
         self.lbl_addpackage_price.grid(row=3, column=2, padx=10, pady=10)
-        self.total_price_label.grid(row=6, column=1, padx=10, pady=10)
-        self.total_price.grid(row=6, column=2, padx=10, pady=10)
+        self.total_label.grid(row=6, column=1, padx=10, pady=10)
+        self.total_price_label.grid(row=6, column=2, padx=10, pady=10)
         self.lbl_discount_label.grid(row=5, column=1, padx=10, pady=10)
         self.lbl_discount_amount.grid(row=5, column=2, padx=10, pady=10)
 
@@ -118,7 +118,7 @@ class AdditionalPackageScreen(BaseWindow):
         self.lbl_flight_price_label.grid(row=0, column=0, padx=10, pady=5)
         self.lbl_flight_price.grid(row=0, column=1, padx=10, pady=5)
         self.total_price_label.grid(row=2, column=0, padx=10, pady=5)
-        self.total_price.grid(row=2, column=1, padx=10, pady=5)
+        self.total_price_label.grid(row=2, column=1, padx=10, pady=5)
 
         # Discount widgets
         self.lbl_discount.grid(row=3, column=0, padx=10, pady=(20, 5), sticky="w")
@@ -130,36 +130,30 @@ class AdditionalPackageScreen(BaseWindow):
 
     def _finalize_purchase(self):
         """Complete the booking process with proper argument passing"""
-        print("Finalize purchase called")  # First line of _finalize_purchase
+        print("Finalize purchase called")
 
         try:
             if not hasattr(self, 'selected_flight') or not self.selected_flight:
                 raise ValueError("No flight selected")
 
-            # Extract flight data
             flight_id = self.selected_flight[0]
             base_price = float(self.selected_flight[5])
 
-            # Calculate total price
             package_price = float(getattr(self, 'package_price', 0))
-            self.total_price = base_price + package_price
+            self.total_price_label = base_price + package_price
 
-            # Apply discount if available
             if getattr(self, 'discount_applied', False):
                 discount = float(getattr(self, 'discount_amount', 0))
-                self.total_price = max(0, self.total_price - discount)
+                self.total_price_label = max(0, self.total_price_label - discount)
 
-            # Create booking and get booking ID
             self.cursor.execute(
                 "INSERT INTO bookings (user_id, flight_id, booking_date, status, total_price) "
                 "VALUES (%s, %s, NOW(), 'Pending Payment', %s)",
-                (self.user_id, flight_id, self.total_price)
+                (self.user_id, flight_id, self.total_price_label)
             )
 
-            # Get the newly created booking ID
             booking_id = self.cursor.lastrowid
 
-            # Update seat count
             self.cursor.execute(
                 "UPDATE flights SET seats_taken = seats_taken + 1 WHERE id = %s",
                 (flight_id,)
@@ -170,23 +164,22 @@ class AdditionalPackageScreen(BaseWindow):
             # Hide the current window
             self.frame_main.pack_forget()
 
-            # Open payment screen with proper callback
             self.payment_screen = PaymentScreen(
                 root=self.root,  # parent window
                 view_manager=self.view_manager,
                 booking_id=booking_id,
-                amount=self.total_price,
+                amount=self.total_price_label,
                 user_id=self.user_id,
                 username=self.username,
                 return_callback=self._payment_completed
             )
             self.payment_screen.after(100, lambda: (
-                self.payment_screen.focus_force(),  # Force keyboard focus
-                self.payment_screen.lift(),  # Bring above all windows
-                self.payment_screen.attributes('-topmost', True),  # Force to top
-                self.payment_screen.attributes('-topmost', False)  # Allow normal behavior after
+                self.payment_screen.focus_force(),
+                self.payment_screen.lift(),
+                self.payment_screen.attributes('-topmost', True),
+                self.payment_screen.attributes('-topmost', False)
             ))
-            self.payment_screen.grab_set()  # Make modal
+            self.payment_screen.grab_set()
 
         except Exception as e:
             logger.exception("Error finalizing purchase")
@@ -301,7 +294,7 @@ class AdditionalPackageScreen(BaseWindow):
                 self.lbl_discount_amount.configure(text="- 0.00 €")
                 self.lbl_discount_label.configure(text="Discount: -")
 
-            self.total_price.configure(text=f"{total:.2f} €")
+            self.total_price_label.configure(text=f"{total:.2f} €")
 
             self.frame_main.update_idletasks()
 
