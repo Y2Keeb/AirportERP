@@ -3,7 +3,7 @@ CREATE TABLE users (
     username VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL CHECK (role IN ('user', 'admin', 'staff')),
+    role VARCHAR(50) NOT NULL CHECK (role IN ('user', 'admin', 'staff','kiosk')),
     password VARCHAR(255) NOT NULL
 );
 
@@ -34,6 +34,7 @@ CREATE TABLE bookings (
     user_id INTEGER NOT NULL,
     flight_id INTEGER NOT NULL,
     booking_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    total_price DECIMAL(10,2) NOT NULL,
 	status VARCHAR(50) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (flight_id) REFERENCES Flights(id) ON DELETE CASCADE

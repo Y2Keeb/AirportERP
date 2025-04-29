@@ -4,6 +4,7 @@ from config import mydb
 from views.ticket_booking_screen import TicketSystem
 from views.user_bookings_overview_screen import MyBookings
 
+
 class UserScreen(BaseWindow):
     def __init__(self, root, username=None, user_id=None, view_manager=None):
         super().__init__(root, f"User Dashboard - {username}")

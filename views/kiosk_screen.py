@@ -1,18 +1,16 @@
 import tkinter as tk
-from tkinter import messagebox, Menu
-import customtkinter as ctk
-from CTkMessagebox import *
+from tkinter import Menu,messagebox
+from CTkMessagebox import CTkMessagebox
+
 from basewindow import BaseWindow
-from views.admin_screen import AdminScreen
-from views.staff_screen import StaffScreen
-from views.user_screen import UserScreen
-from views.kiosk_screen import KioskLoginScreen
+import customtkinter as ctk
 from config import mydb, set_theme
 from PIL import Image
 
+from views.user_screen import UserScreen
 
-class LoginScreen(BaseWindow):
 
+class KioskLoginScreen(BaseWindow):
     def __init__(self, root,view_manager=None):
         super().__init__(root, "Login Window")
         self.root = root
@@ -21,6 +19,10 @@ class LoginScreen(BaseWindow):
 
         self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
         self.frame_main.pack(fill="both", expand=True)
+        self.frame_welcome = ctk.CTkFrame(self.frame_main, border_width=5)
+        self.frame_welcome.pack(side="left",fill="both", expand=True)
+        self.frame_login= ctk.CTkFrame(self.frame_main, border_width=5)
+        self.frame_login.pack(side="right",fill="both", expand=True)
 
         pil_image = Image.open("docs/icons/plane-prop.png")
         pil_image = pil_image.resize((150, 150))
@@ -28,12 +30,12 @@ class LoginScreen(BaseWindow):
                                       dark_image=pil_image,
                                       size=(150, 150))
 
-        self.lbl_image = ctk.CTkLabel(self.frame_main,
+        self.lbl_image = ctk.CTkLabel(self.frame_welcome,
                                       image=self.ctk_image,
                                       text="")
         self.lbl_image.pack(pady=20)
-        self.entry_username = ctk.CTkEntry(self.frame_main)
-        self.entry_password = ctk.CTkEntry(self.frame_main, show="*")
+        self.entry_username = ctk.CTkEntry(self.frame_login)
+        self.entry_password = ctk.CTkEntry(self.frame_login, show="*")
 
         set_theme()
         self.create_widgets()
@@ -41,17 +43,19 @@ class LoginScreen(BaseWindow):
         self.create_menu()
 
     def create_widgets(self):
-        ctk.CTkLabel(self.frame_main, text="Welcome Back!", font=("Comic Sans", 25)).pack()
-        ctk.CTkLabel(self.frame_main, text="Log in to your account").pack()
+        ctk.CTkLabel(self.frame_welcome, text="Welcome!", font=("Comic Sans", 25)).pack()
+        ctk.CTkLabel(self.frame_welcome, text="Log in to your account or create one.").pack()
 
-        ctk.CTkLabel(self.frame_main, text="Username:").pack(pady=5)
+        ctk.CTkLabel(self.frame_login, text="Username:").pack(pady=5)
         self.entry_username.pack(pady=5)
 
-        ctk.CTkLabel(self.frame_main, text="Password:").pack(pady=5)
+        ctk.CTkLabel(self.frame_login, text="Password:").pack(pady=5)
         self.entry_password.pack(pady=5)
 
-        btn_login = ctk.CTkButton(self.frame_main, text="Login", command=self.login)
+        btn_login = ctk.CTkButton(self.frame_login, text="Login", command=self.login)
         btn_login.pack(pady=20)
+        btn_register = ctk.CTkButton(self.frame_login, text="Register")
+        btn_register.pack(pady=20)
 
     def create_menu(self):
         menubar = Menu(self.root, bg="black", fg="white", activebackground="gray", activeforeground="white")
@@ -75,14 +79,10 @@ class LoginScreen(BaseWindow):
 
             self.frame_main.destroy()
 
-            if role == "admin":
-                self.root.view_manager.show_view(AdminScreen)
-            elif role == "staff":
-                self.root.view_manager.show_view(StaffScreen)
-            elif role == "kiosk":
-                self.root.view_manager.show_view(KioskLoginScreen)
-            else:
+            if role == "user":
                 self.root.view_manager.show_view(UserScreen, username=username)
+            else:
+                tk.messagebox.showerror("Login Failed", "Invalid username or password.")
         else:
             tk.messagebox.showerror("Login Failed", "Invalid username or password.")
 

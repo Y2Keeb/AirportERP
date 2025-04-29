@@ -1,14 +1,44 @@
 INSERT INTO flights (airline, departure, arrival, status, gate, plane_type, total_seats, seats_taken, price, from_location, to_location, airline_icon) VALUES
-('Brussels Airlines', '2025-05-01 08:00:00', '2025-05-01 12:00:00', 'On Time', 'A1', 'Boeing 737', 150, 50, 199.99, 'Brussels', 'Los Angeles', 'docs/icons/brussels_airlines.png'),
+('Brussels Airlines', '2025-05-01 06:30:00', '2025-05-01 07:45:00', 'On Time', 'A1', 'Airbus A319', 120, 45, 159.99, 'Brussels', 'Paris', 'docs/icons/brussels_airlines.png'),
 ('Ryanair', '2025-05-01 09:30:00', '2025-05-01 11:45:00', 'Delayed', 'B3', 'Airbus A320', 180, 30, 259.50, 'Brussels', 'Paris', 'docs/icons/ryanair.png'),
-('KLM', '2025-05-02 14:00:00', '2025-05-02 16:30:00', 'On Time', 'C2', 'Boeing 777', 250, 120, 349.75, 'Brussels', 'Amsterdam', 'docs/icons/klm.png'),
-('Air France', '2025-05-02 16:45:00', '2025-05-02 18:15:00', 'On Time', 'D4', 'Airbus A330', 200, 70, 229.00, 'Brussels', 'London', 'docs/icons/air_france.png'),
-('Emirates', '2025-05-03 10:00:00', '2025-05-03 12:00:00', 'Cancelled', 'E5', 'Boeing 787', 220, 0, 499.99, 'Brussels', 'Dubai', 'docs/icons/emirates.png'),
-('Lufthansa', '2025-05-03 18:30:00', '2025-05-03 20:00:00', 'On Time', 'F6', 'Airbus A350', 210, 100, 399.50, 'Brussels', 'Munich', 'docs/icons/lufthansa.png'),
-('Qatar flightsAirways', '2025-05-04 07:00:00', '2025-05-04 09:15:00', 'On Time', 'G7', 'Boeing 747', 300, 50, 499.00, 'Brussels', 'Doha', 'docs/icons/qatar_airways.png'),
-('Turkish Airlines', '2025-05-04 21:00:00', '2025-05-05 01:00:00', 'On Time', 'H8', 'Airbus A380', 500, 400, 650.00, 'Brussels', 'Istanbul', 'docs/icons/turkish_airlines.png'),
-('Wizz Air', '2025-05-05 12:00:00', '2025-05-05 14:30:00', 'Delayed', 'I9', 'Boeing 767', 180, 90, 279.95, 'Brussels', 'Budapest', 'docs/icons/wizz_air.png'),
-('Air Canada', '2025-05-05 15:00:00', '2025-05-05 17:30:00', 'On Time', 'J10', 'Airbus A320', 160, 80, 199.00, 'Brussels', 'Toronto', 'docs/icons/air_canada.png');
+('Air France', '2025-05-01 13:15:00', '2025-05-01 14:30:00', 'On Time', 'C2', 'Embraer 190', 100, 75, 189.00, 'Brussels', 'Paris', 'docs/icons/air_france.png'),
+('Ryanair', '2025-05-02 07:00:00', '2025-05-02 09:15:00', 'On Time', 'D4', 'Boeing 737', 160, 90, 149.99, 'Brussels', 'Paris', 'docs/icons/ryanair.png'),
+('Brussels Airlines', '2025-05-02 16:45:00', '2025-05-02 18:00:00', 'On Time', 'E5', 'Airbus A320', 180, 110, 219.50, 'Brussels', 'Paris', 'docs/icons/brussels_airlines.png'),
+-- Multiple flights to London on different dates
+('British Airways', '2025-05-01 08:15:00', '2025-05-01 08:45:00', 'On Time', 'F6', 'Airbus A320', 150, 60, 179.00, 'Brussels', 'London', 'docs/icons/british_airways.png'),
+('Air France', '2025-05-01 12:30:00', '2025-05-01 13:00:00', 'On Time', 'G7', 'Embraer 190', 100, 40, 199.00, 'Brussels', 'London', 'docs/icons/air_france.png'),
+('Ryanair', '2025-05-02 10:45:00', '2025-05-02 11:15:00', 'Delayed', 'H8', 'Boeing 737', 160, 85, 129.99, 'Brussels', 'London', 'docs/icons/ryanair.png'),
+('Brussels Airlines', '2025-05-02 18:00:00', '2025-05-02 18:30:00', 'On Time', 'I9', 'Airbus A319', 120, 95, 209.50, 'Brussels', 'London', 'docs/icons/brussels_airlines.png'),
+-- Multiple flights to Amsterdam on different dates
+('KLM', '2025-05-01 07:00:00', '2025-05-01 07:45:00', 'On Time', 'J10', 'Embraer 175', 80, 30, 129.00, 'Brussels', 'Amsterdam', 'docs/icons/klm.png'),
+('KLM', '2025-05-01 14:00:00', '2025-05-01 14:45:00', 'On Time', 'K11', 'Boeing 737', 160, 110, 149.00, 'Brussels', 'Amsterdam', 'docs/icons/klm.png'),
+('Brussels Airlines', '2025-05-02 09:30:00', '2025-05-02 10:15:00', 'On Time', 'L12', 'Airbus A320', 180, 65, 139.99, 'Brussels', 'Amsterdam', 'docs/icons/brussels_airlines.png'),
+('KLM', '2025-05-02 17:45:00', '2025-05-02 18:30:00', 'On Time', 'M13', 'Embraer 190', 100, 45, 159.00, 'Brussels', 'Amsterdam', 'docs/icons/klm.png'),
+-- Multiple long-haul flights to New York
+('Brussels Airlines', '2025-05-01 09:00:00', '2025-05-01 12:30:00', 'On Time', 'N14', 'Airbus A330', 220, 150, 599.00, 'Brussels', 'New York', 'docs/icons/brussels_airlines.png'),
+('Delta', '2025-05-01 15:30:00', '2025-05-01 19:00:00', 'On Time', 'O15', 'Boeing 767', 240, 180, 649.00, 'Brussels', 'New York', 'docs/icons/delta.png'),
+('United', '2025-05-02 10:45:00', '2025-05-02 14:15:00', 'On Time', 'P16', 'Boeing 787', 210, 120, 579.00, 'Brussels', 'New York', 'docs/icons/united.png'),
+-- Multiple flights to Barcelona
+('Ryanair', '2025-05-01 11:00:00', '2025-05-01 13:15:00', 'On Time', 'Q17', 'Boeing 737', 160, 95, 189.99, 'Brussels', 'Barcelona', 'docs/icons/ryanair.png'),
+('Vueling', '2025-05-01 18:30:00', '2025-05-01 20:45:00', 'On Time', 'R18', 'Airbus A320', 180, 110, 219.00, 'Brussels', 'Barcelona', 'docs/icons/vueling.png'),
+('Brussels Airlines', '2025-05-02 08:15:00', '2025-05-02 10:30:00', 'On Time', 'S19', 'Airbus A319', 120, 75, 229.50, 'Brussels', 'Barcelona', 'docs/icons/brussels_airlines.png'),
+-- Multiple flights to Rome
+('Ryanair', '2025-05-01 07:45:00', '2025-05-01 10:00:00', 'On Time', 'T20', 'Boeing 737', 160, 85, 179.99, 'Brussels', 'Rome', 'docs/icons/ryanair.png'),
+('Alitalia', '2025-05-01 16:00:00', '2025-05-01 18:15:00', 'On Time', 'U21', 'Airbus A320', 180, 120, 249.00, 'Brussels', 'Rome', 'docs/icons/alitalia.png'),
+('Brussels Airlines', '2025-05-02 13:30:00', '2025-05-02 15:45:00', 'On Time', 'V22', 'Airbus A320', 180, 65, 259.50, 'Brussels', 'Rome', 'docs/icons/brussels_airlines.png'),
+-- Multiple flights to Berlin
+('Lufthansa', '2025-05-01 10:15:00', '2025-05-01 11:30:00', 'On Time', 'W23', 'Embraer 190', 100, 40, 169.00, 'Brussels', 'Berlin', 'docs/icons/lufthansa.png'),
+('Eurowings', '2025-05-01 19:45:00', '2025-05-01 21:00:00', 'On Time', 'X24', 'Airbus A319', 120, 85, 149.99, 'Brussels', 'Berlin', 'docs/icons/eurowings.png'),
+('Brussels Airlines', '2025-05-02 11:00:00', '2025-05-02 12:15:00', 'On Time', 'Y25', 'Airbus A320', 180, 55, 179.50, 'Brussels', 'Berlin', 'docs/icons/brussels_airlines.png'),
+-- Multiple flights to Madrid
+('Iberia', '2025-05-01 08:30:00', '2025-05-01 10:45:00', 'On Time', 'Z26', 'Airbus A320', 180, 95, 199.00, 'Brussels', 'Madrid', 'docs/icons/iberia.png'),
+('Ryanair', '2025-05-01 17:15:00', '2025-05-01 19:30:00', 'On Time', 'A27', 'Boeing 737', 160, 110, 169.99, 'Brussels', 'Madrid', 'docs/icons/ryanair.png'),
+('Brussels Airlines', '2025-05-02 14:45:00', '2025-05-02 17:00:00', 'On Time', 'B28', 'Airbus A319', 120, 70, 229.50, 'Brussels', 'Madrid', 'docs/icons/brussels_airlines.png'),
+-- Multiple flights to Lisbon
+('TAP Portugal', '2025-05-01 09:45:00', '2025-05-01 12:00:00', 'On Time', 'C29', 'Airbus A320', 180, 60, 219.00, 'Brussels', 'Lisbon', 'docs/icons/tap_portugal.png'),
+('Ryanair', '2025-05-01 20:30:00', '2025-05-01 22:45:00', 'On Time', 'D30', 'Boeing 737', 160, 90, 179.99, 'Brussels', 'Lisbon', 'docs/icons/ryanair.png'),
+('Brussels Airlines', '2025-05-02 12:15:00', '2025-05-02 14:30:00', 'On Time', 'E31', 'Airbus A320', 180, 45, 239.50, 'Brussels', 'Lisbon', 'docs/icons/brussels_airlines.png');
+
 INSERT INTO users (id, username, first_name, last_name, role, password) VALUES
 (1, 'admin', 'Alice', 'Smith', 'admin', 'admin'),
 (2, 'admin2', 'Bob', 'Johnson', 'admin', 'secureadmin456'),
@@ -19,7 +49,8 @@ INSERT INTO users (id, username, first_name, last_name, role, password) VALUES
 (7, 'user3', 'Grace', 'Lee', 'user', 'mypassword'),
 (8, 'staff3', 'Henry', 'Moore', 'staff', 'flightstaff2025'),
 (9, 'admin3', 'Isabel', 'Taylor', 'admin', 'rootadmin987'),
-(10, 'user4', 'Jack', 'Anderson', 'user', 'welcomeuser');
+(10, 'user4', 'Jack', 'Anderson', 'user', 'welcomeuser'),
+(11, 'KIOSK5', 'kiosk', 'kiosk', 'kiosk', 'kiosklogin123');
 INSERT INTO pending_flights (airline, departure, arrival, status, plane_type, total_seats, price, from_location, to_location, submitted_by)
 VALUES
 ('Brussels Airlines', '2025-07-01 08:30:00', '2025-07-01 12:45:00', 'Pending', 'Boeing 737', 150, 299.99, 'Brussels', 'Berlin', 1),
