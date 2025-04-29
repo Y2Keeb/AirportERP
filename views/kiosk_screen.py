@@ -30,7 +30,7 @@ class KioskLoginScreen(BaseWindow):
         self.frame_welcome_content = ctk.CTkFrame(self.frame_welcome, fg_color="transparent")
         self.frame_welcome_content.place(relx=0.5, rely=0.5, anchor="center")
 
-        pil_image = Image.open("docs/icons/plane-prop.png")
+        pil_image = Image.open("docs/icons/airplane_white.png")
         pil_image = pil_image.resize((150, 150))
         self.ctk_image = ctk.CTkImage(light_image=pil_image,
                                       dark_image=pil_image,
