@@ -13,7 +13,7 @@ from views.user_screen import UserScreen
 
 class KioskLoginScreen(BaseWindow):
     def __init__(self, root,view_manager=None):
-        super().__init__(root, " ")
+        super().__init__(root, " ", menu_buttons=["help"])
         self.root = root
         self.view_manager = view_manager
 
@@ -72,9 +72,11 @@ class KioskLoginScreen(BaseWindow):
         self.entry_password.pack(pady=5)
 
         btn_login = ctk.CTkButton(self.frame_login_content, text="Login", command=self.login)
-        btn_login.pack(pady=20)
+        btn_login.pack(pady=10)
+        lbl_or = ctk.CTkLabel(self.frame_login_content,text="or")
+        lbl_or.pack(pady=10)
         btn_register = ctk.CTkButton(self.frame_login_content, text="Register")
-        btn_register.pack(pady=20)
+        btn_register.pack(pady=10)
 
     def login(self):
         username = self.entry_username.get()
@@ -101,7 +103,7 @@ class KioskLoginScreen(BaseWindow):
             title="Info",
             icon="question",
             message="• Login by entering your username and password.\n"
-                    "• If you don't have a login, contact your administrator.",
+                    "• If you don't have a login, create one or contact your administrator.",
         )
 
     def cleanup(self):

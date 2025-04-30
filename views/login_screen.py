@@ -15,7 +15,7 @@ from PIL import Image
 class LoginScreen(BaseWindow):
 
     def __init__(self, root,view_manager=None):
-        super().__init__(root, " ", menu_buttons=["help", "about"])
+        super().__init__(root, " ", menu_buttons=["help", "about","exit"])
         self.root = root
         self.view_manager = view_manager
 
@@ -30,8 +30,7 @@ class LoginScreen(BaseWindow):
         self.frame_main = ctk.CTkFrame(
             self.root,
             border_color="black",
-            border_width=2,
-            corner_radius=20
+            border_width=5
         )
         self.frame_main.place(relx=0.5, rely=0.525, anchor="center", relwidth=0.4, relheight=0.9)
 
