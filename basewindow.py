@@ -40,6 +40,10 @@ class BaseWindow:
                                         text_color="white", hover_color="#333333", command=self.kill_window)
             exit_button.pack(side="right", padx=0, pady=3)
 
+    def destroy_menu_bar(self):
+        if hasattr(self, "menu_bar"):
+            self.menu_bar.destroy()
+
     def about(self):
         CTkMessagebox(title="Info", message="(c) AirportERP\nBY Lindsey, Reza and Thomas")
 

@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import Menu,messagebox
+
+import PIL
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
 from PIL import Image
@@ -11,16 +13,30 @@ from views.user_screen import UserScreen
 
 class KioskLoginScreen(BaseWindow):
     def __init__(self, root,view_manager=None):
-        super().__init__(root, "Login Window")
+        super().__init__(root, " ")
         self.root = root
         self.view_manager = view_manager
-        self.root.geometry("800x500")
 
-        self.frame_main = ctk.CTkFrame(self.root, border_color="black", border_width=5)
-        self.frame_main.pack(fill="both", expand=True)
-        self.frame_welcome = ctk.CTkFrame(self.frame_main, border_width=5)
+        bg_image = PIL.Image.open("docs/icons/background.jpg")
+        bg_image = bg_image.resize((800, 550))
+        self.bg_ctk_image = ctk.CTkImage(light_image=bg_image, dark_image=bg_image, size=(800, 550))
+        self.bg_label = ctk.CTkLabel(self.root, image=self.bg_ctk_image, text="")
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+
+        self.frame_main = ctk.CTkFrame(
+            self.root,
+            border_color="black",
+            border_width=7,
+            corner_radius=20,
+            fg_color="transparent"
+        )
+        self.frame_main.pack(fill="both", expand=True, padx=20, pady=20)
+
+        self.menu_bar.lift()
+
+        self.frame_welcome = ctk.CTkFrame(self.frame_main, border_width=5,border_color="black",fg_color="transparent")
         self.frame_welcome.pack(side="left",fill="both", expand=True)
-        self.frame_login= ctk.CTkFrame(self.frame_main, border_width=5)
+        self.frame_login= ctk.CTkFrame(self.frame_main, border_width=5,border_color="black",fg_color="transparent")
         self.frame_login.pack(side="right",fill="both", expand=True)
 
         self.frame_login_content = ctk.CTkFrame(self.frame_login, fg_color="transparent")
@@ -44,7 +60,6 @@ class KioskLoginScreen(BaseWindow):
 
         set_theme()
         self.create_widgets()
-        self.create_menu()
 
     def create_widgets(self):
         ctk.CTkLabel(self.frame_welcome_content, text="Welcome!", font=("Comic Sans", 25)).pack()
@@ -60,15 +75,6 @@ class KioskLoginScreen(BaseWindow):
         btn_login.pack(pady=20)
         btn_register = ctk.CTkButton(self.frame_login_content, text="Register")
         btn_register.pack(pady=20)
-
-    def create_menu(self):
-        menubar = Menu(self.root, bg="black", fg="white", activebackground="gray", activeforeground="white")
-        help_ = Menu(menubar, tearoff=0, bg="black", fg="white", activebackground="gray", activeforeground="white")
-        menubar.add_cascade(label="Help", menu=help_)
-        help_.add_command(label="Help", command=self.help_menu)
-        help_.add_separator()
-        help_.add_command(label="About AirportERP", command=self.about)
-        self.root.config(menu=menubar)
 
     def login(self):
         username = self.entry_username.get()
