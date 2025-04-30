@@ -15,25 +15,25 @@ from PIL import Image
 class LoginScreen(BaseWindow):
 
     def __init__(self, root,view_manager=None):
-        super().__init__(root, "Login Window")
+        super().__init__(root, " ", menu_buttons=["help", "about"])
         self.root = root
         self.view_manager = view_manager
-        self.root.geometry("800x500")
 
         bg_image = PIL.Image.open("docs/icons/background.jpg")
-        bg_image = bg_image.resize((800, 500))
-        self.bg_ctk_image = ctk.CTkImage(light_image=bg_image, dark_image=bg_image, size=(800, 500))
+        bg_image = bg_image.resize((800, 550))
+        self.bg_ctk_image = ctk.CTkImage(light_image=bg_image, dark_image=bg_image, size=(800, 550))
 
         self.bg_label = ctk.CTkLabel(self.root, image=self.bg_ctk_image, text="")
-        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)  # Fill full window
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+        self.menu_bar.lift()
 
         self.frame_main = ctk.CTkFrame(
             self.root,
             border_color="black",
             border_width=2,
-            corner_radius=20,
+            corner_radius=20
         )
-        self.frame_main.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.4, relheight=0.98)
+        self.frame_main.place(relx=0.5, rely=0.525, anchor="center", relwidth=0.4, relheight=0.9)
 
         pil_image = Image.open("docs/icons/login_logo.png")
         pil_image = pil_image.resize((120, 120))
@@ -51,7 +51,6 @@ class LoginScreen(BaseWindow):
         set_theme()
         self.create_widgets()
 
-        self.create_menu()
 
     def create_widgets(self):
         ctk.CTkLabel(
@@ -70,15 +69,6 @@ class LoginScreen(BaseWindow):
 
         btn_login = ctk.CTkButton(self.frame_main, text="Login", command=self.login)
         btn_login.pack(pady=20)
-
-    def create_menu(self):
-        menubar = Menu(self.root, bg="black", fg="white", activebackground="gray", activeforeground="white")
-        help_ = Menu(menubar, tearoff=0, bg="black", fg="white", activebackground="gray", activeforeground="white")
-        menubar.add_cascade(label="Help", menu=help_)
-        help_.add_command(label="Help", command=self.help_menu)
-        help_.add_separator()
-        help_.add_command(label="About AirportERP", command=self.about)
-        self.root.config(menu=menubar)
 
     def login(self):
         username = self.entry_username.get()
@@ -103,14 +93,6 @@ class LoginScreen(BaseWindow):
                 self.root.view_manager.show_view(UserScreen, username=username)
         else:
             tk.messagebox.showerror("Login Failed", "Invalid username or password.")
-
-    def help_menu(self):
-        CTkMessagebox(
-            title="Info",
-            icon="question",
-            message="• Login by entering your username and password.\n"
-                    "• If you don't have a login, contact your administrator.",
-        )
 
     def cleanup(self):
         self.frame_main.destroy()

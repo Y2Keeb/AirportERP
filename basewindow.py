@@ -6,33 +6,43 @@ from view_manager import ViewManager
 from config import set_theme
 
 class BaseWindow:
-    def __init__(self, root, title):
+    def __init__(self, root, title, menu_buttons=None):
         self.root = root
+        self.root.wm_iconbitmap(("docs/icons/favicon.ico"))
         self.root.title(title)
         self.view_manager = ViewManager(root)
         set_theme()
-        self.create_menu()
         self.root.grid_propagate(False)
 
-    def create_menu(self):
-        menubar = Menu(self.root)
+        self.create_menu_bar(menu_buttons or ["help", "about", "logout", "exit"])
 
-        help_menu = Menu(menubar, tearoff=0)
-        help_menu.add_command(label="Help", command=self.help_menu)
-        help_menu.add_separator()
-        help_menu.add_command(label="About", command=self.about)
+    def create_menu_bar(self, menu_buttons):
+        self.menu_bar = ctk.CTkFrame(self.root, height=30, fg_color="#1c1c1c")
+        self.menu_bar.pack(fill="x", side="top")
 
-        account_menu = Menu(menubar, tearoff=0)
-        account_menu.add_command(label="Logout", command=self.logout)
-        account_menu.add_command(label="Exit", command=self.kill_window)
+        if "help" in menu_buttons:
+            help_button = ctk.CTkButton(self.menu_bar, text="Help", width=60, height=24, fg_color="transparent",
+                                        text_color="white", hover_color="#333333", command=self.help_menu)
+            help_button.pack(side="left", padx=10, pady=3)
 
-        menubar.add_cascade(label="Help", menu=help_menu)
-        menubar.add_cascade(label="Account", menu=account_menu)
+        if "about" in menu_buttons:
+            about_button = ctk.CTkButton(self.menu_bar, text="About", width=60, height=24, fg_color="transparent",
+                                         text_color="white", hover_color="#333333", command=self.about)
+            about_button.pack(side="left", padx=0, pady=3)
 
-        self.root.config(menu=menubar)
+        if "logout" in menu_buttons:
+            logout_button = ctk.CTkButton(self.menu_bar, text="Logout", width=70, height=24, fg_color="transparent",
+                                          text_color="white", hover_color="#333333", command=self.logout)
+            logout_button.pack(side="right", padx=10, pady=3)
+
+        if "exit" in menu_buttons:
+            exit_button = ctk.CTkButton(self.menu_bar, text="Exit", width=60, height=24, fg_color="transparent",
+                                        text_color="white", hover_color="#333333", command=self.kill_window)
+            exit_button.pack(side="right", padx=0, pady=3)
 
     def about(self):
         CTkMessagebox(title="Info", message="(c) AirportERP\nBY Lindsey, Reza and Thomas")
+
     def help_menu(self):
         CTkMessagebox(title="Help", message="• Login by entering your username and password.\n• If you don't have a login, contact your administrator.")
 
@@ -44,4 +54,3 @@ class BaseWindow:
 
     def kill_window(self):
         self.root.quit()
-
