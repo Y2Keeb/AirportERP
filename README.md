@@ -10,15 +10,41 @@ Ons systeem centraliseert en stroomlijnt deze processen om de efficiëntie en ve
 # File structure
 ```
 /airportERP
-│── /src                                      # Source code (main Python)
-│── /docs                                     # Documentation (wireframes, info,...)
-│    ├── wireframes                           # Wireframes (designs of the UI screens)
-│    ├── roles_and_responsibilities.md        # Detailed breakdown of user roles and responsibilities
-│    ├── DATABASE.md                          # Database schema, table structures, and relationships
-│── .gitignore                                # Files to ignore in Git (like __pycache__, .idea,...)
-│── LICENCE.md                                # License file describing the terms under which the project is shared
-│── README.md                                 # Project description and overview
-│── requirements.txt                          # Non Built-in external dependencies (e.g., bcrypt, pillow)
+│── /src                                      # Source code related to database setup (SQL scripts)
+│    ├── create_tables.sql                    # SQL script to create all necessary database tables
+│    ├── dummy_data.sql                       # SQL script to populate the database with dummy data
+│
+│── /views                                    # All UI screen modules used in the application
+│    ├── __init__.py                          # Initializes the views package
+│    ├── login_screen.py                      # User login screen (authentication logic)
+│    ├── admin_screen.py                      # Admin dashboard for managing system operations
+│    ├── staff_screen.py                      # Staff interface
+│    ├── user_screen.py                       # User dashboard/home screen after login
+│    ├── user_bookings_overview_screen.py     # Displays user’s booked flights and details
+│    ├── ticket_booking_screen.py             # UI for selecting and booking flights
+│    ├── buy_additional_packages_screen.py    # Screen for purchasing extra services (e.g., luggage, meals)
+│    ├── payment_simulation.py                # Handles payment simulation logic and UI
+│
+│── /themes                                   # UI themes, color schemes, and styling configurations
+│
+│── /docs                                     # Project documentation and design resources
+│    ├── wireframes                           # Wireframe images showing UI layouts
+│    ├── icons                                # Custom or standard icons used in the UI
+│    ├── grid_layout_docu                     # Documentation of UI grid layouts and placement logic
+│    ├── roles_and_responsibilities.md        # Describes responsibilities of each user role in the system
+│    ├── code_conventions.md                  # Coding standards and naming conventions for consistency
+│    ├── DATABASE.md                          # Overview of database schema, ERD, and table relationships
+│
+│── .gitignore                                # Specifies files and folders to be ignored by Git
+│── LICENCE.md                                # Open-source license for the project
+│── README.md                                 # Overview of the project and main features
+│── requirements.txt                          # List of Python packages required to run the app
+│── basewindow.py                             # Base class/window inherited by all major screens
+│── config.py                                 # Configuration settings (DB connection, theme,logging etc.)
+│── main.py                                   # Application entry point; initializes and launches the UI
+│── view_manager.py                           # Manages switching between UI views/screens
+
+
 ```
 ## Roles and Responsibilities
 See the detailed breakdown of roles and responsibilities [here](docs/roles_and_responsibilities.md).
@@ -31,14 +57,23 @@ We will be using **MySQL** as the relational database management system. MySQL i
 - **Employees** will store staff information.
 - **Flights** will contain details on scheduled flights.
 - **Bookings** will track user flight reservations.
+- **Discount_codes** will track discount codes and their availability
+- **Pending_flights** will track flights put up for planning by airlines
+
 
 ### User Interface (UI)
-We will use **Tkinter** for the graphical user interface (GUI) because it is simple to implement and suitable for creating desktop applications. Tkinter allows us to create an interface quickly, which is ideal for building interactive forms, data displays, and flight management screens.
 
-Key screens include:
-- **Login Page**: Allows users and admins to authenticate.
-- **Flight Management Page**: For admins and flight planners to add and modify flight details.
-- **User Dashboard**: Allows passengers to view flight details, book tickets, and manage bookings.
+We will use **Custom Tkinter** for the graphical user interface (GUI) because it is simple to implement and well-suited for creating desktop applications. Tkinter allows for rapid development of interactive forms, data displays, and flight management screens.
+
+Our application follows a **Model-View-Controller (MVC)** architecture. In this setup:
+
+- **Models** handle the core data and logic (e.g., flight data, user info, bookings).
+- **Views** represent individual screens (e.g., login screen, booking page, payment screen).
+- A custom **ViewManager** acts as the controller and navigator, managing transitions between views and ensuring a modular, maintainable structure.
+
+This pattern keeps our code organized and scalable, making it easier to update or expand the system as needed.
+
+
 
 ### External Packages
 We will use **Pillow** for handling image processing. Specifically, we will use Pillow to load and display airline logos within the user interface. Pillow is lightweight and supports many image formats, making it ideal for our needs.
