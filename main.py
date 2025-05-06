@@ -20,10 +20,8 @@ class App:
         version = sys.getwindowsversion()
 
         if version.major == 10 and version.build >= 22000:
-            # Windows 11
             pywinstyles.change_header_color(root, "#1c1c1c")
         elif version.major == 10:
-            # Windows 10
             pywinstyles.apply_style(root, "dark")
             root.wm_attributes("-alpha", 0.99)
             root.wm_attributes("-alpha", 1)

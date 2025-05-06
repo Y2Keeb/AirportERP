@@ -7,7 +7,7 @@ from views.user_bookings_overview_screen import MyBookings
 
 class UserScreen(BaseWindow):
     def __init__(self, root, username=None, user_id=None, view_manager=None):
-        super().__init__(root, f"User Dashboard - {username}")
+        super().__init__(root, f"User Dashboard - {username}",menu_buttons=["help","logout","exit"])
         self.username = username
         self.view_manager = view_manager
         self.root.geometry("800x500")
@@ -34,7 +34,7 @@ class UserScreen(BaseWindow):
             widget.destroy()
 
         content_frame = ctk.CTkFrame(self.frame_main)
-        content_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        content_frame.grid(row=0, column=0, sticky="nsew")
 
         self.frame_main.grid_rowconfigure(0, weight=1)
         self.frame_main.grid_columnconfigure(0, weight=1)

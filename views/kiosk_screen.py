@@ -89,6 +89,7 @@ class KioskLoginScreen(BaseWindow):
         if result:
             role = result[4]
 
+            self.destroy_menu_bar()
             self.frame_main.destroy()
 
             if role == "user":
