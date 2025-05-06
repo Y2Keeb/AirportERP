@@ -111,7 +111,7 @@ class UserScreen(BaseWindow):
                     """
             cursor.execute(query, (self.user_id,))
             flight = cursor.fetchone()
-
+            print(flight)
             if not flight:
                 no_flight_label = ctk.CTkLabel(
                     self.upcoming_flight_frame, text="No upcoming flights.",
