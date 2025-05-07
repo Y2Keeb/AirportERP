@@ -6,7 +6,7 @@ from views.user_bookings_overview_screen import MyBookings
 
 
 class UserScreen(BaseWindow):
-    def __init__(self, root, username=None, user_id=None, view_manager=None):
+    def __init__(self, root, username=None, user_id=None, view_manager=None, **kwargs):
         super().__init__(root, f"User Dashboard - {username}",menu_buttons=["help","logout","exit"])
         self.username = username
         self.view_manager = view_manager
@@ -15,19 +15,17 @@ class UserScreen(BaseWindow):
 
         self.frame_main = ctk.CTkFrame(root)
         self.frame_main.pack(fill='both', expand=True)
+        self.role = kwargs.get('role', 'user')  # Default to 'user' if not specified
 
         self.view_state = {
             'username': self.username,
-            'user_id': self.user_id
+            'user_id': self.user_id,
+            'role': self.role
         }
 
         self._build_ui()
         self.display_upcoming_flight()
 
-    def _get_user_id(self):
-        cursor = mydb.cursor()
-        cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
-        return cursor.fetchone()[0]
 
     def _build_ui(self):
         for widget in self.frame_main.winfo_children():
@@ -65,10 +63,21 @@ class UserScreen(BaseWindow):
         content_frame.grid_rowconfigure(3, weight=1)
         content_frame.grid_columnconfigure((0, 1), weight=1)
 
-    def _navigate_to_tickets(self):
-        if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
-            self.frame_main.pack_forget()
+    def _get_user_id(self):
+        cursor = None
+        try:
+            cursor = mydb.cursor()
+            cursor.execute("SELECT id FROM users WHERE username = %s", (self.username,))
+            result = cursor.fetchone()
+            return result[0] if result else None
+        except Exception as e:
+            print(f"Error getting user ID: {e}")
+            return None
+        finally:
+            if cursor:
+                cursor.close()
 
+    def _navigate_to_tickets(self):
         if self.view_manager:
             self.view_manager.push_view(
                 TicketSystem,
@@ -76,6 +85,7 @@ class UserScreen(BaseWindow):
                 username=self.username
             )
         else:
+            self.cleanup()
             TicketSystem(self.root, user_id=self.user_id, username=self.username)
 
     def _navigate_to_bookings(self):

@@ -11,7 +11,9 @@ class AdminScreen(BaseWindow):
         self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
         set_theme()
         self.create_widgets()
-
+        self.view_state = {
+            'role': 'admin'
+        }
     def create_widgets(self):
         greeting_label = ctk.CTkLabel(self.frame_main, text=f"Welcome Admin!", font=("Arial", 20))
         greeting_label.grid(row=0, column=0, pady=10, padx=20, sticky="w")

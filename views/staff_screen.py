@@ -3,10 +3,11 @@ from config import set_theme
 import customtkinter as ctk
 
 class StaffScreen(BaseWindow):
-    """Staff dashboard"""
-
-    def __init__(self, root):
+    def __init__(self, root, view_manager=None):
         super().__init__(root, "Staff Dashboard")
+        self.view_state = {
+            'role': 'staff'
+        }
         self.frame_main = ctk.CTkFrame(self.root)
         self.frame_main.pack(fill="both", expand=True, padx=10, pady=10)
         set_theme()

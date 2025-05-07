@@ -17,6 +17,9 @@ class BaseWindow:
         self.create_menu_bar(menu_buttons or ["help", "about", "logout", "exit"])
 
     def create_menu_bar(self, menu_buttons):
+        if hasattr(self, 'menu_bar') and self.menu_bar.winfo_exists():
+            self.menu_bar.destroy()
+
         self.menu_bar = ctk.CTkFrame(self.root, height=30, fg_color="#1c1c1c")
         self.menu_bar.pack(fill="x", side="top")
 
@@ -51,10 +54,31 @@ class BaseWindow:
         CTkMessagebox(title="Help", message="• Login by entering your username and password.\n• If you don't have a login, contact your administrator.")
 
     def logout(self):
-        from views.login_screen import LoginScreen
-        self.view_manager.reset()
-        self.view_manager.pop_view()
-        self.view_manager.show_view(LoginScreen)
+        """Handle logout based on current user type"""
+        # Clean up current screen
+        self.cleanup()
+
+        if hasattr(self, 'root') and self.root.winfo_exists():
+            # Determine where to go based on user role
+            if hasattr(self, 'view_state') and self.view_state.get('role') == 'user':
+                # User logout - go to kiosk login
+                from views.kiosk_screen import KioskLoginScreen
+                for widget in self.root.winfo_children():
+                    widget.destroy()
+                KioskLoginScreen(self.root, view_manager=self.view_manager)
+            else:
+                # Admin/staff logout - exit to login screen
+                from views.login_screen import LoginScreen
+                for widget in self.root.winfo_children():
+                    widget.destroy()
+                LoginScreen(self.root, view_manager=self.view_manager)
 
     def kill_window(self):
         self.root.quit()
+
+    def cleanup(self):
+        """Clean up all window resources"""
+        if hasattr(self, 'menu_bar') and self.menu_bar.winfo_exists():
+            self.menu_bar.destroy()
+        if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
+            self.frame_main.destroy()

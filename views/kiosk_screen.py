@@ -87,18 +87,23 @@ class KioskLoginScreen(BaseWindow):
         result = cursor.fetchone()
 
         if result:
-            role = result[4]
+            role = result[4]  # Get the role from database
 
             self.destroy_menu_bar()
             self.frame_main.destroy()
 
             if role == "user":
-                self.root.view_manager.show_view(UserScreen, username=username)
+                # Pass the role explicitly
+                self.root.view_manager.show_view(
+                    UserScreen,
+                    username=username,
+                    user_id=result[0],  # id from database
+                    role=role  # Explicitly pass the role
+                )
             else:
-                tk.messagebox.showerror("Login Failed", "Invalid username or password.")
+                messagebox.showerror("Login Failed", "Invalid username or password.")
         else:
-            tk.messagebox.showerror("Login Failed", "Invalid username or password.")
-
+            messagebox.showerror("Login Failed", "Invalid username or password.")
     def help_menu(self):
         CTkMessagebox(
             title="Info",
