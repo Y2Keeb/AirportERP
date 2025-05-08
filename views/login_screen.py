@@ -4,7 +4,7 @@ import customtkinter as ctk
 from CTkMessagebox import *
 from basewindow import BaseWindow
 from views.admin_screen import AdminScreen
-from views.staff_screen import StaffScreen
+from views.airline_screen import AirlineScreen
 from views.user_screen import UserScreen
 from views.kiosk_screen import KioskLoginScreen
 from config import mydb, set_theme
@@ -85,8 +85,8 @@ class LoginScreen(BaseWindow):
 
             if role == "admin":
                 self.root.view_manager.show_view(AdminScreen)
-            elif role == "staff":
-                self.root.view_manager.show_view(StaffScreen)
+            elif role == "airline":
+                self.root.view_manager.show_view(AirlineScreen,username=username)
             elif role == "kiosk":
                 self.root.view_manager.show_view(KioskLoginScreen)
             else:

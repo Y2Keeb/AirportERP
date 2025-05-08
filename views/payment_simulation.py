@@ -150,10 +150,8 @@ class PaymentScreen(ctk.CTkToplevel):
         if hasattr(self, '_countdown_id') and self._countdown_id:
             self.after_cancel(self._countdown_id)
 
-        # Destroy the payment window
         self.destroy()
 
-        # Return to UserScreen through the view manager
         if self.view_manager:
             self.view_manager.show_view(
                 UserScreen,
@@ -162,7 +160,6 @@ class PaymentScreen(ctk.CTkToplevel):
                 user_id=self.user_id
             )
         else:
-            # Fallback without view manager
             from views.user_screen import UserScreen
             UserScreen(self._root,
                        username=self.username,
@@ -174,7 +171,6 @@ class PaymentScreen(ctk.CTkToplevel):
         receipt_window.title("Receipt")
         receipt_window.geometry("400x300")
 
-        # Make it modal so it stays on top
         receipt_window.grab_set()
 
         receipt_text = (

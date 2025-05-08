@@ -49,7 +49,8 @@ INSERT INTO users (id, username, first_name, last_name, role, password) VALUES
 (8, 'staff3', 'Henry', 'Moore', 'staff', 'flightstaff2025'),
 (9, 'admin3', 'Isabel', 'Taylor', 'admin', 'rootadmin987'),
 (10, 'user4', 'Jack', 'Anderson', 'user', 'welcomeuser'),
-(11, 'KIOSK5', 'kiosk', 'kiosk', 'kiosk', 'kiosklogin123');
+(11, 'KIOSK5', 'kiosk', 'kiosk', 'kiosk', 'kiosklogin123'),
+('12', 'airline1', 'Brussels', 'Airlines', 'airline', 'airlinelogin');
 INSERT INTO pending_flights (airline, departure, arrival, status, plane_type, total_seats, price, from_location, to_location, submitted_by)
 VALUES
 ('Brussels Airlines', '2025-07-01 08:30:00', '2025-07-01 12:45:00', 'Pending', 'Boeing 737', 150, 299.99, 'Brussels', 'Berlin', 1),

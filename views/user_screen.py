@@ -1,6 +1,9 @@
 from basewindow import BaseWindow
 import customtkinter as ctk
 from config import mydb
+import qrcode
+from PIL import Image, ImageTk
+import io
 from views.ticket_booking_screen import TicketSystem
 from views.user_bookings_overview_screen import MyBookings
 
@@ -15,7 +18,7 @@ class UserScreen(BaseWindow):
 
         self.frame_main = ctk.CTkFrame(root)
         self.frame_main.pack(fill='both', expand=True)
-        self.role = kwargs.get('role', 'user')  # Default to 'user' if not specified
+        self.role = kwargs.get('role', 'user')
 
         self.view_state = {
             'username': self.username,
@@ -58,7 +61,6 @@ class UserScreen(BaseWindow):
         self.upcoming_flight_frame = ctk.CTkFrame(content_frame, border_width=2, border_color="black")
         self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
 
-        self.display_upcoming_flight()
 
         content_frame.grid_rowconfigure(3, weight=1)
         content_frame.grid_columnconfigure((0, 1), weight=1)
@@ -155,12 +157,51 @@ class UserScreen(BaseWindow):
                     row=i + 1, column=1, sticky="w", padx=10, pady=2
                 )
 
-            # QR code placeholder
-            airline_icon = ctk.CTkLabel(self.upcoming_flight_frame, text="QR CODE HERE",
-                                        font=("Arial", 20))  # Placeholder
-            airline_icon.grid(row=1, column=2, rowspan=3, padx=20, pady=5, sticky="e")
-
             self.upcoming_flight_frame.grid_columnconfigure(1, weight=1)
+            flight_data = f"""
+            Airline: {flight['airline']}
+            Route: {flight['from_location']} → {flight['to_location']}
+            Departure: {flight['departure']}
+            Arrival: {flight['arrival']}
+            Gate: {flight['gate']}
+            Status: {flight['status']}
+            Plane: {flight['plane_type']}
+            Passenger: {self.username}
+            """
+
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=6,
+                border=4,
+            )
+            qr.add_data(flight_data)
+            qr.make(fit=True)
+
+            self.qr_img = qr.make_image(fill_color="black", back_color="white")
+
+            img_bytes = io.BytesIO()
+            self.qr_img.save(img_bytes, format='PNG')
+            img_bytes.seek(0)
+
+            self.qr_ctk_image = ctk.CTkImage(
+                light_image=Image.open(img_bytes),
+                size=(150, 150)
+            )
+
+            self.qr_label = ctk.CTkLabel(
+                self.upcoming_flight_frame,
+                image=self.qr_ctk_image,
+                text=""
+            )
+            self.qr_label.grid(row=2, column=2, padx=20, pady=5, sticky="e")
+
+            scan_label = ctk.CTkLabel(
+                self.upcoming_flight_frame,
+                text="Scan Me",
+                font=("Arial", 10)
+            )
+            scan_label.grid(row=4, column=2, pady=(0, 10))
 
         except Exception as e:
             print("Error fetching flight data:", e)
@@ -171,4 +212,11 @@ class UserScreen(BaseWindow):
     def cleanup(self):
         """Clean up resources when screen is closed"""
         if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
+            if hasattr(self, 'qr_label') and self.qr_label.winfo_exists():
+                self.qr_label.destroy()
+            if hasattr(self, 'qr_ctk_image'):
+                del self.qr_ctk_image
+            if hasattr(self, 'qr_img'):
+                del self.qr_img
+
             self.frame_main.destroy()

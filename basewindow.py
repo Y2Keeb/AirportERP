@@ -55,19 +55,15 @@ class BaseWindow:
 
     def logout(self):
         """Handle logout based on current user type"""
-        # Clean up current screen
         self.cleanup()
 
         if hasattr(self, 'root') and self.root.winfo_exists():
-            # Determine where to go based on user role
             if hasattr(self, 'view_state') and self.view_state.get('role') == 'user':
-                # User logout - go to kiosk login
                 from views.kiosk_screen import KioskLoginScreen
                 for widget in self.root.winfo_children():
                     widget.destroy()
                 KioskLoginScreen(self.root, view_manager=self.view_manager)
             else:
-                # Admin/staff logout - exit to login screen
                 from views.login_screen import LoginScreen
                 for widget in self.root.winfo_children():
                     widget.destroy()
