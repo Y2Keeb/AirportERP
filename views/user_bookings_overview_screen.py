@@ -134,11 +134,9 @@ class MyBookings(BaseWindow):
         self.cleanup()
 
         if self.view_manager:
-            # Get the current role if it exists
             role = getattr(self, 'role', 'user')
             self.view_manager.pop_view(role=role)
         else:
-            # Alternative path without view manager
             from views.user_screen import UserScreen
             for widget in self.root.winfo_children():
                 widget.destroy()
@@ -148,12 +146,9 @@ class MyBookings(BaseWindow):
                        view_manager=self.view_manager)
     def cleanup(self):
         """More thorough cleanup"""
-        # Destroy menu bar if exists
         if hasattr(self, 'menu_bar') and self.menu_bar.winfo_exists():
             self.menu_bar.destroy()
-        # Destroy main frame if exists
         if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
             self.frame_main.destroy()
-        # Cancel any pending operations
         if hasattr(self, '_countdown_id') and self._countdown_id:
             self.after_cancel(self._countdown_id)

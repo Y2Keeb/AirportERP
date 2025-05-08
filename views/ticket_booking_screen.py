@@ -214,7 +214,7 @@ class TicketSystem(BaseWindow):
                 'selected_flight': self.selected_flight,
                 'user_id': self.user_id,
                 'username': self.username,
-                'package_price': 0  # Default value
+                'package_price': 0
             }
 
             if self.view_manager:
@@ -255,12 +255,12 @@ class TicketSystem(BaseWindow):
                 price = float(price_str) if price_str else 0.0
 
             self.selected_flight = (
-                flight_id,  # Actual DB ID (int)
-                values[0],  # Airline (str)
-                values[1],  # From (str)
-                values[2],  # Schedule (str)
-                values[3],  # To (str)
-                price  # Price (float)
+                flight_id,
+                values[0],
+                values[1],
+                values[2],
+                values[3],
+                price
             )
             self.btn_book.configure(state="normal")
 
