@@ -19,7 +19,7 @@ class AirlineScreen(BaseWindow):
             border_color="black",
             border_width=3
         )
-        self.frame_content.place(relx=0.5, rely=0.525, anchor="center", relwidth=0.4, relheight=0.75)
+        self.frame_content.place(relx=0.5, rely=0.525, anchor="center", relwidth=0.5, relheight=0.75)
         set_theme()
 
         self.lbl_airline = ctk.CTkLabel(self.frame_content, text="Airline: ")
@@ -67,7 +67,7 @@ class AirlineScreen(BaseWindow):
         self.total_seat_entry.grid(row=7, column=1, padx=15,pady=9,sticky="w")
         self.price_entry.grid(row=8, column=1, padx=15,pady=9,sticky="w")
         #buttons
-        self.btn_offer_flight.grid(row=2, column=0, padx=15,pady=9,sticky="sw")
+        self.btn_offer_flight.place(relx=0.5, rely=0.96, anchor="s")
 
     def get_airline_name(self):
         cursor = mydb.cursor()
