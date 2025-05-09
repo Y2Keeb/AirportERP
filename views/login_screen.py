@@ -22,8 +22,8 @@ class LoginScreen(BaseWindow):
         self.view_manager = view_manager
 
         self.root.update_idletasks()  # Ensure geometry info is accurate
-        window_width = self.root.winfo_width()
-        window_height = self.root.winfo_height()
+        window_width = 1300
+        window_height = 900
 
         self.original_bg_image = PIL.Image.open("docs/icons/background.jpg").convert("RGBA")
 
@@ -33,7 +33,9 @@ class LoginScreen(BaseWindow):
 
         self.bg_label = ctk.CTkLabel(self.root, image=self.bg_ctk_image, text="")
         self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
-        self.root.after(50, lambda: self._fade_in_background(
+
+
+        self.root.after(80, lambda: self._fade_in_background(
             self.original_bg_image,
             self.root.winfo_width(),
             self.root.winfo_height()
@@ -50,24 +52,26 @@ class LoginScreen(BaseWindow):
         )
         self.frame_main.place(relx=0.5, rely=0.525, anchor="center", relwidth=0.4, relheight=0.9)
 
+
         pil_image = Image.open("docs/icons/login_logo.png")
-        pil_image = pil_image.resize((120, 120))
+        pil_image = pil_image.resize((250, 207))
         self.ctk_image = ctk.CTkImage(light_image=pil_image,
                                       dark_image=pil_image,
-                                      size=(120, 120))
+                                      size=(250, 207))
 
         self.lbl_image = ctk.CTkLabel(self.frame_main,
                                       image=self.ctk_image,
                                       text="")
-        self.lbl_image.pack(pady=35)
-        self.entry_username = ctk.CTkEntry(self.frame_main)
-        self.entry_password = ctk.CTkEntry(self.frame_main, show="*")
+        self.lbl_image.pack(pady=(140,10))
+        self.content_frame = ctk.CTkFrame(self.frame_main, fg_color="transparent")
+        self.content_frame.pack(expand=True)
+        self.entry_username = ctk.CTkEntry(self.content_frame)
+        self.entry_password = ctk.CTkEntry(self.content_frame, show="*")
 
         set_theme()
         self.root.configure(bg="black")  # Makes root black behind the image
 
         self.create_widgets()
-
 
     def _resize_background(self, event):
         if event.width < 100 or event.height < 100:
@@ -101,20 +105,20 @@ class LoginScreen(BaseWindow):
 
     def create_widgets(self):
         ctk.CTkLabel(
-            self.frame_main,
+            self.content_frame,
             text="Welcome Back!",
             fg_color="transparent",
             font=("Arial", 22)
         ).pack()
-        ctk.CTkLabel(self.frame_main, text="Log in to your account",fg_color="transparent").pack()
+        ctk.CTkLabel(self.content_frame, text="Log in to your account",fg_color="transparent").pack()
 
-        ctk.CTkLabel(self.frame_main, text="Username:").pack(pady=5)
+        ctk.CTkLabel(self.content_frame, text="Username:").pack(pady=5)
         self.entry_username.pack(pady=5)
 
-        ctk.CTkLabel(self.frame_main, text="Password:").pack(pady=5)
+        ctk.CTkLabel(self.content_frame, text="Password:").pack(pady=5)
         self.entry_password.pack(pady=5)
 
-        btn_login = ctk.CTkButton(self.frame_main, text="Login", command=self.login)
+        btn_login = ctk.CTkButton(self.content_frame, text="Login", command=self.login)
         btn_login.pack(pady=20)
 
     def login(self):
