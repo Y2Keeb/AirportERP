@@ -20,9 +20,11 @@ class LoginScreen(BaseWindow):
         self.root = root
         self.view_manager = view_manager
 
-        bg_image = PIL.Image.open("docs/icons/background.jpg")
-        bg_image = bg_image.resize((800, 550))
-        self.bg_ctk_image = ctk.CTkImage(light_image=bg_image, dark_image=bg_image, size=(800, 550))
+        self.original_bg_image = PIL.Image.open("docs/icons/background.jpg")
+        self.bg_ctk_image = ctk.CTkImage(light_image=self.original_bg_image,
+                                         dark_image=self.original_bg_image,
+                                         size=(800, 550))  # Initial size
+        self.root.bind("<Configure>", self._resize_background)
 
         self.bg_label = ctk.CTkLabel(self.root, image=self.bg_ctk_image, text="")
         self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -51,6 +53,19 @@ class LoginScreen(BaseWindow):
         set_theme()
         self.create_widgets()
 
+    def _resize_background(self, event):
+        if event.width < 100 or event.height < 100:
+            return
+
+        if hasattr(self, "_resize_after_id"):
+            self.root.after_cancel(self._resize_after_id)
+
+        self._resize_after_id = self.root.after(100, lambda: self._perform_resize(event.width, event.height))
+
+    def _perform_resize(self, width, height):
+        resized_image = self.original_bg_image.resize((width, height), PIL.Image.LANCZOS)
+        self.bg_ctk_image = ctk.CTkImage(light_image=resized_image, dark_image=resized_image, size=(width, height))
+        self.bg_label.configure(image=self.bg_ctk_image)
 
     def create_widgets(self):
         ctk.CTkLabel(

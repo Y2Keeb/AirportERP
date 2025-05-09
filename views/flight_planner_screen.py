@@ -29,10 +29,18 @@ class FlightPlannerScreen(BaseWindow):
                 widget.destroy()
 
         self.frame_main = ctk.CTkFrame(root)
-        self.frame_main.pack(fill='both', expand=True, padx=10, pady=10)
+        self.frame_main.pack(fill="both", expand=True)
 
-        self.frame_main.grid_columnconfigure(0, weight=1)
-        self.frame_main.grid_rowconfigure(2, weight=1)
+        self.frame_main.grid_columnconfigure(1, weight=1)  # Make right side expandable
+        self.frame_main.grid_rowconfigure(0, weight=1)
+
+        self.sidebar_frame = ctk.CTkFrame(self.frame_main, width=200)
+        self.sidebar_frame.grid(row=0, column=0, sticky="ns")
+
+        self.right_frame = ctk.CTkFrame(self.frame_main)
+        self.right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
+        self.right_frame.grid_rowconfigure(1, weight=1)  # Let treeview expand
+        self.right_frame.grid_columnconfigure(0, weight=1)
 
         self._create_header()
         self._create_flights_table()
@@ -40,25 +48,35 @@ class FlightPlannerScreen(BaseWindow):
 
     def _create_header(self):
         """Create header section with title and back button"""
-        header_frame = ctk.CTkFrame(self.frame_main, fg_color="transparent")
-        header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10))
 
-        ctk.CTkLabel(
-            header_frame,
-            text="Flight Planner - Pending flights ready for planning.",
-            font=("Arial", 25, "bold")
-        ).pack(side="left", padx=10)
+        ctk.CTkLabel(self.right_frame,text="Flight Planner - Pending flights ready for planning.",font=("Arial", 25, "bold")).pack(side="left", padx=10)
+        btn_pending_flights = ctk.CTkButton(self.sidebar_frame, text="Browse Pending Flights").pack(pady=(10, 5), fill='x', padx=10)
+        btn_planned_flights = ctk.CTkButton(self.sidebar_frame, text="Browse Planned Flights").pack(pady=5, fill='x', padx=10)
 
-        btn_back = ctk.CTkButton(
-            header_frame,
-            text="← Back to Dashboard",
-            command=self._go_back,
-            fg_color="transparent",
-            border_width=1,
-            width=100
-        )
+        btn_back = ctk.CTkButton(self.right_frame,text="← Back to Dashboard",command=self._go_back,fg_color="transparent",border_width=1,width=100)
         btn_back.pack(side="right", padx=10)
 
+        # Checkboxes for fields
+        self.column_options = {
+            "Airline": ctk.BooleanVar(value=True),
+            "Departure date": ctk.BooleanVar(value=True),
+            "Arrival date": ctk.BooleanVar(value=True),
+            "Departure city": ctk.BooleanVar(value=True),
+            "Arrival city": ctk.BooleanVar(value=True),
+            "Plane Type": ctk.BooleanVar(value=True),
+            "Total seats": ctk.BooleanVar(value=True),
+            "Price": ctk.BooleanVar(value=True),
+        }
+
+        lbl_visible_fields = ctk.CTkLabel(self.sidebar_frame, text="Visible Fields:", anchor="w").pack(pady=(20, 5), padx=10)
+
+        for field, var in self.column_options.items():
+            ctk.CTkCheckBox(
+                self.sidebar_frame,
+                text=field,
+                variable=var,
+                command=self._refresh_treeview_columns
+            ).pack(anchor='w', padx=10)
 
     def _create_flights_table(self):
         """Create flights results table"""
@@ -75,74 +93,62 @@ class FlightPlannerScreen(BaseWindow):
                         font=('Arial', 10, 'bold'))
         style.map('Treeview', background=[('selected', '#22559b')])
 
-        self.tree = ttk.Treeview(
-            self.frame_main,
-            columns=("Airline", "Departure date", "Arrival date","Departure city", "Arrival city", "Plane Type", "Total seats","Price"),
-            show="headings",
-            height=8,
-            selectmode="browse"
-        )
+        self.tree = ttk.Treeview(self.right_frame, show="headings", selectmode="browse")
+        self.tree.grid(row=1, column=0, sticky="nsew")
 
-        columns = [
-            ("Airline", 150),
-            ("Departure date", 120),
-            ("Arrival date", 200),
-            ("Departure city", 120),
-            ("Arrival city",150),
-            ("Plane Type",150),
-            ("Total seats",150),
-            ("Price", 100)
-        ]
-
-        for col_name, width in columns:
-            self.tree.heading(col_name, text=col_name)
-            self.tree.column(col_name, width=width, anchor="center")
-
-        scrollbar = ttk.Scrollbar(
-            self.frame_main,
-            orient="vertical",
-            command=self.tree.yview
-        )
-        self.tree.configure(yscrollcommand=scrollbar.set)
-
-        self.tree.grid(row=2, column=0, sticky="nsew", padx=10, pady=10)
-        scrollbar.grid(row=2, column=1, sticky="ns")
+        self.scrollbar = ttk.Scrollbar(self.right_frame, orient="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.grid(row=1, column=1, sticky="ns")
 
         self.tree.bind("<<TreeviewSelect>>", self._on_flight_select)
+        self._refresh_treeview_columns()
+
+    def _refresh_treeview_columns(self):
+        self.tree.delete(*self.tree.get_children())
+        self.tree["columns"] = []
+        for col in self.tree["columns"]:
+            self.tree.heading(col, text="")
+            self.tree.column(col, width=0)
+
+        visible_cols = [col for col, var in self.column_options.items() if var.get()]
+        self.tree["columns"] = visible_cols
+
+        for col in visible_cols:
+            self.tree.heading(col, text=col)
+            self.tree.column(col, anchor="center", width=120)
+
+        self._fetch_flights()
 
     def _fetch_flights(self):
-        """Fetch flights from database with consistent formatting"""
         self.tree.delete(*self.tree.get_children())
         self.flights_data = {}
 
-
         try:
-            query = """
-                SELECT id, airline, from_location,to_location,plane_type,total_seats,departure,arrival, price
-                FROM pending_flights 
-            """
-            self.cursor.execute(query)
-
+            self.cursor.execute("""
+                SELECT id, airline, departure, arrival, from_location, to_location,
+                       plane_type, total_seats, price
+                FROM pending_flights
+            """)
             for row in self.cursor.fetchall():
-                price_str = f"{float(row['price']):.2f}" if row['price'] else "0.00"
+                all_data = {
+                    "Airline": row["airline"],
+                    "Departure date": row["departure"],
+                    "Arrival date": row["arrival"],
+                    "Departure city": row["from_location"],
+                    "Arrival city": row["to_location"],
+                    "Plane Type": row["plane_type"],
+                    "Total seats": row["total_seats"],
+                    "Price": f"{float(row['price']):.2f}" if row['price'] else "0.00",
+                }
 
-                values = (
-                    row['airline'],
-                    row['departure'],
-                    row['arrival'],
-                    row['from_location'],
-                    row['to_location'],
-                    row['plane_type'],
-                    row['total_seats'],
-                    price_str
-                )
-
+                values = [all_data[col] for col in self.tree["columns"]]
                 item_id = self.tree.insert("", "end", values=values)
                 self.flights_data[item_id] = row['id']
 
         except Exception as e:
             logger.error(f"Flight fetch error: {str(e)}")
             messagebox.showerror("Error", "Failed to load flight data")
+
     def _on_flight_select(self, event):
         """Handle flight selection event with robust error handling"""
         selected_items = self.tree.selection()
