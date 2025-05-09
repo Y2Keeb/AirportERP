@@ -3,7 +3,10 @@ from config import set_theme,get_logger
 from views.login_screen import LoginScreen
 from view_manager import ViewManager
 import pywinstyles, sys
+import threading
 
+
+from views.splash_screen import SplashScreen
 
 logger = get_logger(__name__)
 
@@ -23,9 +26,20 @@ class App:
         self.view_manager = ViewManager(self.root)
         self.root.view_manager = self.view_manager
 
+        self.view_manager.show_view(SplashScreen)
+        self.root.after(100, lambda: self.apply_dark_titlebar(self.root))
+
+        threading.Thread(target=self.prepare_login_screen, daemon=True).start()
+
+    def prepare_login_screen(self):
+        login_view = LoginScreen(self.root, view_manager=self.view_manager)
+        login_view.load_view_content()
+
+        self.root.after(1500, lambda: self.view_manager.show_view(lambda root: login_view))
+
+    def load_login_screen(self):
         self.view_manager.show_view(LoginScreen)
 
-        self.root.after(100, lambda: self.apply_dark_titlebar(self.root))
 
     def apply_dark_titlebar(self, root):
         version = sys.getwindowsversion()

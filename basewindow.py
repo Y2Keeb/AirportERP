@@ -21,8 +21,8 @@ class BaseWindow:
         if hasattr(self, 'menu_bar') and self.menu_bar.winfo_exists():
             self.menu_bar.destroy()
 
-        self.menu_bar = ctk.CTkFrame(self.root, height=30, fg_color="#1c1c1c")
-        self.menu_bar.pack(fill="x", side="top")
+        self.menu_bar = ctk.CTkFrame(self.root, fg_color="#1c1c1c", height=30)
+        self.menu_bar.place(relx=0, rely=0, relwidth=1)
 
         if "help" in menu_buttons:
             help_button = ctk.CTkButton(self.menu_bar, text="Help", width=60, height=24, fg_color="transparent",

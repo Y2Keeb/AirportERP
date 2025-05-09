@@ -11,7 +11,6 @@ from views.kiosk_screen import KioskLoginScreen
 from config import mydb, set_theme
 import PIL
 from PIL import Image
-from PIL import ImageFilter
 
 
 class LoginScreen(BaseWindow):
@@ -21,28 +20,27 @@ class LoginScreen(BaseWindow):
         self.root = root
         self.view_manager = view_manager
 
-        self.root.update_idletasks()  # Ensure geometry info is accurate
+    def load_view_content(self):
+        """Heavy UI elements and image setup"""
+        self.original_bg_image = PIL.Image.open("docs/icons/background.jpg").convert("RGBA")
         window_width = 1300
         window_height = 900
-
-        self.original_bg_image = PIL.Image.open("docs/icons/background.jpg").convert("RGBA")
-
         startup_image = self.original_bg_image.resize((window_width, window_height), PIL.Image.LANCZOS)
+
         self.bg_ctk_image = ctk.CTkImage(light_image=startup_image, dark_image=startup_image,
                                          size=(window_width, window_height))
 
         self.bg_label = ctk.CTkLabel(self.root, image=self.bg_ctk_image, text="")
         self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-
-        self.root.after(80, lambda: self._fade_in_background(
+        self.root.after(100, lambda: self._fade_in_background(
             self.original_bg_image,
             self.root.winfo_width(),
             self.root.winfo_height()
         ))
 
         self.root.bind("<Configure>", self._resize_background)
-        self.menu_bar.lift()
+        self.root.after(200, self.menu_bar.lift)
 
         self.frame_main = ctk.CTkFrame(
             self.root,
@@ -52,25 +50,21 @@ class LoginScreen(BaseWindow):
         )
         self.frame_main.place(relx=0.5, rely=0.525, anchor="center", relwidth=0.4, relheight=0.9)
 
+        pil_image = Image.open("docs/icons/login_logo.png").resize((250, 207))
+        self.ctk_image = ctk.CTkImage(light_image=pil_image, dark_image=pil_image, size=(250, 207))
 
-        pil_image = Image.open("docs/icons/login_logo.png")
-        pil_image = pil_image.resize((250, 207))
-        self.ctk_image = ctk.CTkImage(light_image=pil_image,
-                                      dark_image=pil_image,
-                                      size=(250, 207))
+        self.lbl_image = ctk.CTkLabel(self.frame_main, image=self.ctk_image, text="")
+        self.lbl_image.grid(row=0, column=0, pady=(140, 0))
 
-        self.lbl_image = ctk.CTkLabel(self.frame_main,
-                                      image=self.ctk_image,
-                                      text="")
-        self.lbl_image.pack(pady=(140,10))
         self.content_frame = ctk.CTkFrame(self.frame_main, fg_color="transparent")
-        self.content_frame.pack(expand=True)
+        self.content_frame.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+        self.frame_main.grid_rowconfigure(1, weight=1)
+        self.frame_main.grid_columnconfigure(0, weight=1)
+
         self.entry_username = ctk.CTkEntry(self.content_frame)
         self.entry_password = ctk.CTkEntry(self.content_frame, show="*")
 
         set_theme()
-        self.root.configure(bg="black")  # Makes root black behind the image
-
         self.create_widgets()
 
     def _resize_background(self, event):
@@ -104,22 +98,34 @@ class LoginScreen(BaseWindow):
         fade_step(0)
 
     def create_widgets(self):
+        self.content_frame.grid_columnconfigure(0, weight=1)
+        self.content_frame.grid_columnconfigure(1, weight=3)
+
+        # Welcome text (spanning both columns)
         ctk.CTkLabel(
             self.content_frame,
             text="Welcome Back!",
             fg_color="transparent",
             font=("Arial", 22)
-        ).pack()
-        ctk.CTkLabel(self.content_frame, text="Log in to your account",fg_color="transparent").pack()
+        ).grid(row=1, column=0, columnspan=2, pady=(35, 2), sticky="n")
 
-        ctk.CTkLabel(self.content_frame, text="Username:").pack(pady=5)
-        self.entry_username.pack(pady=5)
+        ctk.CTkLabel(
+            self.content_frame,
+            text="Log in to your account",
+            fg_color="transparent"
+        ).grid(row=2, column=0, columnspan=2, pady=(0, 30), sticky="n")
 
-        ctk.CTkLabel(self.content_frame, text="Password:").pack(pady=5)
-        self.entry_password.pack(pady=5)
+        # Username row
+        ctk.CTkLabel(self.content_frame, text="Username:").grid(row=3, column=0, sticky="ew", padx=(70, 5), pady=5)
+        self.entry_username.grid(row=3, column=1, sticky="ew", padx=(5, 100), pady=5)
 
+        # Password row
+        ctk.CTkLabel(self.content_frame, text="Password:").grid(row=4, column=0, sticky="ew", padx=(70, 5), pady=5)
+        self.entry_password.grid(row=4, column=1, sticky="ew", padx=(5, 100), pady=15)
+
+        # Login button
         btn_login = ctk.CTkButton(self.content_frame, text="Login", command=self.login)
-        btn_login.pack(pady=20)
+        btn_login.grid(row=5, column=0, columnspan=2, pady=(20, 10))
 
     def login(self):
         username = self.entry_username.get()
