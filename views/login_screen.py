@@ -5,6 +5,7 @@ from CTkMessagebox import *
 from basewindow import BaseWindow
 from views.admin_screen import AdminScreen
 from views.airline_screen import AirlineScreen
+from views.flight_planner_screen import FlightPlannerScreen
 from views.user_screen import UserScreen
 from views.kiosk_screen import KioskLoginScreen
 from config import mydb, set_theme
@@ -89,6 +90,8 @@ class LoginScreen(BaseWindow):
                 self.root.view_manager.show_view(AirlineScreen,username=username)
             elif role == "kiosk":
                 self.root.view_manager.show_view(KioskLoginScreen)
+            elif role == "staff":
+                self.root.view_manager.show_view(FlightPlannerScreen)
             else:
                 self.root.view_manager.show_view(UserScreen, username=username)
         else:
