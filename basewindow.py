@@ -8,6 +8,7 @@ from config import set_theme
 class BaseWindow:
     def __init__(self, root, title, menu_buttons=None):
         self.root = root
+        self.root.configure(bg="black")  # Makes root black behind the image
         self.root.wm_iconbitmap(("docs/icons/favicon.ico"))
         self.root.title(title)
         self.view_manager = ViewManager(root)
