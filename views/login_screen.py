@@ -64,6 +64,8 @@ class LoginScreen(BaseWindow):
         self.entry_username = ctk.CTkEntry(self.content_frame)
         self.entry_password = ctk.CTkEntry(self.content_frame, show="*")
 
+        self.btn_login = ctk.CTkButton(self.content_frame, text="Login", command=self.login)
+
         set_theme()
         self.create_widgets()
 
@@ -124,8 +126,7 @@ class LoginScreen(BaseWindow):
         self.entry_password.grid(row=4, column=1, sticky="ew", padx=(5, 100), pady=15)
 
         # Login button
-        btn_login = ctk.CTkButton(self.content_frame, text="Login", command=self.login)
-        btn_login.grid(row=5, column=0, columnspan=2, pady=(20, 10))
+        self.btn_login.grid(row=5, column=0, columnspan=2, pady=(20, 10))
 
     def login(self):
         username = self.entry_username.get()

@@ -1,3 +1,5 @@
+import time
+
 import customtkinter as ctk
 from config import set_theme,get_logger
 from views.login_screen import LoginScreen
@@ -26,20 +28,36 @@ class App:
         self.view_manager = ViewManager(self.root)
         self.root.view_manager = self.view_manager
 
-        self.view_manager.show_view(SplashScreen)
-        self.root.after(100, lambda: self.apply_dark_titlebar(self.root))
+        self.splash_min_time_passed = False
+        self.login_ready = False
 
+        self.splash = SplashScreen(self.root)
+        self.splash.pack(fill="both", expand=True)
+        self.root.update_idletasks()  # force draw
+
+        self.root.after(1000, self.mark_splash_time_passed)
         threading.Thread(target=self.prepare_login_screen, daemon=True).start()
 
     def prepare_login_screen(self):
+        time.sleep(3)
         login_view = LoginScreen(self.root, view_manager=self.view_manager)
-        login_view.load_view_content()
 
-        self.root.after(1500, lambda: self.view_manager.show_view(lambda root: login_view))
+        def build_view():
+            login_view.load_view_content()
+            self.login_view = login_view
+            self.login_ready = True
+            self.check_splash_done()
 
-    def load_login_screen(self):
-        self.view_manager.show_view(LoginScreen)
+        self.root.after(0, build_view)
 
+    def mark_splash_time_passed(self):
+        self.splash_min_time_passed = True
+        self.check_splash_done()
+
+    def check_splash_done(self):
+        if self.splash_min_time_passed and self.login_ready:
+            self.splash.cleanup()  # Destroy the splash screen frame
+            self.view_manager.show_view(lambda root: self.login_view)
 
     def apply_dark_titlebar(self, root):
         version = sys.getwindowsversion()
@@ -52,7 +70,6 @@ class App:
             root.wm_attributes("-alpha", 1)
 
     def run(self):
-        logger.debug(f"Detected screen resolution: {self.root.winfo_screenwidth()}x{self.root.winfo_screenheight()}")
         self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
         self.root.mainloop()
 
