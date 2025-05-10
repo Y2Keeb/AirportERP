@@ -42,16 +42,16 @@ class FlightPlannerScreen(BaseWindow):
         self.right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
         self.right_frame.grid_columnconfigure(0, weight=1)
         self.right_frame.grid_rowconfigure(0, weight=0)  # header
-        self.right_frame.grid_rowconfigure(1, weight=0)  # Treeview (expandable)
-        self.right_frame.grid_rowconfigure(2, weight=1)  # Button section
+        self.right_frame.grid_rowconfigure(1, weight=1)  # Treeview (expandable)
+        self.right_frame.grid_rowconfigure(2, weight=0)  # Button section
         self.bottom_button_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent",height=50)
-        self.bottom_button_frame.grid(row=2, column=0, columnspan=2, sticky="e", pady=(10, 0), padx=10)
+        self.bottom_button_frame.grid(row=2, column=0, columnspan=2, sticky="e", pady=(10, 0), padx=(10,10))
 
         self.btn_plan = ctk.CTkButton(self.bottom_button_frame, text="Plan Flight", command=self._plan_flight)
-        self.btn_plan.grid(row=2, column=0,sticky="w", pady=(10, 5))
+        self.btn_plan.grid(row=2, column=0,sticky="w", padx=(10, 10), pady=(30, 30))
 
         self.btn_cancel = ctk.CTkButton(self.bottom_button_frame, text="Delete FLight", fg_color="red",command=self._cancel_flight)
-        self.btn_cancel.grid(row=2, column=1,sticky="w", pady=(10, 5))
+        self.btn_cancel.grid(row=2, column=1,sticky="w", padx=(10, 10),pady=(30, 30))
 
         self._create_header()
         self._create_flights_table()

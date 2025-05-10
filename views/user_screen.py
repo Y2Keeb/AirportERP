@@ -13,7 +13,6 @@ class UserScreen(BaseWindow):
         super().__init__(root, f"User Dashboard - {username}",menu_buttons=["help","logout","exit"])
         self.username = username
         self.view_manager = view_manager
-        self.root.geometry("800x500")
         self.user_id = self._get_user_id()
 
         self.frame_main = ctk.CTkFrame(root)
