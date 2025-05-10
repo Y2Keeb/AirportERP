@@ -123,14 +123,14 @@ class AirlineScreen(BaseWindow):
 
     def create_widgets(self):
         #labels
-        self.lbl_airline.grid(row=1, column=0,padx=(15,15), pady=9,sticky="e")
-        self.lbl_from_location.grid(row=2,column=0,padx=15,pady=9,sticky="e")
-        self.lbl_to_location.grid(row=3,column=0,padx=15,pady=9,sticky="e")
-        self.lbl_departure_date.grid(row=4,column=0,padx=15,pady=9,sticky="e")
-        self.lbl_arrival_date.grid(row=5,column=0,padx=15,pady=9,sticky="e")
-        self.lbl_plane_type.grid(row=6,column=0,padx=15,pady=9,sticky="e")
-        self.lbl_total_seats.grid(row=7,column=0,padx=15,pady=9,sticky="e")
-        self.lbl_price.grid(row=8,column=0,padx=15,pady=9,sticky="e")
+        self.lbl_airline.grid(row=1, column=0,padx=(30,15), pady=9,sticky="e")
+        self.lbl_from_location.grid(row=2,column=0,padx=(30,15),pady=9,sticky="e")
+        self.lbl_to_location.grid(row=3,column=0,padx=(30,15),pady=9,sticky="e")
+        self.lbl_departure_date.grid(row=4,column=0,padx=(30,15),pady=9,sticky="e")
+        self.lbl_arrival_date.grid(row=5,column=0,padx=(30,15),pady=9,sticky="e")
+        self.lbl_plane_type.grid(row=6,column=0,padx=(30,15),pady=9,sticky="e")
+        self.lbl_total_seats.grid(row=7,column=0,padx=(30,15),pady=9,sticky="e")
+        self.lbl_price.grid(row=8,column=0,padx=(30,15),pady=9,sticky="e")
         #entries
         self.airline_entry.grid(row=1, column=1, padx=15,pady=9,sticky="ew")
         self.from_location_entry.grid(row=2, column=1, padx=15,pady=9,sticky="ew")
@@ -141,7 +141,7 @@ class AirlineScreen(BaseWindow):
         self.total_seat_entry.grid(row=7, column=1, padx=15,pady=9,sticky="ew")
         self.price_entry.grid(row=8, column=1, padx=15,pady=9,sticky="ew")
         #buttons
-        self.btn_offer_flight.place(relx=0.5, rely=0.96, anchor="se")
+        self.btn_offer_flight.place(relx=0.30, rely=0.96, anchor="se")
 
     def get_airline_name(self):
         cursor = mydb.cursor()

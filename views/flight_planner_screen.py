@@ -12,7 +12,8 @@ logger = get_logger(__name__)
 
 class FlightPlannerScreen(BaseWindow):
     def __init__(self, root, view_manager=None, user_id=None, username=None):
-        super().__init__(root, "Flight Planner")
+        super().__init__(root, "Flight Planner", menu_buttons=["help", "about","exit","logout"])
+
         self.view_manager = view_manager
         self.user_id = user_id
         self.username = username
@@ -39,8 +40,18 @@ class FlightPlannerScreen(BaseWindow):
 
         self.right_frame = ctk.CTkFrame(self.frame_main)
         self.right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
-        self.right_frame.grid_rowconfigure(1, weight=1)  # Let treeview expand
         self.right_frame.grid_columnconfigure(0, weight=1)
+        self.right_frame.grid_rowconfigure(0, weight=0)  # header
+        self.right_frame.grid_rowconfigure(1, weight=0)  # Treeview (expandable)
+        self.right_frame.grid_rowconfigure(2, weight=1)  # Button section
+        self.bottom_button_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent",height=50)
+        self.bottom_button_frame.grid(row=2, column=0, columnspan=2, sticky="e", pady=(10, 0), padx=10)
+
+        self.btn_plan = ctk.CTkButton(self.bottom_button_frame, text="Plan Flight", command=self._plan_flight)
+        self.btn_plan.grid(row=2, column=0,sticky="w", pady=(10, 5))
+
+        self.btn_cancel = ctk.CTkButton(self.bottom_button_frame, text="Delete FLight", fg_color="red",command=self._cancel_flight)
+        self.btn_cancel.grid(row=2, column=1,sticky="w", pady=(10, 5))
 
         self._create_header()
         self._create_flights_table()
@@ -49,12 +60,12 @@ class FlightPlannerScreen(BaseWindow):
     def _create_header(self):
         """Create header section with title and back button"""
 
-        ctk.CTkLabel(self.right_frame,text="Flight Planner - Pending flights ready for planning.",font=("Arial", 25, "bold")).pack(side="left", padx=10)
+        ctk.CTkLabel(self.right_frame,text="Flight Planner - Pending flights ready for planning.",font=("Arial", 25, "bold")).grid(row=0,column=0, padx=10,pady=(15,15))
         btn_pending_flights = ctk.CTkButton(self.sidebar_frame, text="Browse Pending Flights").pack(pady=(10, 5), fill='x', padx=10)
         btn_planned_flights = ctk.CTkButton(self.sidebar_frame, text="Browse Planned Flights").pack(pady=5, fill='x', padx=10)
 
         btn_back = ctk.CTkButton(self.right_frame,text="← Back to Dashboard",command=self._go_back,fg_color="transparent",border_width=1,width=100)
-        btn_back.pack(side="right", padx=10)
+        btn_back.grid(row=0, column=1, sticky="e", padx=10)
 
         # Checkboxes for fields
         self.column_options = {
@@ -76,7 +87,7 @@ class FlightPlannerScreen(BaseWindow):
                 text=field,
                 variable=var,
                 command=self._refresh_treeview_columns
-            ).pack(anchor='w', padx=10)
+            ).pack(anchor='w', padx=10,pady=(5,5))
 
     def _create_flights_table(self):
         """Create flights results table"""
@@ -105,11 +116,6 @@ class FlightPlannerScreen(BaseWindow):
 
     def _refresh_treeview_columns(self):
         self.tree.delete(*self.tree.get_children())
-        self.tree["columns"] = []
-        for col in self.tree["columns"]:
-            self.tree.heading(col, text="")
-            self.tree.column(col, width=0)
-
         visible_cols = [col for col, var in self.column_options.items() if var.get()]
         self.tree["columns"] = visible_cols
 
@@ -187,7 +193,6 @@ class FlightPlannerScreen(BaseWindow):
             messagebox.showerror("Error",
                                  f"Could not process flight data:\n{str(e)}")
             self.selected_flight = None
-            self.btn_book.configure(state="disabled")
 
     def _go_back(self):
         """Handle back navigation"""
@@ -205,3 +210,8 @@ class FlightPlannerScreen(BaseWindow):
         if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
             self.frame_main.destroy()
 
+    def _plan_flight(self):
+        print("Planning flight... (not implemented yet)")
+
+    def _cancel_flight(self):
+        pass
