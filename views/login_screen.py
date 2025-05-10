@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox, Menu
 import customtkinter as ctk
-from CTkMessagebox import *
+from customtkinter import CTkImage
+
 from basewindow import BaseWindow
 from views.admin_screen import AdminScreen
 from views.airline_screen import AirlineScreen
@@ -22,7 +23,17 @@ class LoginScreen(BaseWindow):
 
     def load_view_content(self):
         """Heavy UI elements and image setup"""
+        icon_size = (25,25)
+
+        username_pil = PIL.Image.open("docs/icons/user.png").resize(icon_size)
+        self.username_image = ctk.CTkImage(light_image=username_pil, dark_image=username_pil, size=icon_size)
+        password_pil = PIL.Image.open("docs/icons/lock.png").resize(icon_size)
+        self.password_image = ctk.CTkImage(light_image=password_pil, dark_image=password_pil, size=icon_size)
+
+
+
         self.original_bg_image = PIL.Image.open("docs/icons/background.jpg").convert("RGBA")
+
         window_width = 1300
         window_height = 900
         startup_image = self.original_bg_image.resize((window_width, window_height), PIL.Image.LANCZOS)
@@ -61,13 +72,29 @@ class LoginScreen(BaseWindow):
         self.frame_main.grid_rowconfigure(1, weight=1)
         self.frame_main.grid_columnconfigure(0, weight=1)
 
-        self.entry_username = ctk.CTkEntry(self.content_frame)
-        self.entry_password = ctk.CTkEntry(self.content_frame, show="*")
+        # Username row frame
+        self.username_row = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+        self.username_icon = ctk.CTkLabel(self.username_row, text="", image=self.username_image, fg_color="transparent")
+        self.entry_username = ctk.CTkEntry(self.username_row, placeholder_text="Username", width=200)
+
+        # Password row frame
+        self.password_row = ctk.CTkFrame(self.content_frame, fg_color="transparent")
+        self.password_icon = ctk.CTkLabel(self.password_row, text="", image=self.password_image, fg_color="transparent")
+        self.entry_password = ctk.CTkEntry(self.password_row, placeholder_text="Password", show="*", width=200)
+
+        self.show_password_btn = ctk.CTkCheckBox(self.content_frame, text=" Show Password",command=self.show_password)
 
         self.btn_login = ctk.CTkButton(self.content_frame, text="Login", command=self.login)
 
         set_theme()
         self.create_widgets()
+    def show_password(self):
+        self.entry_password.configure(show="")
+        self.show_password_btn.configure(command=self.hide_password)
+
+    def hide_password(self):
+        self.entry_password.configure(show="*")
+        self.show_password_btn.configure(command=self.show_password)
 
     def _resize_background(self, event):
         if event.width < 100 or event.height < 100:
@@ -101,9 +128,8 @@ class LoginScreen(BaseWindow):
 
     def create_widgets(self):
         self.content_frame.grid_columnconfigure(0, weight=1)
-        self.content_frame.grid_columnconfigure(1, weight=3)
+        self.content_frame.grid_columnconfigure(1, weight=1)  # entry
 
-        # Welcome text (spanning both columns)
         ctk.CTkLabel(
             self.content_frame,
             text="Welcome Back!",
@@ -118,15 +144,20 @@ class LoginScreen(BaseWindow):
         ).grid(row=2, column=0, columnspan=2, pady=(0, 30), sticky="n")
 
         # Username row
-        ctk.CTkLabel(self.content_frame, text="Username:").grid(row=3, column=0, sticky="ew", padx=(70, 5), pady=5)
-        self.entry_username.grid(row=3, column=1, sticky="ew", padx=(5, 100), pady=5)
+        self.username_row.grid(row=3, column=0, columnspan=2, pady=5)
+        self.username_icon.pack(side="left", padx=(0, 10))
+        self.entry_username.pack(side="left")
 
         # Password row
-        ctk.CTkLabel(self.content_frame, text="Password:").grid(row=4, column=0, sticky="ew", padx=(70, 5), pady=5)
-        self.entry_password.grid(row=4, column=1, sticky="ew", padx=(5, 100), pady=15)
+        self.password_row.grid(row=4, column=0, columnspan=2, pady=15)
+        self.password_icon.pack(side="left", padx=(0, 10))
+        self.entry_password.pack(side="left")
+
+        # Show password checkbox
+        self.show_password_btn.grid(row=5, column=0, columnspan=2, pady=15)
 
         # Login button
-        self.btn_login.grid(row=5, column=0, columnspan=2, pady=(20, 10))
+        self.btn_login.grid(row=6, column=0, columnspan=2, pady=(20, 10))
 
     def login(self):
         username = self.entry_username.get()
