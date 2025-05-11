@@ -45,7 +45,7 @@ class FlightPlannerScreen(BaseWindow):
         self.right_frame.grid_rowconfigure(1, weight=1)  # Treeview (expandable)
         self.right_frame.grid_rowconfigure(2, weight=0)  # Button section
         self.bottom_button_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent",height=50)
-        self.bottom_button_frame.grid(row=2, column=0, columnspan=2, sticky="e", pady=(10, 0), padx=(10,10))
+        self.bottom_button_frame.grid(row=2, column=0, columnspan=2, sticky="w", pady=(10, 0), padx=(10,10))
 
         self.btn_plan = ctk.CTkButton(self.bottom_button_frame, text="Plan Flight", command=self._plan_flight)
         self.btn_plan.grid(row=2, column=0,sticky="w", padx=(10, 10), pady=(30, 30))
@@ -60,7 +60,20 @@ class FlightPlannerScreen(BaseWindow):
     def _create_header(self):
         """Create header section with title and back button"""
 
-        ctk.CTkLabel(self.right_frame,text="Flight Planner - Pending flights ready for planning.",font=("Arial", 25, "bold")).grid(row=0,column=0, padx=10,pady=(15,15))
+        ctk.CTkLabel(self.right_frame,text="Flight Planner - Pending flights ready for planning.",font=("Arial", 25, "bold")).grid(row=0,column=0, padx=10,pady=(2,60))
+
+        self.airline_filter_var = ctk.StringVar(value="All Airlines")
+
+        self.airline_dropdown = ctk.CTkOptionMenu(
+            self.right_frame,
+            variable=self.airline_filter_var,
+            command=self._on_airline_filter_change,
+            values=["All Airlines"],
+            width=200
+        )
+        self.airline_dropdown.grid(row=0, column=0, sticky="w", padx=(10, 10), pady=(35,5))
+        self._load_airline_options()
+
         btn_pending_flights = ctk.CTkButton(self.sidebar_frame, text="Browse Pending Flights").pack(pady=(10, 5), fill='x', padx=10)
         btn_planned_flights = ctk.CTkButton(self.sidebar_frame, text="Browse Planned Flights").pack(pady=5, fill='x', padx=10)
 
@@ -88,6 +101,15 @@ class FlightPlannerScreen(BaseWindow):
                 variable=var,
                 command=self._refresh_treeview_columns
             ).pack(anchor='w', padx=10,pady=(5,5))
+
+    def _load_airline_options(self):
+        try:
+            self.cursor.execute("SELECT DISTINCT airline FROM pending_flights ORDER BY airline")
+            airlines = [row["airline"] for row in self.cursor.fetchall()]
+            airlines.insert(0, "All Airlines")  # Add default option
+            self.airline_dropdown.configure(values=airlines)
+        except Exception as e:
+            logger.error(f"Failed to load airline options: {str(e)}")
 
     def _create_flights_table(self):
         """Create flights results table"""
@@ -123,18 +145,26 @@ class FlightPlannerScreen(BaseWindow):
             self.tree.heading(col, text=col)
             self.tree.column(col, anchor="center", width=120)
 
-        self._fetch_flights()
+        self._fetch_flights(self.airline_filter_var.get())
 
-    def _fetch_flights(self):
+    def _fetch_flights(self, airline_filter=None):
         self.tree.delete(*self.tree.get_children())
         self.flights_data = {}
 
         try:
-            self.cursor.execute("""
+            query = """
                 SELECT id, airline, departure, arrival, from_location, to_location,
                        plane_type, total_seats, price
                 FROM pending_flights
-            """)
+            """
+            params = ()
+
+            if airline_filter and airline_filter != "All Airlines":
+                query += " WHERE airline = %s"
+                params = (airline_filter,)
+
+            self.cursor.execute(query, params)
+
             for row in self.cursor.fetchall():
                 all_data = {
                     "Airline": row["airline"],
@@ -193,6 +223,9 @@ class FlightPlannerScreen(BaseWindow):
             messagebox.showerror("Error",
                                  f"Could not process flight data:\n{str(e)}")
             self.selected_flight = None
+
+    def _on_airline_filter_change(self, selected_airline):
+        self._refresh_treeview_columns()
 
     def _go_back(self):
         """Handle back navigation"""
