@@ -2,41 +2,40 @@ import tkinter as tk
 from tkinter import Menu,messagebox
 
 import PIL
+from PIL import Image
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
-from PIL import Image
 
-from config import mydb, set_theme
+from config import mydb, set_theme, is_suspect_sql_input
 from basewindow import BaseWindow
+from ui_helpers import show_sql_meme_popup
 from views.user_screen import UserScreen
-
 
 class KioskLoginScreen(BaseWindow):
     def __init__(self, root,view_manager=None):
-        super().__init__(root, " ", menu_buttons=["help"])
+        super().__init__(root,title=" ")
         self.root = root
         self.view_manager = view_manager
+        self.create_menu_bar(["help"])
 
-        bg_image = PIL.Image.open("docs/icons/background.jpg")
-        bg_image = bg_image.resize((800, 550))
-        self.bg_ctk_image = ctk.CTkImage(light_image=bg_image, dark_image=bg_image, size=(800, 550))
-        self.bg_label = ctk.CTkLabel(self.root, image=self.bg_ctk_image, text="")
+        self.original_bg_image = PIL.Image.open("docs/icons/background2.png").convert("RGBA")
+        startup_image = self.original_bg_image.resize((1600, 950), Image.NEAREST)
+        self.bg_image = ctk.CTkImage(light_image=startup_image, dark_image=startup_image, size=(1600, 950))
+        self.bg_label = ctk.CTkLabel(self.root, image=self.bg_image, text="")
         self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
         self.frame_main = ctk.CTkFrame(
             self.root,
-            border_color="black",
-            border_width=7,
-            corner_radius=20,
-            fg_color="transparent"
+            fg_color="transparent",
+            bg_color="black"
         )
-        self.frame_main.pack(fill="both", expand=True, padx=20, pady=20)
+        self.frame_main.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.85, relheight=0.85)
 
         self.menu_bar.lift()
 
-        self.frame_welcome = ctk.CTkFrame(self.frame_main, border_width=5,border_color="black",fg_color="transparent")
-        self.frame_welcome.pack(side="left",fill="both", expand=True)
-        self.frame_login= ctk.CTkFrame(self.frame_main, border_width=5,border_color="black",fg_color="transparent")
+        self.frame_welcome = ctk.CTkFrame(self.frame_main, border_width=7,border_color="black",fg_color="gray11")
+        self.frame_welcome.pack(side="left",fill="both",padx=(0,15),expand=True)
+        self.frame_login= ctk.CTkFrame(self.frame_main, border_width=7,border_color="black",fg_color="gray11")
         self.frame_login.pack(side="right",fill="both", expand=True)
 
         self.frame_login_content = ctk.CTkFrame(self.frame_login, fg_color="transparent")
@@ -57,6 +56,8 @@ class KioskLoginScreen(BaseWindow):
         self.lbl_image.pack(pady=20)
         self.entry_username = ctk.CTkEntry(self.frame_login_content)
         self.entry_password = ctk.CTkEntry(self.frame_login_content, show="*")
+        self.checkbox_show_password = ctk.CTkCheckBox(self.frame_login_content, text=" Show Password", command=self.show_password)
+
 
         set_theme()
         self.create_widgets()
@@ -73,6 +74,7 @@ class KioskLoginScreen(BaseWindow):
 
         btn_login = ctk.CTkButton(self.frame_login_content, text="Login", command=self.login)
         btn_login.pack(pady=10)
+        self.checkbox_show_password.pack(pady=10)
         lbl_or = ctk.CTkLabel(self.frame_login_content,text="or")
         lbl_or.pack(pady=10)
         btn_register = ctk.CTkButton(self.frame_login_content, text="Register")
@@ -81,29 +83,44 @@ class KioskLoginScreen(BaseWindow):
     def login(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
+
+        if is_suspect_sql_input(username) or is_suspect_sql_input(password):
+            show_sql_meme_popup(self.root)
+            return
+
         cursor = mydb.cursor()
         query = "SELECT id, username, first_name, last_name, role FROM users WHERE username = %s AND password = %s"
         cursor.execute(query, (username, password))
         result = cursor.fetchone()
 
         if result:
-            role = result[4]  # Get the role from database
+            role = result[4]
 
             self.destroy_menu_bar()
             self.frame_main.destroy()
 
             if role == "user":
-                # Pass the role explicitly
                 self.root.view_manager.show_view(
                     UserScreen,
                     username=username,
-                    user_id=result[0],  # id from database
-                    role=role  # Explicitly pass the role
+                    user_id=result[0],
+                    role=role
                 )
             else:
                 messagebox.showerror("Login Failed", "Invalid username or password.")
         else:
             messagebox.showerror("Login Failed", "Invalid username or password.")
+
+    def show_password(self):
+        """Reveal the password by removing the '*' mask in the entry field."""
+        self.entry_password.configure(show="")
+        self.checkbox_show_password.configure(command=self.hide_password)
+
+    def hide_password(self):
+        """Hide the password again by masking it with '*'."""
+        self.entry_password.configure(show="*")
+        self.checkbox_show_password.configure(command=self.show_password)
+
     def help_menu(self):
         CTkMessagebox(
             title="Info",
@@ -114,10 +131,3 @@ class KioskLoginScreen(BaseWindow):
 
     def cleanup(self):
         self.frame_main.destroy()
-
-    @property
-    def view_state(self):
-        """Optional state-saving feature for ViewManager"""
-        return {
-            "username": self.entry_username.get()
-        }
