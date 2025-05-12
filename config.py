@@ -17,6 +17,14 @@ logging.basicConfig(
 )
 logging.getLogger('PIL').setLevel(logging.WARNING)
 
+def is_suspect_sql_input(text: str) -> bool:
+    suspicious = [
+        "' OR", "'--", "';", "DROP TABLE",
+        "UNION SELECT", "'='", "1=1",
+        "\" OR", "\"--", "EXEC", "INSERT INTO"
+    ]
+    return any(keyword in text.upper() for keyword in suspicious)
+
 def get_logger(name):
     return logging.getLogger(name)
 
