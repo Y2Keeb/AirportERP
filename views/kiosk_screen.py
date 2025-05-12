@@ -14,6 +14,10 @@ from views.user_screen import UserScreen
 class KioskLoginScreen(BaseWindow):
     def __init__(self, root,view_manager=None):
         super().__init__(root,title=" ")
+        """
+        Initialize the kiosk login screen.
+        Creates the layout, background image, menu, and input areas.
+        """
         self.root = root
         self.view_manager = view_manager
         self.create_menu_bar(["help"])
@@ -58,11 +62,13 @@ class KioskLoginScreen(BaseWindow):
         self.entry_password = ctk.CTkEntry(self.frame_login_content, show="*")
         self.checkbox_show_password = ctk.CTkCheckBox(self.frame_login_content, text=" Show Password", command=self.show_password)
 
-
         set_theme()
         self.create_widgets()
 
     def create_widgets(self):
+        """
+        Build the initial login layout inside the welcome and login frames.
+        """
         ctk.CTkLabel(self.frame_welcome_content, text="Welcome!", font=("Comic Sans", 25)).pack()
         ctk.CTkLabel(self.frame_welcome_content, text="Log in to your account or create one.").pack()
 
@@ -81,6 +87,10 @@ class KioskLoginScreen(BaseWindow):
         btn_register.pack(pady=10)
 
     def login(self):
+        """
+        Handle user login by validating credentials and loading the UserScreen on success.
+        Shows error messages on failure or if SQL injection is detected.
+        """
         username = self.entry_username.get()
         password = self.entry_password.get()
 
@@ -124,9 +134,8 @@ class KioskLoginScreen(BaseWindow):
     def show_register_form(self):
         """Replace login form with a registration form."""
         for widget in self.frame_login_content.winfo_children():
-            widget.destroy()  # Clear login content
+            widget.destroy()
 
-        # Create new registration form fields
         self.entry_reg_username = ctk.CTkEntry(self.frame_login_content, placeholder_text="Username")
         self.entry_reg_firstname = ctk.CTkEntry(self.frame_login_content, placeholder_text="First Name")
         self.entry_reg_lastname = ctk.CTkEntry(self.frame_login_content, placeholder_text="Last Name")
@@ -144,11 +153,18 @@ class KioskLoginScreen(BaseWindow):
         btn_back.pack(pady=10)
 
     def register_user(self):
-        """Insert new user into the database."""
+        """Insert new user into the database.
+        Shows error messages on failure or if SQL injection is detected.
+        """
         username = self.entry_reg_username.get()
         first_name = self.entry_reg_firstname.get()
         last_name = self.entry_reg_lastname.get()
         password = self.entry_reg_password.get()
+        user_inputs = [username,first_name,last_name,password]
+
+        if any(is_suspect_sql_input(value) for value in user_inputs):
+            show_sql_meme_popup(self.root)
+            return
 
         if any(not val for val in [username, first_name, last_name, password]):
             messagebox.showwarning("Missing Info", "Please fill in all fields.")
@@ -182,7 +198,6 @@ class KioskLoginScreen(BaseWindow):
         for widget in self.frame_login_content.winfo_children():
             widget.destroy()
 
-        # Rebuild just the login form (not the welcome panel)
         ctk.CTkLabel(self.frame_login_content, text="Username:").pack(pady=5)
         self.entry_username = ctk.CTkEntry(self.frame_login_content)
         self.entry_username.pack(pady=5)
@@ -205,6 +220,9 @@ class KioskLoginScreen(BaseWindow):
         btn_register.pack(pady=10)
 
     def help_menu(self):
+        """
+        Display a help popup with basic instructions for kiosk login.
+        """
         CTkMessagebox(
             title="Info",
             icon="question",
@@ -213,4 +231,7 @@ class KioskLoginScreen(BaseWindow):
         )
 
     def cleanup(self):
+        """
+        Remove the main frame from the root. Called on screen change.
+        """
         self.frame_main.destroy()
