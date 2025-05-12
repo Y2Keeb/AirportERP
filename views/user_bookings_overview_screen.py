@@ -8,6 +8,9 @@ logger = get_logger(__name__)
 class MyBookings(BaseWindow):
     def __init__(self, root, view_manager=None, user_id=None, username=None):
         super().__init__(root, f"My Bookings - {username}" if username else "My Bookings")
+        """
+        Initialize the booking view and layout the main interface.
+        """
         self.user_id = user_id
         self.username = username
         self.view_manager = view_manager
@@ -142,7 +145,7 @@ class MyBookings(BaseWindow):
             cursor.close()
 
     def handle_back(self):
-        """Handle back button click with proper role handling"""
+        """Handle back button click"""
         self.cleanup()
 
         if self.view_manager:
@@ -158,12 +161,14 @@ class MyBookings(BaseWindow):
                        view_manager=self.view_manager)
 
     def cleanup(self):
+        """
+        Cleanup widgets and cancel any scheduled events.
+        Called when switching away from this view.
+        """
         if hasattr(self, 'menu_bar') and self.menu_bar.winfo_exists():
             self.menu_bar.destroy()
         if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
             self.frame_main.destroy()
-        if hasattr(self, '_countdown_id') and self._countdown_id:
-            self.after_cancel(self._countdown_id)
 
     def logout(self):
         """logout that clears everything and shows login screen"""
