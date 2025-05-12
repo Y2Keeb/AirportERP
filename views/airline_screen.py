@@ -185,6 +185,17 @@ class AirlineScreen(BaseWindow):
 
         try:
             cursor = mydb.cursor()
+
+            cursor.execute("""
+                       SELECT id FROM pending_flights
+                       WHERE airline = %s AND departure = %s AND arrival = %s AND from_location = %s AND to_location = %s
+                   """, (self.full_name, departure_date, arrival_date, from_location, to_location))
+
+            if cursor.fetchone():
+                messagebox.showinfo("Duplicate", "This flight already exists in pending flights.")
+                cursor.close()
+                return
+
             cursor.execute(
                 "INSERT INTO pending_flights (airline, departure, arrival, status, plane_type,total_seats,price,from_location,to_location,submitted_by,submitted_at) "
                 "VALUES (%s, %s,%s,'pending',%s,%s,%s,%s,%s,%s, NOW())",
