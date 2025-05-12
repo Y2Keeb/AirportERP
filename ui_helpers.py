@@ -1,9 +1,10 @@
-# ui_helpers.py
-
 import tkinter as tk
 from PIL import Image, ImageTk
 
 def show_sql_meme_popup(root):
+    """
+    Display a popup warning when SQL injection is detected.
+    """
     top = tk.Toplevel(root)
     top.title("SQL Injection Detected!")
     top.geometry("500x500")
