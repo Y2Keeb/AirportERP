@@ -1,7 +1,7 @@
 import time
 
 import customtkinter as ctk
-from config import set_theme,get_logger
+from config import get_logger
 from views.login_screen import LoginScreen
 from view_manager import ViewManager
 import pywinstyles, sys
@@ -39,7 +39,7 @@ class App:
         threading.Thread(target=self.prepare_login_screen, daemon=True).start()
 
     def prepare_login_screen(self):
-        time.sleep(3)
+        time.sleep(2)
         login_view = LoginScreen(self.root, view_manager=self.view_manager)
 
         def build_view():

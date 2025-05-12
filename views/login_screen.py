@@ -103,7 +103,7 @@ class LoginScreen(BaseWindow):
         if hasattr(self, "_resize_after_id"):
             self.root.after_cancel(self._resize_after_id)
 
-        self._resize_after_id = self.root.after(150, lambda: self._perform_resize(event.width, event.height))
+        self._resize_after_id = self.root.after(50, lambda: self._perform_resize(event.width, event.height))
 
     def _perform_resize(self, width, height):
         resized = self.original_bg_image.resize((width, height), PIL.Image.LANCZOS)

@@ -1,11 +1,8 @@
-import time
-
 from tkcalendar import DateEntry
 from basewindow import BaseWindow
 import customtkinter as ctk
 from tkinter import ttk,messagebox
 from config import get_logger,mydb
-from views.buy_additional_packages_screen import AdditionalPackageScreen
 
 logger = get_logger(__name__)
 
@@ -19,6 +16,8 @@ class FlightPlannerScreen(BaseWindow):
         self.username = username
         self.selected_flight = None
         self.cursor = mydb.cursor(dictionary=True)
+        self.current_view_mode = "pending"
+
 
         self.view_state = {
             'user_id': user_id,
@@ -35,7 +34,7 @@ class FlightPlannerScreen(BaseWindow):
         self.frame_main.grid_columnconfigure(1, weight=1)  # Make right side expandable
         self.frame_main.grid_rowconfigure(0, weight=1)
 
-        self.sidebar_frame = ctk.CTkFrame(self.frame_main, width=200)
+        self.sidebar_frame = ctk.CTkFrame(self.frame_main, width=230)
         self.sidebar_frame.grid(row=0, column=0, sticky="ns")
 
         self.right_frame = ctk.CTkFrame(self.frame_main)
@@ -44,41 +43,94 @@ class FlightPlannerScreen(BaseWindow):
         self.right_frame.grid_rowconfigure(0, weight=0)  # header
         self.right_frame.grid_rowconfigure(1, weight=1)  # Treeview (expandable)
         self.right_frame.grid_rowconfigure(2, weight=0)  # Button section
+
         self.bottom_button_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent",height=50)
         self.bottom_button_frame.grid(row=2, column=0, columnspan=2, sticky="w", pady=(10, 0), padx=(10,10))
 
         self.btn_plan = ctk.CTkButton(self.bottom_button_frame, text="Plan Flight", command=self._plan_flight)
         self.btn_plan.grid(row=2, column=0,sticky="w", padx=(10, 10), pady=(30, 30))
 
-        self.btn_cancel = ctk.CTkButton(self.bottom_button_frame, text="Delete FLight", fg_color="red",command=self._cancel_flight)
+        self.btn_cancel = ctk.CTkButton(self.bottom_button_frame, text="Delete Flight", fg_color="red",command=self._cancel_flight)
         self.btn_cancel.grid(row=2, column=1,sticky="w", padx=(10, 10),pady=(30, 30))
+
+        self.airline_filter_var = ctk.StringVar(value="All Airlines")
+        self.departure_filter_var = ctk.StringVar(value="All Departures")
+        self.arrival_filter_var = ctk.StringVar(value="All Arrivals")
+        self.plane_filter_var = ctk.StringVar(value="All Plane Types")
 
         self._create_header()
         self._create_flights_table()
-        self._fetch_flights()
+        self._fetch_flights_with_filters()
+
+        self.menu_bar.lift()
 
     def _create_header(self):
         """Create header section with title and back button"""
 
-        ctk.CTkLabel(self.right_frame,text="Flight Planner - Pending flights ready for planning.",font=("Arial", 25, "bold")).grid(row=0,column=0, padx=10,pady=(2,60))
+        self.title_label = ctk.CTkLabel(
+            self.right_frame,
+            text="Flight Planner - Pending flights ready for planning.",
+            font=("Arial", 25, "bold")
+        )
+        self.title_label.grid(row=0, column=0, padx=10, pady=(2, 60))
 
-        self.airline_filter_var = ctk.StringVar(value="All Airlines")
+        self.filter_frame = ctk.CTkFrame(self.right_frame)
+        self.filter_frame.grid(row=0, column=0, sticky="w", padx=10, pady=(35, 5))
+
+        self.filter_frame.grid_columnconfigure(0, weight=1)
+        self.filter_frame.grid_columnconfigure(1, weight=1)
 
         self.airline_dropdown = ctk.CTkOptionMenu(
-            self.right_frame,
+            self.filter_frame,
             variable=self.airline_filter_var,
-            command=self._on_airline_filter_change,
+            command=self._on_filter_change,
             values=["All Airlines"],
             width=200
         )
-        self.airline_dropdown.grid(row=0, column=0, sticky="w", padx=(10, 10), pady=(35,5))
-        self._load_airline_options()
+        self.airline_dropdown.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        btn_pending_flights = ctk.CTkButton(self.sidebar_frame, text="Browse Pending Flights").pack(pady=(10, 5), fill='x', padx=10)
-        btn_planned_flights = ctk.CTkButton(self.sidebar_frame, text="Browse Planned Flights").pack(pady=5, fill='x', padx=10)
+        self.departure_dropdown = ctk.CTkOptionMenu(
+            self.filter_frame,
+            variable=self.departure_filter_var,
+            command=self._on_filter_change,
+            values=["All Departures"],
+            width=200
+        )
+        self.departure_dropdown.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-        btn_back = ctk.CTkButton(self.right_frame,text="← Back to Dashboard",command=self._go_back,fg_color="transparent",border_width=1,width=100)
-        btn_back.grid(row=0, column=1, sticky="e", padx=10)
+        self.arrival_dropdown = ctk.CTkOptionMenu(
+            self.filter_frame,
+            variable=self.arrival_filter_var,
+            command=self._on_filter_change,
+            values=["All Arrivals"],
+            width=200
+        )
+        self.arrival_dropdown.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+
+        self.plane_dropdown = ctk.CTkOptionMenu(
+            self.filter_frame,
+            variable=self.plane_filter_var,
+            command=self._on_filter_change,
+            values=["All Plane Types"],
+            width=200
+        )
+        self.plane_dropdown.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+
+        self._refresh_filter_options()
+
+        self.btn_pending_flights = ctk.CTkButton(
+            self.sidebar_frame,
+            text="Browse Pending Flights",
+            command=lambda: self._switch_view_mode("pending")
+        )
+        self.btn_pending_flights.pack(pady=(50, 15), fill='x', padx=10)
+
+        self.btn_planned_flights = ctk.CTkButton(
+            self.sidebar_frame,
+            text="Browse Planned Flights",
+            command=lambda: self._switch_view_mode("planned")
+        )
+        self.btn_planned_flights.pack(pady=(15, 15), fill='x', padx=10)
 
         # Checkboxes for fields
         self.column_options = {
@@ -100,16 +152,48 @@ class FlightPlannerScreen(BaseWindow):
                 text=field,
                 variable=var,
                 command=self._refresh_treeview_columns
-            ).pack(anchor='w', padx=10,pady=(5,5))
+            ).pack(anchor='w', padx=10,pady=(7,7))
 
-    def _load_airline_options(self):
+        clear_btn = ctk.CTkButton(
+            self.filter_frame,
+            text="Clear Filters",
+            command=self._clear_filters,
+            width=100
+        )
+        clear_btn.grid(row=0, column=4, columnspan=2, padx=(90,5), pady=5, sticky="e")
+
+    def _clear_filters(self):
+        """Reset all filters to default values"""
+        self.airline_filter_var.set("All Airlines")
+        self.departure_filter_var.set("All Departures")
+        self.arrival_filter_var.set("All Arrivals")
+        self.plane_filter_var.set("All Plane Types")
+        self._fetch_flights_with_filters()
+
+    def _refresh_filter_options(self):
+        """Reload filter options based on current view mode"""
         try:
-            self.cursor.execute("SELECT DISTINCT airline FROM pending_flights ORDER BY airline")
-            airlines = [row["airline"] for row in self.cursor.fetchall()]
-            airlines.insert(0, "All Airlines")  # Add default option
+            table_name = "pending_flights" if self.current_view_mode == "pending" else "flights"
+
+            self.cursor.execute(f"SELECT DISTINCT airline FROM {table_name} ORDER BY airline")
+            airlines = ["All Airlines"] + [row["airline"] for row in self.cursor.fetchall()]
             self.airline_dropdown.configure(values=airlines)
+
+            self.cursor.execute(f"SELECT DISTINCT from_location FROM {table_name} ORDER BY from_location")
+            departures = ["All Departures"] + [row["from_location"] for row in self.cursor.fetchall()]
+            self.departure_dropdown.configure(values=departures)
+
+            self.cursor.execute(f"SELECT DISTINCT to_location FROM {table_name} ORDER BY to_location")
+            arrivals = ["All Arrivals"] + [row["to_location"] for row in self.cursor.fetchall()]
+            self.arrival_dropdown.configure(values=arrivals)
+
+            self.cursor.execute(f"SELECT DISTINCT plane_type FROM {table_name} ORDER BY plane_type")
+            planes = ["All Plane Types"] + [row["plane_type"] for row in self.cursor.fetchall()]
+            self.plane_dropdown.configure(values=planes)
+
         except Exception as e:
-            logger.error(f"Failed to load airline options: {str(e)}")
+            logger.error(f"Failed to load filter options: {str(e)}")
+            messagebox.showerror("Error", "Failed to load filter options")
 
     def _create_flights_table(self):
         """Create flights results table"""
@@ -145,25 +229,41 @@ class FlightPlannerScreen(BaseWindow):
             self.tree.heading(col, text=col)
             self.tree.column(col, anchor="center", width=120)
 
-        self._fetch_flights(self.airline_filter_var.get())
+        self._fetch_flights_with_filters()
 
-    def _fetch_flights(self, airline_filter=None):
+    def _fetch_flights_with_filters(self):
+        """Fetch flights with all active filters applied"""
         self.tree.delete(*self.tree.get_children())
         self.flights_data = {}
 
         try:
-            query = """
-                SELECT id, airline, departure, arrival, from_location, to_location,
-                       plane_type, total_seats, price
-                FROM pending_flights
+            table_name = "pending_flights" if self.current_view_mode == "pending" else "flights"
+
+            query = f"""
+                SELECT id, airline, departure, arrival, from_location, 
+                       to_location, plane_type, total_seats, price
+                FROM {table_name}
+                WHERE 1=1
             """
-            params = ()
+            params = []
 
-            if airline_filter and airline_filter != "All Airlines":
-                query += " WHERE airline = %s"
-                params = (airline_filter,)
+            if self.airline_filter_var.get() != "All Airlines":
+                query += " AND airline = %s"
+                params.append(self.airline_filter_var.get())
 
-            self.cursor.execute(query, params)
+            if self.departure_filter_var.get() != "All Departures":
+                query += " AND from_location = %s"
+                params.append(self.departure_filter_var.get())
+
+            if self.arrival_filter_var.get() != "All Arrivals":
+                query += " AND to_location = %s"
+                params.append(self.arrival_filter_var.get())
+
+            if self.plane_filter_var.get() != "All Plane Types":
+                query += " AND plane_type = %s"
+                params.append(self.plane_filter_var.get())
+
+            self.cursor.execute(query, tuple(params) if params else ())
 
             for row in self.cursor.fetchall():
                 all_data = {
@@ -182,8 +282,8 @@ class FlightPlannerScreen(BaseWindow):
                 self.flights_data[item_id] = row['id']
 
         except Exception as e:
-            logger.error(f"Flight fetch error: {str(e)}")
-            messagebox.showerror("Error", "Failed to load flight data")
+            logger.error(f"Flight fetch with filters error: {str(e)}")
+            messagebox.showerror("Error", "Failed to load filtered flight data")
 
     def _on_flight_select(self, event):
         """Handle flight selection event with robust error handling"""
@@ -224,18 +324,36 @@ class FlightPlannerScreen(BaseWindow):
                                  f"Could not process flight data:\n{str(e)}")
             self.selected_flight = None
 
-    def _on_airline_filter_change(self, selected_airline):
-        self._refresh_treeview_columns()
+    def _on_filter_change(self, *args):
+        """Handle changes in any filter dropdown"""
+        self._fetch_flights_with_filters()
 
-    def _go_back(self):
-        """Handle back navigation"""
-        if self.view_manager:
-            self.view_manager.pop_view()
+    def _switch_view_mode(self, mode):
+        """Switch between pending and planned flights views"""
+        self.current_view_mode = mode
+
+        # Update UI elements
+        if mode == "pending":
+            self.title_label.configure(text="Flight Planner - Pending flights ready for planning.")
         else:
-            from views.login_screen import LoginScreen
-            self.cleanup()
-            LoginScreen(self.root)
+            self.title_label.configure(text="Flight Planner - Your planned flights")
+        self._update_button_styles()
 
+        # Refresh data
+        self._refresh_filter_options()
+        self._fetch_flights_with_filters()
+
+    def _update_button_styles(self):
+        """Update button styles based on current view mode"""
+        active_style = {"fg_color": ("#00c772", "#1f8d4b")}
+        inactive_style = {"fg_color": ("gray75", "gray25")}
+
+        if self.current_view_mode == "pending":
+            self.btn_pending_flights.configure(**active_style)
+            self.btn_planned_flights.configure(**inactive_style)
+        else:
+            self.btn_planned_flights.configure(**active_style)
+            self.btn_pending_flights.configure(**inactive_style)
     def cleanup(self):
         """Clean up resources"""
         if hasattr(self, 'cursor'):
@@ -244,7 +362,13 @@ class FlightPlannerScreen(BaseWindow):
             self.frame_main.destroy()
 
     def _plan_flight(self):
-        print("Planning flight... (not implemented yet)")
+        if self.current_view_mode == "pending":
+            print("Planning flight...")
+        else:
+            messagebox.showinfo("Info", "This flight is already planned")
 
     def _cancel_flight(self):
-        pass
+        if self.current_view_mode == "planned":
+            print("Canceling planned flight...")
+        else:
+            messagebox.showinfo("Info", "This flight isn't planned yet")
