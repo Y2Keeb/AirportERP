@@ -77,7 +77,7 @@ class KioskLoginScreen(BaseWindow):
         self.checkbox_show_password.pack(pady=10)
         lbl_or = ctk.CTkLabel(self.frame_login_content,text="or")
         lbl_or.pack(pady=10)
-        btn_register = ctk.CTkButton(self.frame_login_content, text="Register")
+        btn_register = ctk.CTkButton(self.frame_login_content, text="Register", command=self.show_register_form)
         btn_register.pack(pady=10)
 
     def login(self):
@@ -120,6 +120,89 @@ class KioskLoginScreen(BaseWindow):
         """Hide the password again by masking it with '*'."""
         self.entry_password.configure(show="*")
         self.checkbox_show_password.configure(command=self.show_password)
+
+    def show_register_form(self):
+        """Replace login form with a registration form."""
+        for widget in self.frame_login_content.winfo_children():
+            widget.destroy()  # Clear login content
+
+        # Create new registration form fields
+        self.entry_reg_username = ctk.CTkEntry(self.frame_login_content, placeholder_text="Username")
+        self.entry_reg_firstname = ctk.CTkEntry(self.frame_login_content, placeholder_text="First Name")
+        self.entry_reg_lastname = ctk.CTkEntry(self.frame_login_content, placeholder_text="Last Name")
+        self.entry_reg_password = ctk.CTkEntry(self.frame_login_content, placeholder_text="Password", show="*")
+
+        self.entry_reg_username.pack(pady=5)
+        self.entry_reg_firstname.pack(pady=5)
+        self.entry_reg_lastname.pack(pady=5)
+        self.entry_reg_password.pack(pady=5)
+
+        btn_submit = ctk.CTkButton(self.frame_login_content, text="Create Account", command=self.register_user)
+        btn_submit.pack(pady=10)
+
+        btn_back = ctk.CTkButton(self.frame_login_content, text="Back to Login", command=self.back_to_login)
+        btn_back.pack(pady=10)
+
+    def register_user(self):
+        """Insert new user into the database."""
+        username = self.entry_reg_username.get()
+        first_name = self.entry_reg_firstname.get()
+        last_name = self.entry_reg_lastname.get()
+        password = self.entry_reg_password.get()
+
+        if any(not val for val in [username, first_name, last_name, password]):
+            messagebox.showwarning("Missing Info", "Please fill in all fields.")
+            return
+
+        if is_suspect_sql_input(username) or is_suspect_sql_input(password):
+            show_sql_meme_popup(self.root)
+            return
+
+        cursor = mydb.cursor()
+        try:
+            cursor.execute("SELECT id FROM users WHERE username = %s", (username,))
+            if cursor.fetchone():
+                messagebox.showerror("Error", "Username already exists.")
+                return
+
+            cursor.execute(
+                "INSERT INTO users (username, first_name, last_name, role, password) VALUES (%s, %s, %s, %s, %s)",
+                (username, first_name, last_name, "user", password)
+            )
+            mydb.commit()
+            messagebox.showinfo("Success", "Account created successfully!")
+            self.back_to_login()
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not create account.\n{e}")
+        finally:
+            cursor.close()
+
+    def back_to_login(self):
+        """Return to login form layout by clearing and rebuilding only the login frame."""
+        for widget in self.frame_login_content.winfo_children():
+            widget.destroy()
+
+        # Rebuild just the login form (not the welcome panel)
+        ctk.CTkLabel(self.frame_login_content, text="Username:").pack(pady=5)
+        self.entry_username = ctk.CTkEntry(self.frame_login_content)
+        self.entry_username.pack(pady=5)
+
+        ctk.CTkLabel(self.frame_login_content, text="Password:").pack(pady=5)
+        self.entry_password = ctk.CTkEntry(self.frame_login_content, show="*")
+        self.entry_password.pack(pady=5)
+
+        self.checkbox_show_password = ctk.CTkCheckBox(self.frame_login_content, text=" Show Password",
+                                                      command=self.show_password)
+        self.checkbox_show_password.pack(pady=10)
+
+        btn_login = ctk.CTkButton(self.frame_login_content, text="Login", command=self.login)
+        btn_login.pack(pady=10)
+
+        lbl_or = ctk.CTkLabel(self.frame_login_content, text="or")
+        lbl_or.pack(pady=10)
+
+        btn_register = ctk.CTkButton(self.frame_login_content, text="Register", command=self.show_register_form)
+        btn_register.pack(pady=10)
 
     def help_menu(self):
         CTkMessagebox(
