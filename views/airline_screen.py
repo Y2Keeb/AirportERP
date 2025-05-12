@@ -3,12 +3,15 @@ from tkinter import messagebox
 from basewindow import BaseWindow
 from config import set_theme,mydb
 import customtkinter as ctk
+from config import is_suspect_sql_input
+from ui_helpers import show_sql_meme_popup
 
 class AirlineScreen(BaseWindow):
     def __init__(self, root,username=None, view_manager=None):
         super().__init__(root, "Airline Dashboard")
         self.username = username
         self.user_id = self._get_user_id()
+        self.view_manager = view_manager
         self.full_name = self.get_airline_name()
         self.view_state = {
             'role': 'airline'
@@ -26,6 +29,8 @@ class AirlineScreen(BaseWindow):
             justify="left"
         )
         self.lbl_greeting.place(relx=0.03, rely=0.035)
+        pending_label = ctk.CTkLabel(self.frame_main, text="Current pending flights:", font=("Arial", 14, "bold"))
+        pending_label.place(relx=0.53, rely=0.06)
 
         self.frame_form.place(relx=0.25, rely=0.50, anchor="center", relwidth=0.45, relheight=0.8)
         self.frame_tree.place(relx=0.75, rely=0.50, anchor="center", relwidth=0.45, relheight=0.8)
@@ -55,6 +60,7 @@ class AirlineScreen(BaseWindow):
         self.price_entry = ctk.CTkEntry(self.frame_form, width=150)
 
         self.btn_offer_flight = ctk.CTkButton(self.frame_main, text="Offer Flight", command=self.complete_flight_offer)
+        self.btn_clear_form = ctk.CTkButton(self.frame_main, text="Clear", command=self.clear_form)
 
         self.create_widgets()
 
@@ -122,26 +128,24 @@ class AirlineScreen(BaseWindow):
         scrollbar.pack(side="right", fill="y", padx=(0, 10), pady=10)
 
     def create_widgets(self):
-        #labels
-        self.lbl_airline.grid(row=1, column=0,padx=(30,15), pady=9,sticky="e")
-        self.lbl_from_location.grid(row=2,column=0,padx=(30,15),pady=9,sticky="e")
-        self.lbl_to_location.grid(row=3,column=0,padx=(30,15),pady=9,sticky="e")
-        self.lbl_departure_date.grid(row=4,column=0,padx=(30,15),pady=9,sticky="e")
-        self.lbl_arrival_date.grid(row=5,column=0,padx=(30,15),pady=9,sticky="e")
-        self.lbl_plane_type.grid(row=6,column=0,padx=(30,15),pady=9,sticky="e")
-        self.lbl_total_seats.grid(row=7,column=0,padx=(30,15),pady=9,sticky="e")
-        self.lbl_price.grid(row=8,column=0,padx=(30,15),pady=9,sticky="e")
-        #entries
-        self.airline_entry.grid(row=1, column=1, padx=15,pady=9,sticky="ew")
-        self.from_location_entry.grid(row=2, column=1, padx=15,pady=9,sticky="ew")
-        self.to_location_entry.grid(row=3, column=1, padx=15,pady=9,sticky="ew")
-        self.departure_date_entry.grid(row=4, column=1, padx=15,pady=9,sticky="ew")
-        self.arrival_date_entry.grid(row=5, column=1, padx=15,pady=9,sticky="ew")
-        self.plane_type_entry.grid(row=6, column=1, padx=15,pady=9,sticky="ew")
-        self.total_seat_entry.grid(row=7, column=1, padx=15,pady=9,sticky="ew")
-        self.price_entry.grid(row=8, column=1, padx=15,pady=9,sticky="ew")
-        #buttons
+        fields = [
+            ("Airline:", self.airline_entry),
+            ("From Location:", self.from_location_entry),
+            ("To Location:", self.to_location_entry),
+            ("Departure date (YYYY-MM-DD):", self.departure_date_entry),
+            ("Arrival date (YYYY-MM-DD):", self.arrival_date_entry),
+            ("Plane Type:", self.plane_type_entry),
+            ("Total Seats:", self.total_seat_entry),
+            ("Price:", self.price_entry),
+        ]
+
+        for row, (label_text, entry_widget) in enumerate(fields, start=1):
+            label = ctk.CTkLabel(self.frame_form, text=label_text)
+            label.grid(row=row, column=0, padx=(30, 15), pady=(35,15), sticky="e")
+            entry_widget.grid(row=row, column=1, padx=15, pady=(35,15), sticky="ew")
+
         self.btn_offer_flight.place(relx=0.30, rely=0.96, anchor="se")
+        self.btn_clear_form.place(relx=0.47, rely=0.96, anchor="se")
 
     def get_airline_name(self):
         cursor = mydb.cursor()
@@ -171,6 +175,14 @@ class AirlineScreen(BaseWindow):
         plane_type = self.plane_type_entry.get()
         total_seats = self.total_seat_entry.get()
         price = self.price_entry.get()
+
+        user_inputs = [to_location,from_location, departure_date, arrival_date,
+        plane_type, total_seats, price
+    ]
+        if any(is_suspect_sql_input(value) for value in user_inputs):
+            show_sql_meme_popup(self.root)
+            return
+
         try:
             cursor = mydb.cursor()
             cursor.execute(
@@ -185,3 +197,21 @@ class AirlineScreen(BaseWindow):
         except Exception as e:
             messagebox.showinfo("Error", "An error occured")
 
+    def clear_form(self):
+        self.from_location_entry.delete(0, 'end')
+        self.to_location_entry.delete(0, 'end')
+        self.departure_date_entry.delete(0, 'end')
+        self.arrival_date_entry.delete(0, 'end')
+        self.plane_type_entry.delete(0, 'end')
+        self.total_seat_entry.delete(0, 'end')
+        self.price_entry.delete(0, 'end')
+
+    def logout(self):
+        """Simplified logout to login screen"""
+        self.cleanup()
+
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+        from views.login_screen import LoginScreen
+        LoginScreen(self.root, view_manager=self.view_manager)
