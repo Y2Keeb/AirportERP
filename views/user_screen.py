@@ -1,19 +1,19 @@
+import qrcode
 from basewindow import BaseWindow
 import customtkinter as ctk
 from config import mydb
-import qrcode
 from PIL import Image, ImageTk
 import io
 from views.ticket_booking_screen import TicketSystem
 from views.user_bookings_overview_screen import MyBookings
 
-
 class UserScreen(BaseWindow):
     def __init__(self, root, username=None, user_id=None, view_manager=None, **kwargs):
-        super().__init__(root, f"User Dashboard - {username}",menu_buttons=["help","logout","exit"])
+        super().__init__(root, f"User Dashboard - {username}")
         self.username = username
         self.view_manager = view_manager
-        self.user_id = self._get_user_id()
+        self.create_menu_bar(["help"])
+        self.user_id = self.get_user_id()
 
         self.frame_main = ctk.CTkFrame(root)
         self.frame_main.pack(fill='both', expand=True)
@@ -24,12 +24,12 @@ class UserScreen(BaseWindow):
             'user_id': self.user_id,
             'role': self.role
         }
-
-        self._build_ui()
+        self.menu_bar.lift()
+        self.build_ui()
         self.display_upcoming_flight()
 
 
-    def _build_ui(self):
+    def build_ui(self):
         for widget in self.frame_main.winfo_children():
             widget.destroy()
 
@@ -48,10 +48,10 @@ class UserScreen(BaseWindow):
         buttons_frame = ctk.CTkFrame(content_frame, fg_color="transparent")
         buttons_frame.grid(row=1, column=0, columnspan=2, sticky="e", padx=20)
 
-        btn_buy_tickets = ctk.CTkButton(buttons_frame, text="Buy Tickets", command=self._navigate_to_tickets)
+        btn_buy_tickets = ctk.CTkButton(buttons_frame, text="Buy Tickets", command=self.navigate_to_tickets)
         btn_buy_tickets.grid(row=0, column=0, padx=5)
 
-        btn_my_bookings = ctk.CTkButton(buttons_frame, text="My Bookings", command=self._navigate_to_bookings)
+        btn_my_bookings = ctk.CTkButton(buttons_frame, text="My Bookings", command=self.navigate_to_bookings)
         btn_my_bookings.grid(row=0, column=1, padx=5)
 
         upcoming_label = ctk.CTkLabel(content_frame, text="Upcoming flight:", font=("Arial", 16, "bold"))
@@ -60,11 +60,10 @@ class UserScreen(BaseWindow):
         self.upcoming_flight_frame = ctk.CTkFrame(content_frame, border_width=2, border_color="black")
         self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
 
-
         content_frame.grid_rowconfigure(3, weight=1)
         content_frame.grid_columnconfigure((0, 1), weight=1)
 
-    def _get_user_id(self):
+    def get_user_id(self):
         cursor = None
         try:
             cursor = mydb.cursor()
@@ -78,7 +77,7 @@ class UserScreen(BaseWindow):
             if cursor:
                 cursor.close()
 
-    def _navigate_to_tickets(self):
+    def navigate_to_tickets(self):
         if self.view_manager:
             self.view_manager.push_view(
                 TicketSystem,
@@ -89,7 +88,7 @@ class UserScreen(BaseWindow):
             self.cleanup()
             TicketSystem(self.root, user_id=self.user_id, username=self.username)
 
-    def _navigate_to_bookings(self):
+    def navigate_to_bookings(self):
         if self.view_manager:
             self.view_manager.push_view(
                 MyBookings,
@@ -167,26 +166,7 @@ class UserScreen(BaseWindow):
             Plane: {flight['plane_type']}
             Passenger: {self.username}
             """
-
-            qr = qrcode.QRCode(
-                version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=6,
-                border=4,
-            )
-            qr.add_data(flight_data)
-            qr.make(fit=True)
-
-            self.qr_img = qr.make_image(fill_color="black", back_color="white")
-
-            img_bytes = io.BytesIO()
-            self.qr_img.save(img_bytes, format='PNG')
-            img_bytes.seek(0)
-
-            self.qr_ctk_image = ctk.CTkImage(
-                light_image=Image.open(img_bytes),
-                size=(150, 150)
-            )
+            self.generate_qr_code(flight_data)
 
             self.qr_label = ctk.CTkLabel(
                 self.upcoming_flight_frame,
@@ -194,6 +174,7 @@ class UserScreen(BaseWindow):
                 text=""
             )
             self.qr_label.grid(row=2, column=2, padx=20, pady=5, sticky="e")
+            self.upcoming_flight_frame.update()
 
             scan_label = ctk.CTkLabel(
                 self.upcoming_flight_frame,
@@ -207,6 +188,25 @@ class UserScreen(BaseWindow):
 
         finally:
             cursor.close()
+
+    def generate_qr_code(self,flight_data):
+
+        print("Generating QR code...")
+
+
+        self.qr_img = qrcode.make(flight_data)
+
+        img_bytes = io.BytesIO()
+        self.qr_img.save(img_bytes, format='PNG')
+        img_bytes.seek(0)
+
+        pil_qr_image = Image.open(img_bytes)
+        self.qr_image_pil = pil_qr_image  # ← Hold a strong reference
+
+        self.qr_ctk_image = ctk.CTkImage(
+            light_image=pil_qr_image,
+            size=(150, 150)
+        )
 
     def cleanup(self):
         """Clean up resources when screen is closed"""

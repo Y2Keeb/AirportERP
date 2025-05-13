@@ -76,5 +76,5 @@ class App:
 
 if __name__ == "__main__":
     app = App()
-    app.root.bind("<Return>", lambda event: app.view_manager.current_view.login())
+  #  app.root.bind("<Return>", lambda event: app.view_manager.current_view.login())
     app.run()
