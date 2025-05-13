@@ -2,9 +2,10 @@ bcrypt
 tkcalendar~=1.6.1
 mysql~=0.0.3
 pillow~=11.1.0
-customtkinter
+customtkinter~=5.2.2
 CTkMessagebox~=2.7
-mysql-connector-python~=8.0.33
-pywinstyles
+mysql-connector-python~=9.2.0
+pywinstyles~=1.8
 ctypes
 cryptography~=44.0.3
+django-qrcode~=0.3
