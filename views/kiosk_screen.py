@@ -6,7 +6,7 @@ from PIL import Image
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
 
-from config import mydb, set_theme, is_suspect_sql_input
+from config import mydb, set_theme, is_suspect_sql_input, encrypt_password
 from basewindow import BaseWindow
 from ui_helpers import show_sql_meme_popup
 from views.user_screen import UserScreen
@@ -92,9 +92,9 @@ class KioskLoginScreen(BaseWindow):
         Shows error messages on failure or if SQL injection is detected.
         """
         username = self.entry_username.get()
-        password = self.entry_password.get()
+        password = encrypt_password(self.entry_password.get())
 
-        if is_suspect_sql_input(username) or is_suspect_sql_input(password):
+        if is_suspect_sql_input(username) or is_suspect_sql_input(encrypt_password(password)):
             show_sql_meme_popup(self.root)
             return
 

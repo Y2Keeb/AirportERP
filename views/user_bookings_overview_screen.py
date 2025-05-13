@@ -11,7 +11,6 @@ class MyBookings(BaseWindow):
         """
         Initialize the booking view and layout the main interface.
         """
-
         self.user_id = user_id
         self.username = username
         self.view_manager = view_manager

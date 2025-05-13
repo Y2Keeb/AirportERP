@@ -395,8 +395,8 @@ class FlightPlannerScreen(BaseWindow):
                 INSERT INTO flights (
                     airline, departure, arrival, status, gate,
                     plane_type, total_seats, seats_taken, price,
-                    from_location, to_location, airline_icon
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    from_location, to_location
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             insert_values = (
                 flight_data['airline'],
@@ -409,8 +409,7 @@ class FlightPlannerScreen(BaseWindow):
                 0,
                 flight_data['price'],
                 flight_data['from_location'],
-                flight_data['to_location'],
-                airline_icon
+                flight_data['to_location']
             )
 
             self.cursor.execute(insert_query, insert_values)
@@ -433,7 +432,7 @@ class FlightPlannerScreen(BaseWindow):
         if self.current_view_mode == "pending":
             print("Removing pending flight...")
         else:
-            messagebox.showinfo("Info", "This flight isn't available yet")
+            messagebox.showinfo("Info", "Can't cancel flight after planning")
 
     def cleanup(self):
         """Clean up resources"""
