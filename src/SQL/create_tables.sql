@@ -25,8 +25,7 @@ CREATE TABLE flights(
     seats_taken INTEGER NOT NULL DEFAULT 0,
     price FLOAT NOT NULL,
     from_location VARCHAR(255) NOT NULL,
-    to_location VARCHAR(255) NOT NULL,
-    airline_icon VARCHAR(255) NOT NULL
+    to_location VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE bookings (
