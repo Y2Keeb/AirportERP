@@ -40,18 +40,11 @@ class FlightPlannerScreen(BaseWindow):
         self.right_frame = ctk.CTkFrame(self.frame_main)
         self.right_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
         self.right_frame.grid_columnconfigure(0, weight=1)
-        self.right_frame.grid_rowconfigure(0, weight=0)  # header
-        self.right_frame.grid_rowconfigure(1, weight=1)  # Treeview (expandable)
-        self.right_frame.grid_rowconfigure(2, weight=0)  # Button section
-
-        self.bottom_button_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent",height=50)
-        self.bottom_button_frame.grid(row=2, column=0, columnspan=2, sticky="w", pady=(10, 0), padx=(10,10))
-
-        self.btn_plan = ctk.CTkButton(self.bottom_button_frame, text="Plan Flight", command=self.plan_flight)
-        self.btn_plan.grid(row=2, column=0,sticky="w", padx=(10, 10), pady=(30, 30))
-
-        self.btn_cancel = ctk.CTkButton(self.bottom_button_frame, text="Delete Flight", fg_color="red", command=self.cancel_flight)
-        self.btn_cancel.grid(row=2, column=1,sticky="w", padx=(10, 10),pady=(30, 30))
+        self.right_frame.grid_columnconfigure(0, weight=1)
+        self.right_frame.grid_rowconfigure(0, weight=0)  # Header
+        self.right_frame.grid_rowconfigure(1, weight=1)  # TreeView
+        self.right_frame.grid_rowconfigure(2, weight=0)  # Buttons
+        self.right_frame.grid_rowconfigure(3, weight=0)  # Entry field (Gate)
 
         self.airline_filter_var = ctk.StringVar(value="All Airlines")
         self.departure_filter_var = ctk.StringVar(value="All Departures")
@@ -161,6 +154,8 @@ class FlightPlannerScreen(BaseWindow):
         )
         clear_btn.grid(row=0, column=4, columnspan=2, padx=(100,5), pady=5, sticky="e")
 
+        self.update_button_styles()
+
     def select_all_fields(self):
         for var in self.column_options.values():
             var.set(True)
@@ -217,15 +212,12 @@ class FlightPlannerScreen(BaseWindow):
         self.tree = ttk.Treeview(self.right_frame, show="headings", selectmode="browse")
         self.tree.grid(row=1, column=0, sticky="nsew")
 
+        self.flight_info_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent")
+        self.flight_info_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(10, 0))
+
         self.scrollbar = ttk.Scrollbar(self.right_frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
-
-        self.entry_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent")
-        self.entry_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(10, 0))
-
-        self.gate_entry = ctk.CTkEntry(self.entry_frame, placeholder_text="Gate (e.g. A12)")
-        self.gate_entry.grid(row=0, column=0, padx=5, pady=5)
 
         self.tree.bind("<<TreeviewSelect>>", self.on_flight_select)
         self.refresh_treeview_columns()
@@ -300,38 +292,81 @@ class FlightPlannerScreen(BaseWindow):
         selected_items = self.tree.selection()
         if not selected_items:
             self.selected_flight = None
-            self.btn_plan.configure(state="disabled")
             return
 
+        if self.current_view_mode != "pending":
+            self.selected_flight = None
+            for widget in self.flight_info_frame.winfo_children():
+                widget.destroy()
+            return
         try:
-            values = self.tree.item(selected_items[0], 'values')
-            flight_id = self.flights_data[selected_items[0]]
+            item_id = selected_items[0]
+            values = self.tree.item(item_id, 'values')
+            flight_id = self.flights_data[item_id]
+            visible_columns = self.tree["columns"]
 
-            print(f"Selected flight values: {values}")
+            if len(values) != len(visible_columns):
+                raise ValueError("Mismatch between columns and values")
 
-            if len(values) < 5:
-                raise ValueError("Incomplete flight data")
+            # Map column names to their values
+            flight_info = dict(zip(visible_columns, values))
+
+            # Extract specific values safely
+            airline = flight_info.get("Airline", "Unknown")
+            departure = flight_info.get("Departure date", "Unknown")
+            arrival = flight_info.get("Arrival date", "Unknown")
+            from_city = flight_info.get("Departure city", "Unknown")
+            to_city = flight_info.get("Arrival city", "Unknown")
+            price_str = flight_info.get("Price", "0.00")
 
             try:
-                price = float(values[4])
-            except ValueError:
-                price_str = ''.join(c for c in values[4] if c.isdigit() or c == '.')
-                price = float(price_str) if price_str else 0.0
+                price = float(''.join(c for c in price_str if c.isdigit() or c == '.'))
+            except:
+                price = 0.00
 
             self.selected_flight = (
                 flight_id,
-                values[0],
-                values[1],
-                values[2],
-                values[3],
+                airline,
+                departure,
+                arrival,
+                from_city,
+                to_city,
                 price
             )
-            self.btn_plan.configure(state="normal")
+
+            # Clear previous UI
+            for widget in self.flight_info_frame.winfo_children():
+                widget.destroy()
+
+            # Flight summary
+            summary_text = (
+                f"✈ Airline: {airline}\n"
+                f"📅 Departure: {departure} → Arrival: {arrival}\n"
+                f"🌍 From: {from_city} → To: {to_city}\n"
+                f"💺 Price: {price:.2f} EUR"
+            )
+            summary_label = ctk.CTkLabel(self.flight_info_frame, text=summary_text, justify="left", font=("Arial", 14))
+            summary_label.pack(anchor="w", padx=10, pady=(0, 5))
+
+            # Gate entry
+            gate_frame = ctk.CTkFrame(self.flight_info_frame, fg_color="transparent")
+            gate_frame.pack(fill="x", padx=10, pady=(0, 5))
+            ctk.CTkLabel(gate_frame, text="Gate:", width=50).pack(side="left")
+            self.gate_entry = ctk.CTkEntry(gate_frame, placeholder_text="e.g. A12")
+            self.gate_entry.pack(side="left", padx=5)
+
+            # Action buttons
+            button_frame = ctk.CTkFrame(self.flight_info_frame, fg_color="transparent")
+            button_frame.pack(fill="x", padx=10, pady=(10, 0))
+            self.btn_plan = ctk.CTkButton(button_frame, text="Plan Flight", command=self.plan_flight)
+            self.btn_plan.pack(side="left", padx=(0, 10))
+            self.btn_cancel = ctk.CTkButton(button_frame, text="Delete Flight", fg_color="red",
+                                            command=self.cancel_flight)
+            self.btn_cancel.pack(side="left")
 
         except Exception as e:
             logger.error(f"Flight selection error: {str(e)}")
-            messagebox.showerror("Error",
-                                 f"Could not process flight data:\n{str(e)}")
+            messagebox.showerror("Error", f"Could not process flight data:\n{str(e)}")
             self.selected_flight = None
 
     def on_filter_change(self, *args):
@@ -346,8 +381,12 @@ class FlightPlannerScreen(BaseWindow):
             self.title_label.configure(text="Flight Planner - Pending flights ready for planning.")
         else:
             self.title_label.configure(text="Flight Planner - Your planned flights")
-        self.update_button_styles()
 
+        for widget in self.flight_info_frame.winfo_children():
+            widget.destroy()
+        self.selected_flight = None
+
+        self.update_button_styles()
         self.refresh_filter_options()
         self.fetch_flights_with_filters()
 
@@ -429,10 +468,32 @@ class FlightPlannerScreen(BaseWindow):
             messagebox.showerror("Error", f"Failed to plan flight:\n{str(e)}")
 
     def cancel_flight(self):
-        if self.current_view_mode == "pending":
-            print("Removing pending flight...")
-        else:
-            messagebox.showinfo("Info", "Can't cancel flight after planning")
+        if self.current_view_mode != "pending":
+            messagebox.showinfo("Info", "Can't cancel a flight that's already planned")
+            return
+
+        if not self.selected_flight:
+            messagebox.showwarning("Warning", "Please select a pending flight to delete.")
+            return
+
+        flight_id = self.selected_flight[0]
+
+        confirm = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete this pending flight?")
+        if not confirm:
+            return
+
+        try:
+            self.cursor.execute("DELETE FROM pending_flights WHERE id = %s", (flight_id,))
+            mydb.commit()
+
+            messagebox.showinfo("Success", "Pending flight successfully deleted.")
+            self.selected_flight = None
+            self.btn_plan.configure(state="disabled")
+            self.fetch_flights_with_filters()
+
+        except Exception as e:
+            logger.error(f"Failed to delete pending flight: {str(e)}")
+            messagebox.showerror("Error", f"Could not delete pending flight:\n{str(e)}")
 
     def cleanup(self):
         """Clean up resources"""
