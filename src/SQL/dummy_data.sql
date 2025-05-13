@@ -58,7 +58,7 @@ VALUES
 ('KLM','2025-07-03 13:45:00', '2025-07-03 16:00:00', 'Pending', 'Boeing 777', 250, 399.75, 'Brussels', 'Madrid', 3),
 ('Turkish Airlines', '2025-07-04 17:30:00', '2025-07-04 21:00:00', 'Pending', 'Airbus A330', 200, 275.00, 'Brussels', 'Istanbul', 4),
 ('Emirates', '2025-07-05 22:00:00', '2025-07-06 02:30:00', 'Pending', 'Boeing 787', 220, 599.99, 'Brussels', 'Dubai', 5);
-INSERT INTO discount_codes (code, discount_percent, valid_from, valid_until, max_uses, is_active) 
+INSERT INTO discount_codes (code, discount_percent, valid_from, valid_until, max_uses, is_active)
 VALUES 
     ('WELCOME10', 10.00, '2025-01-01', '2025-12-31', 100, TRUE),
     ('SUMMER20', 20.00, '2025-06-01', '2025-08-31', 50, TRUE),
