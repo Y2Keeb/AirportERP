@@ -7,3 +7,4 @@ CTkMessagebox~=2.7
 mysql-connector-python~=8.0.33
 pywinstyles
 ctypes
+cryptography~=44.0.3

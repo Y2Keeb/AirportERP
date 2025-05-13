@@ -12,6 +12,7 @@ from views.airline_screen import AirlineScreen
 from views.flight_planner_screen import FlightPlannerScreen
 from views.kiosk_screen import KioskLoginScreen
 from views.user_screen import UserScreen
+from config import  encrypt_password
 
 class LoginScreen(BaseWindow):
     def __init__(self, root,view_manager=None):
@@ -171,12 +172,13 @@ class LoginScreen(BaseWindow):
         username = self.entry_username.get()
         password = self.entry_password.get()
 
-        if is_suspect_sql_input(username) or is_suspect_sql_input(password):
+        if is_suspect_sql_input(username) or is_suspect_sql_input(encrypt_password(password)):
             show_sql_meme_popup(self.root)
             return
 
         cursor = mydb.cursor()
-        query = "SELECT id, username, first_name, last_name, role FROM users WHERE username = %s AND password = %s"
+        query = ("SELECT id, username, first_name, last_name, role FROM users "
+                "WHERE username = %s AND password = %s")
         cursor.execute(query, (username, password))
         result = cursor.fetchone()
 

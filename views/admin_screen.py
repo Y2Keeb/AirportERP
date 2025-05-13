@@ -1,15 +1,20 @@
 """Admin screen module for Airport ERP system with user management capabilities."""
+
 from basewindow import BaseWindow
 import customtkinter as ctk
 from tkinter import ttk, messagebox
-from config import get_logger, mydb
+from config import get_logger, mydb, encrypt_password
+
 
 logger = get_logger(__name__)
+
 
 class AdminScreen(BaseWindow):
 
     def __init__(self, root, view_manager=None, user_id=None, username=None):
-        super().__init__(root, "Admin Panel", menu_buttons=["help", "about", "exit", "logout"])
+        super().__init__(
+            root, "Admin Panel", menu_buttons=["help", "about", "exit", "logout"]
+        )
 
         self.view_manager = view_manager
         self.user_id = user_id
@@ -37,16 +42,33 @@ class AdminScreen(BaseWindow):
         self.right_frame.grid_rowconfigure(1, weight=1)
         self.right_frame.grid_rowconfigure(2, weight=0)
 
-        self.bottom_button_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent", height=50)
-        self.bottom_button_frame.grid(row=2, column=0, sticky="w", pady=(10, 0), padx=(10, 10))
+        self.bottom_button_frame = ctk.CTkFrame(
+            self.right_frame, fg_color="transparent", height=50
+        )
+        self.bottom_button_frame.grid(
+            row=2, column=0, sticky="w", pady=(10, 0), padx=(10, 10)
+        )
 
-        self.btn_add = ctk.CTkButton(self.bottom_button_frame, text="Add User", command=self._add_user)
+        self.btn_add = ctk.CTkButton(
+            self.bottom_button_frame, text="Add User", command=self._add_user
+        )
         self.btn_add.grid(row=0, column=0, sticky="w", padx=(10, 10), pady=(10, 10))
 
-        self.btn_edit = ctk.CTkButton(self.bottom_button_frame, text="Edit User", command=self._edit_user, state="disabled")
+        self.btn_edit = ctk.CTkButton(
+            self.bottom_button_frame,
+            text="Edit User",
+            command=self._edit_user,
+            state="disabled",
+        )
         self.btn_edit.grid(row=0, column=1, sticky="w", padx=(10, 10), pady=(10, 10))
 
-        self.btn_delete = ctk.CTkButton(self.bottom_button_frame, text="Delete User", fg_color="red", command=self._delete_user, state="disabled")
+        self.btn_delete = ctk.CTkButton(
+            self.bottom_button_frame,
+            text="Delete User",
+            fg_color="red",
+            command=self._delete_user,
+            state="disabled",
+        )
         self.btn_delete.grid(row=0, column=2, sticky="w", padx=(10, 10), pady=(10, 10))
 
         self._create_header()
@@ -59,28 +81,34 @@ class AdminScreen(BaseWindow):
         self.title_label = ctk.CTkLabel(
             self.right_frame,
             text="Admin Panel - User Management",
-            font=("Arial", 25, "bold")
+            font=("Arial", 25, "bold"),
         )
         self.title_label.grid(row=0, column=0, padx=10, pady=(2, 30))
 
     def _create_users_table(self):
         style = ttk.Style()
-        style.theme_use('default')
-        style.configure("Treeview",
-                        background="#2a2d2e",
-                        foreground="white",
-                        fieldbackground="#2a2d2e",
-                        rowheight=25)
-        style.configure("Treeview.Heading",
-                        background="#3b3b3b",
-                        foreground="white",
-                        font=('Arial', 10, 'bold'))
-        style.map('Treeview', background=[('selected', '#22559b')])
+        style.theme_use("default")
+        style.configure(
+            "Treeview",
+            background="#2a2d2e",
+            foreground="white",
+            fieldbackground="#2a2d2e",
+            rowheight=25,
+        )
+        style.configure(
+            "Treeview.Heading",
+            background="#3b3b3b",
+            foreground="white",
+            font=("Arial", 10, "bold"),
+        )
+        style.map("Treeview", background=[("selected", "#22559b")])
 
         self.tree = ttk.Treeview(self.right_frame, show="headings", selectmode="browse")
         self.tree.grid(row=1, column=0, sticky="nsew")
 
-        self.scrollbar = ttk.Scrollbar(self.right_frame, orient="vertical", command=self.tree.yview)
+        self.scrollbar = ttk.Scrollbar(
+            self.right_frame, orient="vertical", command=self.tree.yview
+        )
         self.tree.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
 
@@ -96,9 +124,17 @@ class AdminScreen(BaseWindow):
         self.users_data = {}
 
         try:
-            self.cursor.execute("SELECT id, username, role, first_name, last_name FROM users")
+            self.cursor.execute(
+                "SELECT id, username, role, first_name, last_name FROM users"
+            )
             for row in self.cursor.fetchall():
-                values = [row["id"], row["username"], row["first_name"], row["last_name"], row["role"]]
+                values = [
+                    row["id"],
+                    row["username"],
+                    row["first_name"],
+                    row["last_name"],
+                    row["role"],
+                ]
                 item_id = self.tree.insert("", "end", values=values)
                 self.users_data[item_id] = row
         except Exception as e:
@@ -133,11 +169,15 @@ class AdminScreen(BaseWindow):
     def _delete_user(self):
         if not self.selected_user:
             return
-        confirm = messagebox.askyesno("Confirm Delete", f"Delete user '{self.selected_user['username']}'?")
+        confirm = messagebox.askyesno(
+            "Confirm Delete", f"Delete user '{self.selected_user['username']}'?"
+        )
         if not confirm:
             return
         try:
-            self.cursor.execute("DELETE FROM users WHERE id = %s", (self.selected_user["id"],))
+            self.cursor.execute(
+                "DELETE FROM users WHERE id = %s", (self.selected_user["id"],)
+            )
             mydb.commit()
             self._fetch_users()
             self.selected_user = None
@@ -190,28 +230,40 @@ class AdminScreen(BaseWindow):
             last_name = entry_last_name.get().strip()
             password = entry_password.get().strip()
 
-            if not username or not role or not first_name or not last_name or (not user and not password):
+            if (
+                not username
+                or not role
+                or not first_name
+                or not last_name
+                or (not user and not password)
+            ):
                 messagebox.showerror("Error", "All fields are required")
                 return
 
             try:
                 if user:
-                    # Update user
                     if password:
                         self.cursor.execute(
                             "UPDATE users SET username=%s, role=%s, first_name=%s, last_name=%s, password=%s WHERE id=%s",
-                            (username, role, first_name, last_name, password, user["id"])
+                            (
+                                username,
+                                role,
+                                first_name,
+                                last_name,
+                                encrypt_password(password),
+                                user["id"],
+                            ),
                         )
                     else:
                         self.cursor.execute(
                             "UPDATE users SET username=%s, role=%s, first_name=%s, last_name=%s WHERE id=%s",
-                            (username, role, first_name, last_name, user["id"])
+                            (username, role, first_name, last_name, user["id"]),
                         )
                 else:
-                    # Add user
+
                     self.cursor.execute(
                         "INSERT INTO users (username, role, first_name, last_name, password) VALUES (%s, %s, %s, %s, %s)",
-                        (username, role, first_name, last_name, password)
+                        (username, role, first_name, last_name, encrypt_password(password)),
                     )
                 mydb.commit()
                 self._fetch_users()
@@ -223,8 +275,7 @@ class AdminScreen(BaseWindow):
         ctk.CTkButton(form, text="Save", command=save).pack(pady=(20, 10))
 
     def cleanup(self):
-        if hasattr(self, 'cursor'):
+        if hasattr(self, "cursor"):
             self.cursor.close()
-        if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
+        if hasattr(self, "frame_main") and self.frame_main.winfo_exists():
             self.frame_main.destroy()
-
