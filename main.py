@@ -7,7 +7,6 @@ from view_manager import ViewManager
 import pywinstyles, sys
 import threading
 
-
 from views.splash_screen import SplashScreen
 
 logger = get_logger(__name__)
@@ -68,7 +67,7 @@ class App:
             pywinstyles.apply_style(root, "dark")
             root.wm_attributes("-alpha", 0.99)
             root.wm_attributes("-alpha", 1)
-        
+
 
     def run(self):
         self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
