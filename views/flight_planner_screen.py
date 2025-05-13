@@ -2,7 +2,8 @@ from tkcalendar import DateEntry
 from basewindow import BaseWindow
 import customtkinter as ctk
 from tkinter import ttk,messagebox
-from config import get_logger,mydb
+from config import get_logger, mydb, is_suspect_sql_input
+from ui_helpers import show_sql_meme_popup
 
 logger = get_logger(__name__)
 
@@ -28,7 +29,7 @@ class FlightPlannerScreen(BaseWindow):
                 widget.destroy()
 
         self.frame_main = ctk.CTkFrame(root)
-        self.frame_main.place(relx=0.5, rely=0.5, anchor="center", relwidth=0.95, relheight=0.95)
+        self.frame_main.place(relx=0.5, rely=0.47, anchor="center", relwidth=0.95, relheight=0.92)
 
         self.frame_main.grid_columnconfigure(1, weight=1)
         self.frame_main.grid_rowconfigure(0, weight=1)
@@ -220,6 +221,12 @@ class FlightPlannerScreen(BaseWindow):
         self.tree.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
 
+        self.entry_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent")
+        self.entry_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(10, 0))
+
+        self.gate_entry = ctk.CTkEntry(self.entry_frame, placeholder_text="Gate (e.g. A12)")
+        self.gate_entry.grid(row=0, column=0, padx=5, pady=5)
+
         self.tree.bind("<<TreeviewSelect>>", self.on_flight_select)
         self.refresh_treeview_columns()
 
@@ -357,10 +364,70 @@ class FlightPlannerScreen(BaseWindow):
             self.btn_pending_flights.configure(**inactive_style)
 
     def plan_flight(self):
-        if self.current_view_mode == "pending":
-            print("Planning flight...")
-        else:
+        if self.current_view_mode != "pending":
             messagebox.showinfo("Info", "This flight is already planned")
+            return
+
+        if not self.selected_flight:
+            messagebox.showwarning("Warning", "No flight selected")
+            return
+
+        try:
+            flight_id = self.selected_flight[0]
+            gate = self.gate_entry.get().strip()
+
+            if is_suspect_sql_input(gate):
+                show_sql_meme_popup(self.root)
+                return
+
+            if not gate:
+                messagebox.showwarning("Input Required", "Please fill in gate field.")
+                return
+
+            self.cursor.execute("SELECT * FROM pending_flights WHERE id = %s", (flight_id,))
+            flight_data = self.cursor.fetchone()
+
+            if not flight_data:
+                messagebox.showerror("Error", "Selected flight not found")
+                return
+            airline_icon = None
+            insert_query = """
+                INSERT INTO flights (
+                    airline, departure, arrival, status, gate,
+                    plane_type, total_seats, seats_taken, price,
+                    from_location, to_location, airline_icon
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            insert_values = (
+                flight_data['airline'],
+                flight_data['departure'],
+                flight_data['arrival'],
+                "On Time",
+                gate,
+                flight_data['plane_type'],
+                flight_data['total_seats'],
+                0,
+                flight_data['price'],
+                flight_data['from_location'],
+                flight_data['to_location'],
+                airline_icon
+            )
+
+            self.cursor.execute(insert_query, insert_values)
+            self.cursor.execute("DELETE FROM pending_flights WHERE id = %s", (flight_id,))
+            mydb.commit()
+
+            messagebox.showinfo("Success", "Flight successfully planned")
+
+            self.selected_flight = None
+            self.btn_plan.configure(state="disabled")
+
+            self.gate_entry.delete(0, 'end')
+            self.fetch_flights_with_filters()
+
+        except Exception as e:
+            logger.error(f"Failed to plan flight: {str(e)}")
+            messagebox.showerror("Error", f"Failed to plan flight:\n{str(e)}")
 
     def cancel_flight(self):
         if self.current_view_mode == "pending":
