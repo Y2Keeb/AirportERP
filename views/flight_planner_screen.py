@@ -25,8 +25,7 @@ class FlightPlannerScreen(BaseWindow):
         }
 
         for widget in root.winfo_children():
-            if isinstance(widget, ctk.CTkFrame):
-                widget.destroy()
+            widget.destroy()
 
         self.frame_main = ctk.CTkFrame(root)
         self.frame_main.place(relx=0.5, rely=0.47, anchor="center", relwidth=0.95, relheight=0.92)
@@ -54,6 +53,7 @@ class FlightPlannerScreen(BaseWindow):
         self.create_header()
         self.create_flights_table()
         self.fetch_flights_with_filters()
+        self.menu_bar.lift()
 
     def create_header(self):
         """Create header section with title and back button"""
