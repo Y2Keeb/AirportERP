@@ -184,14 +184,18 @@ class TicketSystem(BaseWindow):
 
         from_loc = self.entry_from.get().strip()
         to_loc = self.entry_to.get().strip()
+        selected_date = self.entry_date.get_date()
 
         try:
             query = """
-                SELECT id, airline, from_location, CONCAT(departure, ' - ', arrival) as flight_schedule,to_location, price
+                SELECT id, airline, from_location,
+                       CONCAT(departure, ' - ', arrival) AS flight_schedule,
+                       to_location, price
                 FROM flights 
                 WHERE from_location = %s AND to_location = %s
+                  AND DATE(departure) = %s
             """
-            self.cursor.execute(query, (from_loc, to_loc))
+            self.cursor.execute(query, (from_loc, to_loc, selected_date))
 
             for row in self.cursor.fetchall():
                 price_str = f"{float(row['price']):.2f}" if row['price'] else "0.00"
