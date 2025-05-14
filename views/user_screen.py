@@ -1,3 +1,5 @@
+import PIL
+
 from basewindow import BaseWindow
 import qrcode
 from PIL import Image
@@ -13,6 +15,13 @@ class UserScreen(BaseWindow):
         self.username = username
         self.view_manager = view_manager
         self.create_menu_bar(["help","logout"])
+
+        self.original_bg_image = PIL.Image.open("docs/icons/background2.png").convert("RGBA")
+        startup_image = self.original_bg_image.resize((1600, 950), Image.NEAREST)
+        self.bg_image = ctk.CTkImage(light_image=startup_image, dark_image=startup_image, size=(1600, 950))
+        self.bg_label = ctk.CTkLabel(self.root, image=self.bg_image, text="")
+        self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+
         self.user_id = self.get_user_id()
         self.full_name = self.get_full_name()
 
@@ -228,3 +237,20 @@ class UserScreen(BaseWindow):
                 del self.qr_img
 
             self.frame_main.destroy()
+
+    def logout(self):
+        """logout that clears everything and shows login screen"""
+        try:
+            for widget in self.root.winfo_children():
+                widget.destroy()
+
+            from views.kiosk_screen import KioskLoginScreen
+            kiosk_login_screen = KioskLoginScreen(self.root, view_manager=self.view_manager)
+
+            self.root.update_idletasks()
+            self.root.update()
+        except Exception as e:
+            print(f"Error during logout: {e}")
+            self.root.destroy()
+            import os
+            os.system("python main.py")
