@@ -39,18 +39,19 @@ INSERT INTO flights (airline, departure, arrival, status, gate, plane_type, tota
 ('Ryanair', '2025-06-01 20:30:00', '2025-06-01 22:45:00', 'On Time', 'D30', 'Boeing 737', 160, 90, 179.99, 'Brussels', 'Lisbon'),
 ('Brussels Airlines', '2025-06-02 12:15:00', '2025-06-02 14:30:00', 'On Time', 'E31', 'Airbus A320', 180, 45, 239.50, 'Brussels', 'Lisbon');
 INSERT INTO users (id, username, first_name, last_name, role, password) VALUES
-(1, 'admin', 'Alice', 'Smith', 'admin', 'admin'),
-(2, 'admin2', 'Bob', 'Johnson', 'admin', 'secureadmin456'),
-(3, 'staff1', 'Charlie', 'Brown', 'staff', 'staffpass789'),
-(4, 'staff2', 'Diana', 'Miller', 'staff', 'passwordstaff'),
-(5, 'user1', 'Eve', 'Davis', 'user', 'userpass123'),
-(6, 'user2', 'Frank', 'Wilson', 'user', 'letmein456'),
-(7, 'user3', 'Grace', 'Lee', 'user', 'mypassword'),
-(8, 'staff3', 'Henry', 'Moore', 'staff', 'flightstaff2025'),
-(9, 'admin3', 'Isabel', 'Taylor', 'admin', 'rootadmin987'),
-(10, 'user4', 'Jack', 'Anderson', 'user', 'welcomeuser'),
-(11, 'KIOSK5', 'kiosk', 'kiosk', 'kiosk', 'kiosklogin123'),
-('12', 'airline1', 'Brussels', 'Airlines', 'airline', 'airlinelogin');
+('1', 'admin', 'Alice', 'Smith', 'admin', 'gAAAAABoI5azn-H0T5DS9X8jr88DVKHsi1YJWQCy3jMBLij7LzhK0tUD-BwhUnH-TFObbSlMPG5JDbJ8cD3C02wfFIT454BwQA=='),
+('2', 'admin2', 'Bob', 'Johnson', 'admin', 'gAAAAABoI5z17RxBwD0YHppcB4tjgh0ytfX91Z_EcYkiytzX3JPRECswaWd6Vc7D330Xx4SAXHl8dJVU6HsTe6FTNn7LoEzhqA=='),
+('3', 'staff1', 'Charlie', 'Brown', 'staff', 'gAAAAABoJH3YHQBJRCn1fUWmPvYWVWpWBDpBehrw_GYPVPct6UXPl_l3UOevuGfa8wDEg63qskGOh4DSk9ecEo7vk0PJwvwclQ=='),
+('4', 'staff2', 'Diana', 'Miller', 'staff', 'gAAAAABoJH4H1VKGT7UUZ5WNKHmOWg0CKhcz3C9QB1HLt-ceO_dtKZjSsBks4OVAcjOCCObUTduQpbfjgXywIJpAvMcliUdhCg=='),
+('5', 'user1', 'Eve', 'Davis', 'user', 'gAAAAABoJH4lh0_nFd-mb_2-TM6yiTDEXTB74i9WdW3Y3bwJMuKmd8R0VQz9yy-4VDqNIcbJs1E7D-ZHmrgD_h7dMQpDpIaWnw=='),
+('6', 'user2', 'Frank', 'Wilson', 'user', 'gAAAAABoJH4yAz8gYpJ8MMCKubWyIXcS6_43mZpBgTmm3BIsu7z5kBADwcLEISwrQfd_VSwTCWgZUbpcKM5VYvrlffs-LKd12g=='),
+('7', 'user3', 'Grace', 'Lee', 'user', 'gAAAAABoJH5CmLU5eEe6m4ApD2qC-dTC8W_sxPPCIXE3BbxYsYNr6MDEsauJq-ykXKC7GmdkoK_JknPe_gAkdq-tRdyCTlMSwQ=='),
+('8', 'staff3', 'Henry', 'Moore', 'staff', 'gAAAAABoJH5VnKbciBwn5rp54UgI28F0QBOuBXqJ3JpvGoB9ahnxfm1Qujtw47Q31pvI6lYY2ri-1s1BrrOlLriqXIzf5JeDWA=='),
+('9', 'admin3', 'Isabel', 'Taylor', 'admin', 'gAAAAABoJH6Jvm_uTXvKTvdoS9kbErRpJBcmIZBytVtX-jjvnF35UtNzz1L9XEigiq1fmlexId2vfvkzxWb8tnRr6RGZUEILuA=='),
+('10', 'user4', 'Jack', 'Anderson', 'user', 'gAAAAABoJH6WipWKnPxctokWRvnM4gWXZPe7HwZxTD8NkZPRa9eMTX6yOU2bzrAm_ausIr7xJW0Ee21xre0QRkR2UT-nfD_AvQ=='),
+('11', 'KIOSK5', 'kiosk', 'kiosk', 'kiosk', 'gAAAAABoJH7HOe-yCeYMatLHNKoK3-I1mR8E_ioj8ZEDCwqHO3NfkCID8IvguBEGBHwlYq4yKib005xAHvN48Cx9LRFpwjHZ1Q=='),
+('12', 'airline1', 'Brussels', 'Airlines', 'airline', 'gAAAAABoJH7sLaLEOvRO6KU41ynNv7VjjZKYd5k-kly3ZFEUig5VpwfnYelyUUEjJDAla8r9VNOVyeDuxewGdXl9ifYrUL531Q==');
+
 INSERT INTO pending_flights (airline, departure, arrival, status, plane_type, total_seats, price, from_location, to_location, submitted_by)
 VALUES
 ('Brussels Airlines', '2025-07-01 08:30:00', '2025-07-01 12:45:00', 'Pending', 'Boeing 737', 150, 299.99, 'Brussels', 'Berlin', 1),
