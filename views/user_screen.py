@@ -192,7 +192,8 @@ class UserScreen(BaseWindow):
                 box_size=5,
                 border=2,
             )
-            qr_data = f"{flight['airline']} | {flight['from_location']} → {flight['to_location']} | {flight['departure']}"
+            qr_data =  f" Airline: {flight['airline']}\nRoute: {flight['from_location']} → {flight['to_location']}\nDeparture: {flight['departure']}\nArrival: {flight['arrival']}\nGate: {flight['gate']}\nStatus: {flight['status']}\nPlane: {flight['plane_type']}\nPassenger: {self.full_name}\n"
+
             qr.add_data(qr_data)
             qr.make(fit=True)
 
@@ -205,7 +206,10 @@ class UserScreen(BaseWindow):
             self.qr_ctk_image = ctk.CTkImage(light_image=qr_pil_image, dark_image=qr_pil_image, size=(150, 150))
 
             self.qr_label = ctk.CTkLabel(self.upcoming_flight_frame, text="", image=self.qr_ctk_image)
-            self.qr_label.grid(row=0, column=2, rowspan=6, padx=20, pady=10, sticky="n")
+            self.qr_label.grid(row=0, column=2, rowspan=6, padx=20, pady=(50,50), sticky="n")
+            self.lbl_scan_me = ctk.CTkLabel(self.upcoming_flight_frame,text="Scan me!")
+            self.lbl_scan_me.grid(row=5, column=2, rowspan=6, padx=20, pady=10, sticky="n")
+
 
         except Exception as e:
             print("Error fetching flight data:", e)
