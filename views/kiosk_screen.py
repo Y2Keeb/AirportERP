@@ -186,7 +186,6 @@ class KioskLoginScreen(BaseWindow):
             if cursor.fetchone():
                 messagebox.showerror("Error", "Username already exists.")
                 return
-            # Encrypt the password before storing it
             encrypted_password = encrypt_password(password)
             cursor.execute(
                 "INSERT INTO users (username, first_name, last_name, role, password) VALUES (%s, %s, %s, %s, %s)",
