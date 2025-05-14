@@ -185,11 +185,7 @@ class UserScreen(BaseWindow):
 
             self.upcoming_flight_frame.update()
 
-    #QR code here -----
-
-            import qrcode
-
-            # 1. Create QR code
+            # QR Code Section
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -200,21 +196,16 @@ class UserScreen(BaseWindow):
             qr.add_data(qr_data)
             qr.make(fit=True)
 
-            # 2. Save to memory
             qr_img = qr.make_image(fill_color="black", back_color="white")
             qr_bytes = io.BytesIO()
             qr_img.save(qr_bytes, format="PNG")
             qr_bytes.seek(0)
             qr_pil_image = Image.open(qr_bytes)
 
-            # 3. Convert to CTkImage
             self.qr_ctk_image = ctk.CTkImage(light_image=qr_pil_image, dark_image=qr_pil_image, size=(150, 150))
-
-            # 4. Display in label
 
             self.qr_label = ctk.CTkLabel(self.upcoming_flight_frame, text="", image=self.qr_ctk_image)
             self.qr_label.grid(row=0, column=2, rowspan=6, padx=20, pady=10, sticky="n")
-
 
         except Exception as e:
             print("Error fetching flight data:", e)
