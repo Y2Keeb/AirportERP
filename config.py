@@ -24,7 +24,8 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 # Suppress PIL's verbose internal logs
-logging.getLogger('PIL').setLevel(logging.WARNING)
+logging.getLogger("PIL").setLevel(logging.WARNING)
+
 
 def is_suspect_sql_input(text: str) -> bool:
     """
@@ -32,17 +33,27 @@ def is_suspect_sql_input(text: str) -> bool:
     Returns True if input contains suspicious SQL patterns.
     """
     suspicious = [
-        "' OR", "'--", "';", "DROP TABLE",
-        "UNION SELECT", "'='", "1=1",
-        "\" OR", "\"--", "EXEC", "INSERT INTO"
+        "' OR",
+        "'--",
+        "';",
+        "DROP TABLE",
+        "UNION SELECT",
+        "'='",
+        "1=1",
+        '" OR',
+        '"--',
+        "EXEC",
+        "INSERT INTO",
     ]
     return any(keyword in text.upper() for keyword in suspicious)
+
 
 def get_logger(name):
     """
     Return a configured logger for the given name.
     """
     return logging.getLogger(name)
+
 
 def set_theme():
     """
@@ -52,11 +63,12 @@ def set_theme():
     ctk.set_default_color_theme("themes/marsh.json")
 
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'secret-key')
+SECRET_KEY = os.environ.get("SECRET_KEY", "secret-key")
+
 
 def get_encryption_key():
     """Generate encryption key from SECRET_KEY."""
-    salt = b'airporterpsalt1234'
+    salt = b"airporterpsalt1234"
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA256(),
         length=32,
@@ -65,6 +77,7 @@ def get_encryption_key():
     )
     key = base64.urlsafe_b64encode(kdf.derive(SECRET_KEY.encode()))
     return key
+
 
 def encrypt_password(password):
     """Encrypt a password string."""
@@ -76,6 +89,7 @@ def encrypt_password(password):
     except Exception as e:
         logger.error(f"Encryption error: {str(e)}")
         return None
+
 
 def decrypt_password(encrypted_password):
     """Decrypt an encrypted password string."""
