@@ -69,8 +69,8 @@ class UserScreen(BaseWindow):
         upcoming_label = ctk.CTkLabel(content_frame, text="Upcoming flight:", font=("Arial", 16, "bold"))
         upcoming_label.grid(row=2, column=0, columnspan=2, sticky="w", padx=20, pady=(10, 2))
 
-        self.upcoming_flight_frame = ctk.CTkFrame(content_frame, border_width=2, border_color="black",fg_color="gray20")
-        self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
+        self.upcoming_flight_frame = ctk.CTkFrame(content_frame, border_width=2, border_color="black",fg_color="gray16")
+        self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=(30,30), sticky="nsew")
 
         content_frame.grid_rowconfigure(3, weight=0)
         content_frame.grid_columnconfigure((0, 1), weight=1)
@@ -206,9 +206,9 @@ class UserScreen(BaseWindow):
             self.qr_ctk_image = ctk.CTkImage(light_image=qr_pil_image, dark_image=qr_pil_image, size=(150, 150))
 
             self.qr_label = ctk.CTkLabel(self.upcoming_flight_frame, text="", image=self.qr_ctk_image)
-            self.qr_label.grid(row=0, column=2, rowspan=6, padx=20, pady=(50,50), sticky="n")
+            self.qr_label.grid(row=0, column=3, rowspan=6, padx=(80,80), pady=(80,80), sticky="n")
             self.lbl_scan_me = ctk.CTkLabel(self.upcoming_flight_frame,text="Scan me!")
-            self.lbl_scan_me.grid(row=5, column=2, rowspan=6, padx=20, pady=10, sticky="n")
+            self.lbl_scan_me.grid(row=4, column=3, rowspan=6, padx=20, pady=15, sticky="n")
 
 
         except Exception as e:
