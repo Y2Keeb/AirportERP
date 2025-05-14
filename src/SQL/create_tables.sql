@@ -3,7 +3,7 @@ CREATE TABLE users (
     username VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL CHECK (role IN ('user', 'admin', 'staff','kiosk')),
+    role VARCHAR(50) NOT NULL CHECK (role IN ('user', 'admin', 'staff','kiosk','airline')),
     password VARCHAR(255) NOT NULL
 );
 
@@ -25,8 +25,7 @@ CREATE TABLE flights(
     seats_taken INTEGER NOT NULL DEFAULT 0,
     price FLOAT NOT NULL,
     from_location VARCHAR(255) NOT NULL,
-    to_location VARCHAR(255) NOT NULL,
-    airline_icon VARCHAR(255) NOT NULL
+    to_location VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE bookings (

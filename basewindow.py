@@ -8,6 +8,7 @@ from config import set_theme
 class BaseWindow:
     def __init__(self, root, title, menu_buttons=None):
         self.root = root
+        self.root.configure(bg="black")  # Makes root black behind the image
         self.root.wm_iconbitmap(("docs/icons/favicon.ico"))
         self.root.title(title)
         self.view_manager = ViewManager(root)
@@ -17,8 +18,11 @@ class BaseWindow:
         self.create_menu_bar(menu_buttons or ["help", "about", "logout", "exit"])
 
     def create_menu_bar(self, menu_buttons):
-        self.menu_bar = ctk.CTkFrame(self.root, height=30, fg_color="#1c1c1c")
-        self.menu_bar.pack(fill="x", side="top")
+        if hasattr(self, 'menu_bar') and self.menu_bar.winfo_exists():
+            self.menu_bar.destroy()
+
+        self.menu_bar = ctk.CTkFrame(self.root, fg_color="#1c1c1c", height=30)
+        self.menu_bar.place(relx=0, rely=0, relwidth=1)
 
         if "help" in menu_buttons:
             help_button = ctk.CTkButton(self.menu_bar, text="Help", width=60, height=24, fg_color="transparent",
@@ -51,10 +55,27 @@ class BaseWindow:
         CTkMessagebox(title="Help", message="• Login by entering your username and password.\n• If you don't have a login, contact your administrator.")
 
     def logout(self):
-        from views.login_screen import LoginScreen
-        self.view_manager.reset()
-        self.view_manager.pop_view()
-        self.view_manager.show_view(LoginScreen)
+        """Handle logout based on current user type"""
+        self.cleanup()
+
+        if hasattr(self, 'root') and self.root.winfo_exists():
+            if hasattr(self, 'view_state') and self.view_state.get('role') == 'user':
+                from views.kiosk_screen import KioskLoginScreen
+                for widget in self.root.winfo_children():
+                    widget.destroy()
+                KioskLoginScreen(self.root, view_manager=self.view_manager)
+            else:
+                from views.login_screen import LoginScreen
+                for widget in self.root.winfo_children():
+                    widget.destroy()
+                LoginScreen(self.root, view_manager=self.view_manager)
 
     def kill_window(self):
         self.root.quit()
+
+    def cleanup(self):
+        """Clean up all window resources"""
+        if hasattr(self, 'menu_bar') and self.menu_bar.winfo_exists():
+            self.menu_bar.destroy()
+        if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
+            self.frame_main.destroy()

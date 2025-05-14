@@ -8,40 +8,56 @@ logger = get_logger(__name__)
 class MyBookings(BaseWindow):
     def __init__(self, root, view_manager=None, user_id=None, username=None):
         super().__init__(root, f"My Bookings - {username}" if username else "My Bookings")
+        """
+        Initialize the booking view and layout the main interface.
+        """
+
         self.user_id = user_id
         self.username = username
         self.view_manager = view_manager
+        self.create_menu_bar(["logout"])
 
         self.view_state = {
             'user_id': user_id,
             'username': username
         }
 
-        self.frame_main = ctk.CTkFrame(root)
-        self.frame_main.grid(row=0, column=0, sticky="nsew")
+        self.frame_main = ctk.CTkFrame(
+            self.root,
+            fg_color="transparent"
+        )
+        self.frame_main.place(relx=0.5, rely=0.5, anchor="center", relwidth=1, relheight=1)
 
         root.grid_rowconfigure(0, weight=1)
         root.grid_columnconfigure(0, weight=1)
 
+        header_frame = ctk.CTkFrame(self.frame_main, fg_color="transparent")
+        header_frame.pack(fill="x", padx=20, pady=(60, 20))
+
+        title_label = ctk.CTkLabel(
+            header_frame,
+            text="My Bookings",
+            font=("Arial", 20, "bold")
+        )
+        title_label.grid(row=0, column=0, sticky="w")
+
         btn_back = ctk.CTkButton(
-            self.frame_main,
+            header_frame,
             text="← Back to Dashboard",
-            command=self._handle_back,
+            command=self.handle_back,
             fg_color="transparent",
             border_width=1
         )
-        btn_back.pack(anchor="e", pady=10)
+        btn_back.grid(row=0, column=1, sticky="e")
 
-        ctk.CTkLabel(
-            self.frame_main,
-            text="My Bookings",
-            font=("Arial", 20, "bold")
-        ).pack(pady=10)
+        header_frame.grid_columnconfigure(0, weight=1)
+        header_frame.grid_columnconfigure(1, weight=0)
 
-        self._create_bookings_table()
-        self._load_bookings()
+        self.menu_bar.lift()
+        self.create_bookings_table()
+        self.load_bookings()
 
-    def _create_bookings_table(self):
+    def create_bookings_table(self):
         """Create table with custom styling"""
         style = ttk.Style()
         style.theme_use('default')
@@ -90,7 +106,7 @@ class MyBookings(BaseWindow):
         self.tree.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
-    def _load_bookings(self):
+    def load_bookings(self):
         """Load bookings from database"""
         try:
             cursor = mydb.cursor(dictionary=True)
@@ -129,16 +145,45 @@ class MyBookings(BaseWindow):
         finally:
             cursor.close()
 
-    def _handle_back(self):
+    def handle_back(self):
         """Handle back button click"""
+        self.cleanup()
+
         if self.view_manager:
-            self.view_manager.pop_view()
+            role = getattr(self, 'role', 'user')
+            self.view_manager.pop_view(role=role)
         else:
-            self.frame_main.destroy()
             from views.user_screen import UserScreen
-            UserScreen(self.root, username=self.username, user_id=self.user_id)
+            for widget in self.root.winfo_children():
+                widget.destroy()
+            UserScreen(self.root,
+                       username=self.username,
+                       user_id=self.user_id,
+                       view_manager=self.view_manager)
 
     def cleanup(self):
-        """Clean up resources"""
+        """
+        Cleanup widgets and cancel any scheduled events.
+        Called when switching away from this view.
+        """
+        if hasattr(self, 'menu_bar') and self.menu_bar.winfo_exists():
+            self.menu_bar.destroy()
         if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
             self.frame_main.destroy()
+
+    def logout(self):
+        """logout that clears everything and shows login screen"""
+        try:
+            for widget in self.root.winfo_children():
+                widget.destroy()
+
+            from views.kiosk_screen import KioskLoginScreen
+            kiosk_login_screen = KioskLoginScreen(self.root, view_manager=self.view_manager)
+
+            self.root.update_idletasks()
+            self.root.update()
+        except Exception as e:
+            print(f"Error during logout: {e}")
+            self.root.destroy()
+            import os
+            os.system("python main.py")

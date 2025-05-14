@@ -5,7 +5,7 @@ from tkinter import messagebox
 
 
 class PaymentScreen(ctk.CTkToplevel):
-    def __init__(self, root,view_manager,booking_id=None, amount=0,user_id=None,username=None,return_callback=None):
+    def __init__(self, root, view_manager, booking_id=None, amount=0, user_id=None, username=None, return_callback=None):
         super().__init__(root)
         self.title("Pay here")
         self.booking_id = booking_id
@@ -17,6 +17,9 @@ class PaymentScreen(ctk.CTkToplevel):
         self.txn_id = None
         self.remaining_time = 15 * 60
         self._active = True
+        self._countdown_id = None
+        self._update_countdown()
+        self.protocol("WM_DELETE_WINDOW", self._on_window_close)
         self.view_state = {
             'user_id': self.user_id,
             'username': self.username
@@ -47,8 +50,12 @@ class PaymentScreen(ctk.CTkToplevel):
 
         self._update_countdown()
 
+    def _on_window_close(self):
+        """Handle window close button (X)"""
+        self._cancel_payment()
+
     def _update_countdown(self):
-        if not self._active:
+        if not self._active or not hasattr(self, 'countdown_label'):
             return
 
         minutes, seconds = divmod(self.remaining_time, 60)
@@ -56,7 +63,7 @@ class PaymentScreen(ctk.CTkToplevel):
 
         if self.remaining_time > 0:
             self.remaining_time -= 1
-            self.after(1000, self._update_countdown)
+            self._countdown_id = self.after(1000, self._update_countdown)
         else:
             self._timeout()
 
@@ -77,7 +84,9 @@ class PaymentScreen(ctk.CTkToplevel):
         self.pay_button.configure(state="disabled")
         self.cancel_button.configure(state="disabled")
         self.status_label.configure(text="Processing payment...")
-
+        self._active = False
+        if self._countdown_id:
+            self.after_cancel(self._countdown_id)
         self.after(3000, self.payment_successful)
 
     def _go_back(self, success=True):
@@ -100,48 +109,68 @@ class PaymentScreen(ctk.CTkToplevel):
             self._go_back(False)
 
     def _cancel_payment(self):
+        self._active = False
+        if hasattr(self, '_countdown_id') and self._countdown_id:
+            self.after_cancel(self._countdown_id)
         if self.return_callback:
             self.return_callback(success=False)
+        self.destroy()
 
     def payment_successful(self):
         self._active = False
+        if hasattr(self, '_countdown_id') and self._countdown_id:
+            self.after_cancel(self._countdown_id)
+
         for widget in self.winfo_children():
             widget.destroy()
-        print("test")
+
         transaction_id = "TXN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
         self.txn_id = transaction_id
 
-        ctk.CTkLabel(self, text="Payment Successful!", font=("Arial", 20)).pack(pady=15)
-        ctk.CTkLabel(self, text=f"Transaction ID: {transaction_id}", font=("Arial", 14)).pack(pady=5)
-        ctk.CTkLabel(self, text=f"Amount Paid: €{self.amount:.2f}", font=("Arial", 14)).pack(pady=5)
+        success_label = ctk.CTkLabel(self, text="Payment Successful!", font=("Arial", 20))
+        success_label.pack(pady=15)
 
-        ctk.CTkButton(self,
-                      text="Finish",
-                      command=lambda: self._go_back_to_user()).pack(pady=10)
+        txn_label = ctk.CTkLabel(self, text=f"Transaction ID: {transaction_id}", font=("Arial", 14))
+        txn_label.pack(pady=5)
 
-        ctk.CTkButton(self,
-                      text="View Receipt",
-                      command=lambda: self._view_receipt_and_return()).pack(pady=10)
+        amount_label = ctk.CTkLabel(self, text=f"Amount Paid: €{self.amount:.2f}", font=("Arial", 14))
+        amount_label.pack(pady=5)
+
+        finish_btn = ctk.CTkButton(self, text="Finish", command=self._go_back_to_user)
+        finish_btn.pack(pady=10)
+
+        receipt_btn = ctk.CTkButton(self, text="View Receipt", command=self._view_receipt_and_return)
+        receipt_btn.pack(pady=10)
+
 
     def _go_back_to_user(self):
-        """Directly return to user screen"""
+        """Properly return to user screen after payment"""
         from views.user_screen import UserScreen
         self._active = False
-        self.destroy()
-        self.view_manager.show_view(
-            UserScreen,
-            view_manager=self.view_manager,
-            username=self.username,
-            user_id=self.user_id
-        )
+        if hasattr(self, '_countdown_id') and self._countdown_id:
+            self.after_cancel(self._countdown_id)
 
+        self.destroy()
+
+        if self.view_manager:
+            self.view_manager.show_view(
+                UserScreen,
+                view_manager=self.view_manager,
+                username=self.username,
+                user_id=self.user_id
+            )
+        else:
+            from views.user_screen import UserScreen
+            UserScreen(self._root,
+                       username=self.username,
+                       user_id=self.user_id,
+                       view_manager=self.view_manager)
     def _view_receipt_and_return(self):
         """Show receipt and return to user screen after receipt is closed"""
         receipt_window = ctk.CTkToplevel(self)
         receipt_window.title("Receipt")
         receipt_window.geometry("400x300")
 
-        # Make it modal so it stays on top
         receipt_window.grab_set()
 
         receipt_text = (
