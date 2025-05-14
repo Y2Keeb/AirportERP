@@ -1,4 +1,4 @@
-INSERT INTO flights (airline, departure, arrival, status, gate, plane_type, total_seats, seats_taken, price, from_location, to_location, airline_icon) VALUES
+INSERT INTO flights (airline, departure, arrival, status, gate, plane_type, total_seats, seats_taken, price, from_location, to_location) VALUES
 ('Brussels Airlines', '2025-06-01 06:30:00', '2025-06-01 07:45:00', 'On Time', 'A1', 'Airbus A319', 120, 45, 159.99, 'Brussels', 'Paris'),
 ('Ryanair', '2025-06-01 09:30:00', '2025-06-01 11:45:00', 'Delayed', 'B3', 'Airbus A320', 180, 30, 259.50, 'Brussels', 'Paris'),
 ('Air France', '2025-06-01 13:15:00', '2025-06-01 14:30:00', 'On Time', 'C2', 'Embraer 190', 100, 75, 189.00, 'Brussels', 'Paris'),
