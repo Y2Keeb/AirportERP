@@ -6,7 +6,7 @@ from PIL import Image
 import customtkinter as ctk
 from CTkMessagebox import CTkMessagebox
 
-from config import mydb, set_theme, is_suspect_sql_input
+from config import mydb, set_theme, is_suspect_sql_input, encrypt_password, decrypt_password
 from basewindow import BaseWindow
 from ui_helpers import show_sql_meme_popup
 from views.user_screen import UserScreen
@@ -93,16 +93,22 @@ class KioskLoginScreen(BaseWindow):
         """
         username = self.entry_username.get()
         password = self.entry_password.get()
-
         if is_suspect_sql_input(username) or is_suspect_sql_input(password):
             show_sql_meme_popup(self.root)
             return
-
         cursor = mydb.cursor()
-        query = "SELECT id, username, first_name, last_name, role FROM users WHERE username = %s AND password = %s"
-        cursor.execute(query, (username, password))
+        query = (
+            "SELECT id, username, first_name, last_name, role, password FROM users "
+            "WHERE username = %s"
+        )
+        cursor.execute(query, (username,))
         result = cursor.fetchone()
-
+        if result:
+            stored_encrypted_password = result[5]
+            if decrypt_password(stored_encrypted_password) == password:
+                pass
+            else:
+                result = None
         if result:
             role = result[4]
 
@@ -180,10 +186,11 @@ class KioskLoginScreen(BaseWindow):
             if cursor.fetchone():
                 messagebox.showerror("Error", "Username already exists.")
                 return
-
+            # Encrypt the password before storing it
+            encrypted_password = encrypt_password(password)
             cursor.execute(
                 "INSERT INTO users (username, first_name, last_name, role, password) VALUES (%s, %s, %s, %s, %s)",
-                (username, first_name, last_name, "user", password)
+                (username, first_name, last_name, "user", encrypted_password)
             )
             mydb.commit()
             messagebox.showinfo("Success", "Account created successfully!")
