@@ -1,11 +1,11 @@
 import customtkinter as ctk
 from tkinter import messagebox
+
 from basewindow import BaseWindow
 from config import mydb,get_logger
 from datetime import datetime
 from views.payment_simulation import PaymentScreen
 from views.bjorn_easter_egg import BjornEasterEgg
-
 
 logger = get_logger(__name__)
 
@@ -24,31 +24,45 @@ class AdditionalPackageScreen(BaseWindow):
         self.discount_amount = 0
         self.discount_percent = 0
         self.total_price_label = 0
-        self.frame_main = ctk.CTkFrame(root)
-        self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-        self.frame_total_price = ctk.CTkFrame(self.frame_main, corner_radius=10, border_width=2,
-                                              border_color="black")
-        self.frame_total_price.grid(row=2, column=1, padx=10, pady=10)
-        self.frame_additions = ctk.CTkFrame(self.frame_main)
-        self.frame_additions.grid(row=2, column=0, padx=10, pady=10, sticky="w")
 
-        self.flight_info_label = ctk.CTkLabel(self.frame_main, text=flight_info, font=("Arial", 14, "bold"))
-        self.lbl_success = ctk.CTkLabel(self.frame_main,
-                                        text="Ticket reserved! Now choose your additional packages.")
+        self.frame_main = ctk.CTkFrame(root,fg_color="gray11")
+        self.frame_main.place(relx=0.5, rely=0.52, anchor="center", relwidth=0.95, relheight=0.92)
+
+        self.frame_content = ctk.CTkFrame(self.frame_main,fg_color="transparent")
+        self.frame_content.place(relx=0.5, rely=0.52, anchor="center", relwidth=0.8, relheight=0.8)
+        self.frame_content.columnconfigure(0, weight=1)
+        self.frame_content.columnconfigure(1, weight=1)
+
+        self.frame_total_price = ctk.CTkFrame(self.frame_content, corner_radius=10)
+        self.frame_total_price.grid(row=2, column=1, padx=10, pady=10,sticky="e")
+
+        self.frame_additions = ctk.CTkFrame(self.frame_content, corner_radius=10)
+        self.frame_additions.grid(row=2, column=0, padx=10, pady=(3,10), sticky="w")
+
+        self.flight_info_label = ctk.CTkLabel(self.frame_content, text=flight_info, font=("Arial", 14, "bold"))
+        self.lbl_success = ctk.CTkLabel(self.frame_content,text="Ticket reserved! Now choose your additional packages.",justify="left")
+
         self.package1_var = ctk.BooleanVar()
-        self.checkbox_package1 = ctk.CTkCheckBox(self.frame_additions, text="Sky Karaoke Add-On – 20 €",
+        self.checkbox_package1 = ctk.CTkCheckBox(self.frame_additions, text="Priority boarding – 15 €",
                                                  variable=self.package1_var,
                                                  command=self.update_checkbox_total)
+        self.lbl_package1 = ctk.CTkLabel(self.frame_additions, text="Board the plane first.")
+
 
         self.package2_var = ctk.BooleanVar()
-        self.checkbox_package2 = ctk.CTkCheckBox(self.frame_additions, text="Emergency Pizza Button – 35 €",
+        self.checkbox_package2 = ctk.CTkCheckBox(self.frame_additions, text="Unaccompanied minor service – 55 €",
                                                  variable=self.package2_var,
                                                  command=self.update_checkbox_total)
+        self.lbl_package2 = ctk.CTkLabel(self.frame_additions, text="We will supply a babysitter,while you enjoy a drink in first class!")
 
-        self.lbl_package1 = ctk.CTkLabel(self.frame_additions, text="Sing your heart out at 30,000 feet. Mic provided, pitch not guaranteed.")
-        self.lbl_package2 = ctk.CTkLabel(self.frame_additions, text="Hit the button, receive pizza. Don’t ask where it comes from.")
+        self.package3_var = ctk.BooleanVar()
+        self.checkbox_package3 = ctk.CTkCheckBox(self.frame_additions, text="Pet in cabin + 10 €",
+                                                 variable=self.package3_var,
+                                                 command=self.update_checkbox_total)
+        self.lbl_package3 = ctk.CTkLabel(self.frame_additions,
+                                         text="Pets fly in the cabin? Absolutely. Dogs, cats, emotional support hamsters,we’re here for it!\nIn fact, we will even GIVE you money to bring one!", justify="left")
 
-        self.buy_button = ctk.CTkButton(self.frame_main, text="Buy", command=self._finalize_purchase)
+        self.buy_button = ctk.CTkButton(self.frame_content, text="Buy", command=self._finalize_purchase)
 
         self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
         self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=f"{float(price):.2f} €")
@@ -72,61 +86,38 @@ class AdditionalPackageScreen(BaseWindow):
             'user_id': self.user_id,
             'package_price': self.package_price
         }
+        self.create_menu_bar(["logout"])
+        self.menu_bar.lift()
         self.create_widgets()
 
     def create_widgets(self):
-        self.flight_info_label.grid(row=0, column=0,columnspan = 2,padx=10, pady=10,sticky="ew")
-        self.lbl_success.grid(row=1, column=0, columnspan = 2,padx=10, pady=10, sticky="ew")
-        self.checkbox_package1.grid(row=2, column=0, padx=10, pady=5, sticky="w")
-        self.lbl_package1.grid(row=3, column=0, padx=10, pady=5, sticky="w")
-        self.checkbox_package2.grid(row=4, column=0, padx=10, pady=5, sticky="w")
-        self.lbl_package2.grid(row=5, column=0, padx=10, pady=5, sticky="w")
-        self.buy_button.grid(row=9, column=0, padx=10, pady=10)
+        self.flight_info_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="w")
+        self.lbl_success.grid(row=1, column=0, columnspan = 2,padx=10, pady=10, sticky="w")
+
+        self.checkbox_package1.grid(row=2, column=0, padx=10, pady=(30,5), sticky="w")
+        self.lbl_package1.grid(row=3, column=0, padx=10, pady=(5,30), sticky="w")
+
+        self.checkbox_package2.grid(row=4, column=0, padx=10, pady=(30,5), sticky="w")
+        self.lbl_package2.grid(row=5, column=0, padx=10, pady=(5,30), sticky="w")
+
+        self.checkbox_package3.grid(row=6, column=0, padx=10, pady=(30, 5), sticky="w")
+        self.lbl_package3.grid(row=7, column=0, padx=10, pady=(5, 30), sticky="w")
+
+        self.buy_button.grid(row=10, column=0, padx=10, pady=10)
+
         #price frame
-        self.lbl_flight_price_label.grid(row=2, column=1, padx=10, pady=10)
-        self.lbl_flight_price.grid(row=2, column=2, padx=10, pady=10)
-        self.lbl_additional_package_label.grid(row=3, column=1, padx=10, pady=10)
-        self.lbl_addpackage_price.grid(row=3, column=2, padx=10, pady=10)
-        self.total_label.grid(row=6, column=1, padx=10, pady=10)
-        self.total_price_label.grid(row=6, column=2, padx=10, pady=10)
-        self.lbl_discount_label.grid(row=5, column=1, padx=10, pady=10)
-        self.lbl_discount_amount.grid(row=5, column=2, padx=10, pady=10)
+        self.lbl_flight_price_label.grid(row=2, column=0, padx=10, pady=(40,10), sticky="w")
+        self.lbl_flight_price.grid(row=2, column=1, padx=10,pady=(40,10))
+        self.lbl_additional_package_label.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+        self.lbl_addpackage_price.grid(row=3, column=1, padx=10, pady=10)
+        self.lbl_discount_label.grid(row=5, column=0, padx=10, pady=10, sticky="w")
+        self.lbl_discount_amount.grid(row=5, column=1, padx=10, pady=10)
+        self.total_label.grid(row=6, column=0, padx=10,pady=(10,40), sticky="w")
+        self.total_price_label.grid(row=6, column=1, padx=10,pady=(10,40))
 
-        self.lbl_discount.grid(row=7, column=0, padx=10, pady=(20, 5), sticky="w")
-        self.entry_discount.grid(row=8, column=0, padx=10, pady=5, sticky="w")
-        self.btn_apply_discount.grid(row=8, column=1, padx=10, pady=5, sticky="w")
-
-    def _place_widgets(self):
-        """Position all widgets in the layout"""
-        # Main grid configuration
-        self.frame_main.grid_rowconfigure(0, weight=1)
-        self.frame_main.grid_columnconfigure(0, weight=1)
-
-        # Flight info
-        self.flight_info_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
-
-        # Success message
-        self.lbl_success.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
-
-        # Package selection
-        self.frame_additions.grid(row=2, column=0, padx=10, pady=10, sticky="w")
-        self.btn_package1.grid(row=0, column=0, padx=10, pady=5, sticky="w")
-        self.lbl_package1.grid(row=1, column=0, padx=10, pady=5, sticky="w")
-
-        # Price display
-        self.frame_total_price.grid(row=2, column=1, padx=10, pady=10)
-        self.lbl_flight_price_label.grid(row=0, column=0, padx=10, pady=5)
-        self.lbl_flight_price.grid(row=0, column=1, padx=10, pady=5)
-        self.total_price_label.grid(row=2, column=0, padx=10, pady=5)
-        self.total_price_label.grid(row=2, column=1, padx=10, pady=5)
-
-        # Discount widgets
-        self.lbl_discount.grid(row=3, column=0, padx=10, pady=(20, 5), sticky="w")
-        self.entry_discount.grid(row=4, column=0, padx=10, pady=5, sticky="w")
-        self.btn_apply_discount.grid(row=4, column=1, padx=10, pady=5, sticky="w")
-
-        # Purchase button
-        self.buy_button.grid(row=3, column=0, columnspan=2, padx=10, pady=20)
+        self.lbl_discount.grid(row=8, column=0, padx=10, pady=(20, 5), sticky="w")
+        self.entry_discount.grid(row=9, column=0, padx=10, pady=(5,50), sticky="w")
+        self.btn_apply_discount.grid(row=9, column=1, padx=10, pady=(5,50), sticky="w")
 
     def _finalize_purchase(self):
         """Complete the booking process with proper argument passing"""
@@ -307,8 +298,26 @@ class AdditionalPackageScreen(BaseWindow):
         self.package_price = 0
 
         if self.package1_var.get():
-            self.package_price += 20
+            self.package_price += 15
         if self.package2_var.get():
-            self.package_price += 35
-
+            self.package_price += 55
+        if self.package3_var.get():
+            self.package_price -= 10
         self.update_total_price(base_price)
+
+    def logout(self):
+        """logout that clears everything and shows login screen"""
+        try:
+            for widget in self.root.winfo_children():
+                widget.destroy()
+
+            from views.kiosk_screen import KioskLoginScreen
+            kiosk_login_screen = KioskLoginScreen(self.root, view_manager=self.view_manager)
+
+            self.root.update_idletasks()
+            self.root.update()
+        except Exception as e:
+            print(f"Error during logout: {e}")
+            self.root.destroy()
+            import os
+            os.system("python main.py")
