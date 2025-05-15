@@ -1,8 +1,10 @@
 import customtkinter as ctk
 from tkinter import messagebox
 from basewindow import BaseWindow
-from config import mydb,get_logger
+from config import mydb, get_logger, is_suspect_sql_input
 from datetime import datetime
+
+from ui_helpers import show_sql_meme_popup
 from views.payment_simulation import PaymentScreen
 from views.bjorn_easter_egg import BjornEasterEgg
 
@@ -24,11 +26,13 @@ class AdditionalPackageScreen(BaseWindow):
         self.discount_amount = 0
         self.discount_percent = 0
         self.total_price_label = 0
-        self.frame_main = ctk.CTkFrame(root)
-        self.frame_main.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
-        self.frame_total_price = ctk.CTkFrame(self.frame_main, corner_radius=10, border_width=2,
-                                              border_color="black")
+
+        self.frame_main = ctk.CTkFrame(root,fg_color="gray11")
+        self.frame_main.place(relx=0.5, rely=0.52, anchor="center", relwidth=0.95, relheight=0.92)
+
+        self.frame_total_price = ctk.CTkFrame(self.frame_main, corner_radius=10, border_width=2,border_color="black")
         self.frame_total_price.grid(row=2, column=1, padx=10, pady=10)
+
         self.frame_additions = ctk.CTkFrame(self.frame_main)
         self.frame_additions.grid(row=2, column=0, padx=10, pady=10, sticky="w")
 
@@ -72,6 +76,9 @@ class AdditionalPackageScreen(BaseWindow):
             'user_id': self.user_id,
             'package_price': self.package_price
         }
+        self.create_menu_bar(["help","logout"])
+        self.menu_bar.lift()
+
         self.create_widgets()
 
     def create_widgets(self):
@@ -208,7 +215,9 @@ class AdditionalPackageScreen(BaseWindow):
             if not entered_code:
                 messagebox.showwarning("Error", "Please enter a discount code")
                 return
-
+            if is_suspect_sql_input(entered_code):
+                show_sql_meme_popup(self.root)
+                return
             # Easter Egg
             if entered_code == "BJORN":
                 BjornEasterEgg(self.root)
@@ -312,3 +321,20 @@ class AdditionalPackageScreen(BaseWindow):
             self.package_price += 35
 
         self.update_total_price(base_price)
+
+    def logout(self):
+        """logout that clears everything and shows login screen"""
+        try:
+            for widget in self.root.winfo_children():
+                widget.destroy()
+
+            from views.kiosk_screen import KioskLoginScreen
+            kiosk_login_screen = KioskLoginScreen(self.root, view_manager=self.view_manager)
+
+            self.root.update_idletasks()
+            self.root.update()
+        except Exception as e:
+            print(f"Error during logout: {e}")
+            self.root.destroy()
+            import os
+            os.system("python main.py")
