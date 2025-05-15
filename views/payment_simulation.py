@@ -1,12 +1,21 @@
 import datetime
-import customtkinter as ctk
+import os
 import random,string
+
+import customtkinter as ctk
 from tkinter import messagebox
 
 
 class PaymentScreen(ctk.CTkToplevel):
     def __init__(self, root, view_manager, booking_id=None, amount=0, user_id=None, username=None, return_callback=None):
         super().__init__(root)
+        self.root = root
+
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        icon_path = os.path.join(script_dir, "docs", "icons", "favicon.ico")
+        if os.path.exists(icon_path):
+            self.root.wm_iconbitmap(icon_path)
+
         self.title("Pay here")
         self.booking_id = booking_id
         self.return_callback = return_callback
@@ -14,27 +23,28 @@ class PaymentScreen(ctk.CTkToplevel):
         self.amount = amount
         self.user_id = user_id
         self.username =username
+
         self.txn_id = None
         self.remaining_time = 15 * 60
         self._active = True
         self._countdown_id = None
-        self._update_countdown()
-        self.protocol("WM_DELETE_WINDOW", self._on_window_close)
+        self.update_countdown()
+        self.protocol("WM_DELETE_WINDOW", self.on_window_close)
         self.view_state = {
             'user_id': self.user_id,
             'username': self.username
         }
-        ctk.CTkLabel(
-            self,
-            text=f"Amount to pay: €{self.amount:.2f}",
-            font=("Arial", 16)
-        ).pack(pady=10)
 
-        ctk.CTkLabel(
-            self,
-            text="Please complete your payment within 15 minutes",
-            font=("Arial", 16)
-        ).pack(pady=20)
+        width, height = 400, 300
+        self.geometry(f"{width}x{height}")
+
+        x = (self.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.winfo_screenheight() // 2) - (height // 2)
+        self.geometry(f"{width}x{height}+{x}+{y}")
+
+        ctk.CTkLabel(self,text=f"Amount to pay: €{self.amount:.2f}",font=("Arial", 16)).pack(pady=10)
+
+        ctk.CTkLabel(self,text="Please complete your payment within 15 minutes",font=("Arial", 16)).pack(pady=20)
 
         self.countdown_label = ctk.CTkLabel(self, text="", font=("Arial", 24, "bold"))
         self.countdown_label.pack(pady=10)
@@ -42,19 +52,19 @@ class PaymentScreen(ctk.CTkToplevel):
         self.status_label = ctk.CTkLabel(self, text="", font=("Arial", 12))
         self.status_label.pack(pady=5)
 
-        self.pay_button = ctk.CTkButton(self, text="Pay Now", command=self._process_payment)
+        self.pay_button = ctk.CTkButton(self, text="Pay Now", command=self.process_payment)
         self.pay_button.pack(pady=10)
 
-        self.cancel_button = ctk.CTkButton(self, text="Cancel", command=self._cancel_payment)
+        self.cancel_button = ctk.CTkButton(self, text="Cancel", command=self.cancel_payment)
         self.cancel_button.pack(pady=10)
 
-        self._update_countdown()
+        self.update_countdown()
 
-    def _on_window_close(self):
+    def on_window_close(self):
         """Handle window close button (X)"""
-        self._cancel_payment()
+        self.cancel_payment()
 
-    def _update_countdown(self):
+    def update_countdown(self):
         if not self._active or not hasattr(self, 'countdown_label'):
             return
 
@@ -63,11 +73,11 @@ class PaymentScreen(ctk.CTkToplevel):
 
         if self.remaining_time > 0:
             self.remaining_time -= 1
-            self._countdown_id = self.after(1000, self._update_countdown)
+            self._countdown_id = self.after(1000, self.update_countdown)
         else:
-            self._timeout()
+            self.timeout()
 
-    def _process_payment(self):
+    def process_payment(self):
         try:
             if self.return_callback:
                 self.simulate_payment()
@@ -89,7 +99,7 @@ class PaymentScreen(ctk.CTkToplevel):
             self.after_cancel(self._countdown_id)
         self.after(3000, self.payment_successful)
 
-    def _go_back(self, success=True):
+    def go_back(self, success=True):
         """Return to previous screen using ViewManager"""
         from views.user_screen import UserScreen
         self._active = False
@@ -103,12 +113,12 @@ class PaymentScreen(ctk.CTkToplevel):
         else:
             self.view_manager.go_back()
 
-    def _timeout(self):
+    def timeout(self):
         if self._active:
             messagebox.showwarning("Timeout", "Payment time has expired.")
-            self._go_back(False)
+            self.go_back(False)
 
-    def _cancel_payment(self):
+    def cancel_payment(self):
         self._active = False
         if hasattr(self, '_countdown_id') and self._countdown_id:
             self.after_cancel(self._countdown_id)
@@ -118,7 +128,8 @@ class PaymentScreen(ctk.CTkToplevel):
 
     def payment_successful(self):
         self._active = False
-        if hasattr(self, '_countdown_id') and self._countdown_id:
+        print("payment succesfull method used")
+        if hasattr(self, 'countdown_id') and self._countdown_id:
             self.after_cancel(self._countdown_id)
 
         for widget in self.winfo_children():
@@ -136,36 +147,13 @@ class PaymentScreen(ctk.CTkToplevel):
         amount_label = ctk.CTkLabel(self, text=f"Amount Paid: €{self.amount:.2f}", font=("Arial", 14))
         amount_label.pack(pady=5)
 
-        finish_btn = ctk.CTkButton(self, text="Finish", command=self._go_back_to_user)
+        finish_btn = ctk.CTkButton(self, text="Finish", command=lambda: self.return_callback(success=True))
         finish_btn.pack(pady=10)
 
-        receipt_btn = ctk.CTkButton(self, text="View Receipt", command=self._view_receipt_and_return)
+        receipt_btn = ctk.CTkButton(self, text="View Receipt", command=self.view_receipt_and_return)
         receipt_btn.pack(pady=10)
 
-
-    def _go_back_to_user(self):
-        """Properly return to user screen after payment"""
-        from views.user_screen import UserScreen
-        self._active = False
-        if hasattr(self, '_countdown_id') and self._countdown_id:
-            self.after_cancel(self._countdown_id)
-
-        self.destroy()
-
-        if self.view_manager:
-            self.view_manager.show_view(
-                UserScreen,
-                view_manager=self.view_manager,
-                username=self.username,
-                user_id=self.user_id
-            )
-        else:
-            from views.user_screen import UserScreen
-            UserScreen(self._root,
-                       username=self.username,
-                       user_id=self.user_id,
-                       view_manager=self.view_manager)
-    def _view_receipt_and_return(self):
+    def view_receipt_and_return(self):
         """Show receipt and return to user screen after receipt is closed"""
         receipt_window = ctk.CTkToplevel(self)
         receipt_window.title("Receipt")
@@ -192,8 +180,9 @@ class PaymentScreen(ctk.CTkToplevel):
         receipt_window.geometry(f'+{x}+{y}')
 
         def close_and_return():
+            print("close and return method used")
             receipt_window.destroy()
-            self._go_back_to_user()
+            self.go_back_to_user()
 
         ctk.CTkButton(receipt_window, text="Close",
                       command=close_and_return).pack(pady=10)
