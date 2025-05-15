@@ -2,8 +2,10 @@ import customtkinter as ctk
 from tkinter import messagebox
 
 from basewindow import BaseWindow
-from config import mydb,get_logger
+from config import mydb, get_logger, is_suspect_sql_input
 from datetime import datetime
+
+from ui_helpers import show_sql_meme_popup
 from views.payment_simulation import PaymentScreen
 from views.bjorn_easter_egg import BjornEasterEgg
 
@@ -205,6 +207,10 @@ class AdditionalPackageScreen(BaseWindow):
             entered_code = self.entry_discount.get().strip().upper()
             if not entered_code:
                 messagebox.showwarning("Error", "Please enter a discount code")
+                return
+
+            if is_suspect_sql_input(entered_code):
+                show_sql_meme_popup(self.root)
                 return
 
             if entered_code == "BJORN":

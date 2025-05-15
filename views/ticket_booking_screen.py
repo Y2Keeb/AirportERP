@@ -5,7 +5,8 @@ import PIL
 from PIL import Image
 from tkcalendar import DateEntry
 from basewindow import BaseWindow
-from config import get_logger,mydb
+from config import get_logger, mydb, is_suspect_sql_input
+from ui_helpers import show_sql_meme_popup
 from views.buy_additional_packages_screen import AdditionalPackageScreen
 
 logger = get_logger(__name__)
@@ -204,6 +205,11 @@ class TicketSystem(BaseWindow):
         """Swap the locations in the 'From' and 'To' fields."""
         from_location = self.entry_from.get()
         to_location = self.entry_to.get()
+
+        if is_suspect_sql_input(from_location) or is_suspect_sql_input(to_location):
+            show_sql_meme_popup(self.root)
+            return
+
         self.entry_from.delete(0, "end")
         self.entry_from.insert(0, to_location)
         self.entry_to.delete(0, "end")
@@ -225,6 +231,9 @@ class TicketSystem(BaseWindow):
         to_loc = self.entry_to.get().strip()
         selected_date = self.entry_date.get_date()
 
+        if is_suspect_sql_input(from_loc) or is_suspect_sql_input(to_loc):
+            show_sql_meme_popup(self.root)
+            return
         try:
             if self.var_show_all_dates.get():
                 query = """
