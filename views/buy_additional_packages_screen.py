@@ -62,7 +62,7 @@ class AdditionalPackageScreen(BaseWindow):
         self.lbl_package3 = ctk.CTkLabel(self.frame_additions,
                                          text="Pets fly in the cabin? Absolutely. Dogs, cats, emotional support hamsters,we’re here for it!\nIn fact, we will even GIVE you money to bring one!", justify="left")
 
-        self.buy_button = ctk.CTkButton(self.frame_content, text="Buy", command=self._finalize_purchase)
+        self.buy_button = ctk.CTkButton(self.frame_content, text="Buy", command=self.finalize_purchase)
 
         self.lbl_flight_price_label = ctk.CTkLabel(self.frame_total_price, text="Flight: ")
         self.lbl_flight_price = ctk.CTkLabel(self.frame_total_price, text=f"{float(price):.2f} €")
@@ -91,6 +91,10 @@ class AdditionalPackageScreen(BaseWindow):
         self.create_widgets()
 
     def create_widgets(self):
+        """
+        Place and configure all widgets on the screen, including checkboxes, labels,
+        discount code entry, and price display layout.
+        """
         self.flight_info_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="w")
         self.lbl_success.grid(row=1, column=0, columnspan = 2,padx=10, pady=10, sticky="w")
 
@@ -103,26 +107,27 @@ class AdditionalPackageScreen(BaseWindow):
         self.checkbox_package3.grid(row=6, column=0, padx=10, pady=(30, 5), sticky="w")
         self.lbl_package3.grid(row=7, column=0, padx=10, pady=(5, 30), sticky="w")
 
-        self.buy_button.grid(row=10, column=0, padx=10, pady=10)
+        self.buy_button.grid(row=10, column=0, padx=(10,20), pady=10)
 
         #price frame
-        self.lbl_flight_price_label.grid(row=2, column=0, padx=10, pady=(40,10), sticky="w")
-        self.lbl_flight_price.grid(row=2, column=1, padx=10,pady=(40,10))
-        self.lbl_additional_package_label.grid(row=3, column=0, padx=10, pady=10, sticky="w")
-        self.lbl_addpackage_price.grid(row=3, column=1, padx=10, pady=10)
-        self.lbl_discount_label.grid(row=5, column=0, padx=10, pady=10, sticky="w")
-        self.lbl_discount_amount.grid(row=5, column=1, padx=10, pady=10)
-        self.total_label.grid(row=6, column=0, padx=10,pady=(10,40), sticky="w")
-        self.total_price_label.grid(row=6, column=1, padx=10,pady=(10,40))
+        self.lbl_flight_price_label.grid(row=2, column=0, padx=25, pady=(40,10), sticky="w")
+        self.lbl_flight_price.grid(row=2, column=1, padx=25,pady=(40,10))
+        self.lbl_additional_package_label.grid(row=3, column=0, padx=25, pady=10, sticky="w")
+        self.lbl_addpackage_price.grid(row=3, column=1, padx=25, pady=10)
+        self.lbl_discount_label.grid(row=5, column=0, padx=25, pady=10, sticky="w")
+        self.lbl_discount_amount.grid(row=5, column=1, padx=25, pady=10)
+        self.total_label.grid(row=6, column=0, padx=25,pady=(10,40), sticky="w")
+        self.total_price_label.grid(row=6, column=1, padx=25,pady=(10,40))
 
         self.lbl_discount.grid(row=8, column=0, padx=10, pady=(20, 5), sticky="w")
         self.entry_discount.grid(row=9, column=0, padx=10, pady=(5,50), sticky="w")
         self.btn_apply_discount.grid(row=9, column=1, padx=10, pady=(5,50), sticky="w")
 
-    def _finalize_purchase(self):
-        """Complete the booking process with proper argument passing"""
-        print("Finalize purchase called")
-
+    def finalize_purchase(self):
+        """
+        Finalize the booking by calculating the total price, applying any discounts,
+        inserting the booking in the database, and launching the payment screen.
+        """
         try:
             if not hasattr(self, 'selected_flight') or not self.selected_flight:
                 raise ValueError("No flight selected")
@@ -152,7 +157,6 @@ class AdditionalPackageScreen(BaseWindow):
 
             mydb.commit()
 
-            # Hide the current window
             self.frame_main.pack_forget()
 
             self.payment_screen = PaymentScreen(
@@ -162,7 +166,7 @@ class AdditionalPackageScreen(BaseWindow):
                 amount=self.total_price_label,
                 user_id=self.user_id,
                 username=self.username,
-                return_callback=self._payment_completed
+                return_callback=self.payment_completed
             )
             self.payment_screen.after(100, lambda: (
                 self.payment_screen.focus_force(),
@@ -177,10 +181,11 @@ class AdditionalPackageScreen(BaseWindow):
             mydb.rollback()
             messagebox.showerror("Error", f"Failed to complete booking: {str(e)}")
 
-    def _payment_completed(self, success):
-        """Handle payment completion callback"""
+    def payment_completed(self, success):
+        """
+        Handle the outcome of the payment screen and return to the user screen if successful.
+        """
         if success:
-            # Show success message and close
             messagebox.showinfo("Success", "Payment completed successfully!")
             self.view_manager.show_view(
                 'UserScreen',
@@ -188,19 +193,20 @@ class AdditionalPackageScreen(BaseWindow):
                 username=self.username
             )
         else:
-            # Show the package screen again
             messagebox.showwarning("Notice", "Payment was not completed")
             self.frame_main.pack()
 
     def apply_discount(self):
-        """Apply discount code if valid and update prices"""
+        """
+        Validate and apply a discount code to the current booking.
+        Includes support for easter egg code 'BJORN'.
+        """
         try:
             entered_code = self.entry_discount.get().strip().upper()
             if not entered_code:
                 messagebox.showwarning("Error", "Please enter a discount code")
                 return
 
-            # Easter Egg
             if entered_code == "BJORN":
                 BjornEasterEgg(self.root)
                 return
@@ -244,7 +250,7 @@ class AdditionalPackageScreen(BaseWindow):
                 messagebox.showwarning("Invalid", "Usage limit reached")
                 return
 
-            discount_percent = float(result[1])  # Convert the DECIMAL to float
+            discount_percent = float(result[1])
             subtotal = float(flight_price) + float(self.package_price)
             self.discount_amount = subtotal * (discount_percent / 100)
             self.discount_applied = True
@@ -267,7 +273,10 @@ class AdditionalPackageScreen(BaseWindow):
             messagebox.showerror("Error", f"Failed to apply discount: {str(e)}")
 
     def update_total_price(self, flight_price):
-        """Update all price displays with proper type conversion"""
+        """
+        Recalculate and display the updated total price after selecting packages
+        or applying a discount.
+        """
         try:
             flight_price = float(flight_price)
             package_price = float(self.package_price)
@@ -294,6 +303,10 @@ class AdditionalPackageScreen(BaseWindow):
             messagebox.showerror("Error", f"Failed to update prices: {str(e)}")
 
     def update_checkbox_total(self):
+        """
+        Recalculate package price based on which checkboxes are selected.
+        Updates the total price immediately.
+        """
         base_price = float(self.selected_flight[-1])
         self.package_price = 0
 
@@ -321,3 +334,4 @@ class AdditionalPackageScreen(BaseWindow):
             self.root.destroy()
             import os
             os.system("python main.py")
+

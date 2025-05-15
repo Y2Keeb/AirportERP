@@ -59,8 +59,9 @@ def set_theme():
     """
     Set the global appearance and color theme for the application using customtkinter.
     """
+    theme_path = os.path.join(os.path.dirname(__file__), "themes", "marsh.json")
     ctk.set_appearance_mode("Dark")
-    ctk.set_default_color_theme("themes/marsh.json")
+    ctk.set_default_color_theme(theme_path)
 
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "secret-key")

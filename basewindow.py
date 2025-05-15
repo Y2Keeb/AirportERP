@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import Menu,messagebox
 import customtkinter as ctk
@@ -9,7 +10,11 @@ class BaseWindow:
     def __init__(self, root, title, menu_buttons=None):
         self.root = root
         self.root.configure(bg="black")  # Makes root black behind the image
-        self.root.wm_iconbitmap(("docs/icons/favicon.ico"))
+        script_dir = os.path.dirname(os.path.abspath(__file__))  # basewindow.py location
+        icon_path = os.path.join(script_dir, "docs", "icons", "favicon.ico")
+        if os.path.exists(icon_path):
+            self.root.wm_iconbitmap(icon_path)
+
         self.root.title(title)
         self.view_manager = ViewManager(root)
         set_theme()
