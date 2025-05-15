@@ -93,6 +93,7 @@ class KioskLoginScreen(BaseWindow):
         """
         username = self.entry_username.get()
         password = self.entry_password.get()
+
         if is_suspect_sql_input(username) or is_suspect_sql_input(password):
             show_sql_meme_popup(self.root)
             return
