@@ -146,7 +146,12 @@ class MyBookings(BaseWindow):
             cursor.close()
 
     def handle_back(self):
-        """Handle back button click"""
+        """
+        Handle the action of going back to the dashboard.
+
+        Uses the view manager to pop the current view if present.
+        If not, manually destroys current widgets and returns to UserScreen.
+        """
         self.cleanup()
 
         if self.view_manager:
