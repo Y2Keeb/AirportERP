@@ -1,15 +1,18 @@
-import PIL
-
-from basewindow import BaseWindow
-import qrcode
-from PIL import Image
 import customtkinter as ctk
+import PIL
+from PIL import Image
 import io
+import qrcode
+
 from config import mydb
+from basewindow import BaseWindow
 from views.ticket_booking_screen import TicketSystem
 from views.user_bookings_overview_screen import MyBookings
 
 class UserScreen(BaseWindow):
+    """
+    Initialize the UserScreen dashboard UI.
+    """
     def __init__(self, root, username=None, user_id=None, view_manager=None, **kwargs):
         super().__init__(root, f"User Dashboard - {username}")
         self.username = username
@@ -49,6 +52,12 @@ class UserScreen(BaseWindow):
         return result[0] if result else None
 
     def build_ui(self):
+        """
+        Build and layout the main user dashboard UI components:
+        - Greeting labels
+        - Navigation buttons
+        - Upcoming flight section
+        """
         for widget in self.frame_main.winfo_children():
             widget.destroy()
 
@@ -85,6 +94,9 @@ class UserScreen(BaseWindow):
         content_frame.grid_columnconfigure((0, 1), weight=1)
 
     def get_user_id(self):
+        """
+        Fetch the user ID from the database based on the current username.
+        """
         cursor = None
         try:
             cursor = mydb.cursor()
@@ -99,6 +111,9 @@ class UserScreen(BaseWindow):
                 cursor.close()
 
     def navigate_to_tickets(self):
+        """
+        Navigate to the ticket booking screen for the current user.
+        """
         if self.view_manager:
             self.view_manager.push_view(
                 TicketSystem,
@@ -110,6 +125,9 @@ class UserScreen(BaseWindow):
             TicketSystem(self.root, user_id=self.user_id, username=self.username)
 
     def navigate_to_bookings(self):
+        """
+        Navigate to the 'My Bookings' screen for the current user.
+        """
         if self.view_manager:
             self.view_manager.push_view(
                 MyBookings,
@@ -120,7 +138,11 @@ class UserScreen(BaseWindow):
             MyBookings(self.root, user_id=self.user_id, username=self.username)
 
     def display_upcoming_flight(self):
-
+        """
+        Query and display the next upcoming flight for the user.
+        If a flight is found, show flight details and generate a QR code with the data.
+        If no flight is found, show a placeholder message.
+        """
         if not hasattr(self, 'upcoming_flight_frame') or not self.upcoming_flight_frame.winfo_exists():
             self.upcoming_flight_frame = ctk.CTkFrame(self.frame_main, border_width=2, border_color="black")
             self.upcoming_flight_frame.grid(row=3, column=0, columnspan=2, padx=20, pady=5, sticky="nsew")
@@ -194,7 +216,6 @@ class UserScreen(BaseWindow):
 
             self.upcoming_flight_frame.update()
 
-            # QR Code Section
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_H,

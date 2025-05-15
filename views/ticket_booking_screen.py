@@ -1,18 +1,19 @@
 import time
-
+from tkinter import ttk,messagebox
+import customtkinter as ctk
 import PIL
 from PIL import Image
 from tkcalendar import DateEntry
 from basewindow import BaseWindow
-import customtkinter as ctk
-from tkinter import ttk,messagebox
 from config import get_logger,mydb
 from views.buy_additional_packages_screen import AdditionalPackageScreen
 
 logger = get_logger(__name__)
 
-
 class TicketSystem(BaseWindow):
+    """
+    Initialize the TicketSystem view.
+    """
     def __init__(self, root, view_manager=None, user_id=None, username=None):
         super().__init__(root, "Ticket Purchase")
         self.view_manager = view_manager
@@ -45,12 +46,12 @@ class TicketSystem(BaseWindow):
         self.create_menu_bar(["help","logout"])
         self.menu_bar.lift()
 
-        self._create_header()
-        self._create_search_frame()
-        self._create_flights_table()
-        self._create_action_buttons()
+        self.create_header()
+        self.create_search_frame()
+        self.create_flights_table()
+        self.create_action_buttons()
 
-    def _create_header(self):
+    def create_header(self):
         """Create header section with title and back button"""
         header_frame = ctk.CTkFrame(self.frame_main, fg_color="transparent")
         header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 10))
@@ -64,15 +65,21 @@ class TicketSystem(BaseWindow):
         btn_back = ctk.CTkButton(
             header_frame,
             text="← Back to Dashboard",
-            command=self._go_back,
+            command=self.go_back,
             fg_color="transparent",
             border_width=1,
             width=100
         )
         btn_back.pack(side="right", pady=(20,20),padx=20)
 
-    def _create_search_frame(self):
-        """Create search controls"""
+    def create_search_frame(self):
+        """
+        Create the search interface for flights, including:
+        - From/To location entries
+        - A date picker
+        - A 'Show all dates' checkbox
+        - A 'Search Flights' button
+        """
         search_frame = ctk.CTkFrame(self.frame_main, fg_color="transparent")
         search_frame.grid(row=1, column=0, sticky="ew", padx=20,pady=20)
 
@@ -87,7 +94,7 @@ class TicketSystem(BaseWindow):
             search_frame,
             text="↔",
             width=40,
-            command=self._swap_locations
+            command=self.swap_locations
         )
         btn_swap.grid(row=0, column=1, padx=5)
 
@@ -115,12 +122,15 @@ class TicketSystem(BaseWindow):
         btn_search = ctk.CTkButton(
             search_frame,
             text="Search Flights",
-            command=self._fetch_flights
+            command=self.fetch_flights
         )
         btn_search.grid(row=0, column=6, padx=(10,10))
 
-    def _create_flights_table(self):
-        """Create flights results table"""
+    def create_flights_table(self):
+        """
+        Set up the Treeview to display the list of flights, with custom styling,
+        scrollbars, and a selection event handler.
+        """
         style = ttk.Style()
         style.theme_use('default')
 
@@ -171,23 +181,26 @@ class TicketSystem(BaseWindow):
         self.tree.grid(row=2, column=0, sticky="nsew", padx=10, pady=10)
         scrollbar.grid(row=2, column=1, sticky="ns")
 
-        self.tree.bind("<<TreeviewSelect>>", self._on_flight_select)
+        self.tree.bind("<<TreeviewSelect>>", self.on_flight_select)
 
-    def _create_action_buttons(self):
-        """Create action buttons"""
+    def create_action_buttons(self):
+        """
+        Create the 'Select Flight & Continue' button to move to the next step
+        after a flight is selected.
+        """
         btn_frame = ctk.CTkFrame(self.frame_main, fg_color="transparent")
         btn_frame.grid(row=3, column=0, sticky="e", pady=10)
 
         self.btn_book = ctk.CTkButton(
             btn_frame,
             text="Select Flight & Continue",
-            command=self._navigate_to_packages,
+            command=self.navigate_to_packages,
             fg_color="#2e8b57",
             state="disabled"
         )
         self.btn_book.pack(side="right", padx=10)
 
-    def _swap_locations(self):
+    def swap_locations(self):
         """Swap the locations in the 'From' and 'To' fields."""
         from_location = self.entry_from.get()
         to_location = self.entry_to.get()
@@ -196,8 +209,15 @@ class TicketSystem(BaseWindow):
         self.entry_to.delete(0, "end")
         self.entry_to.insert(0, from_location)
 
-    def _fetch_flights(self):
-        """Fetch flights from database with consistent formatting"""
+    def fetch_flights(self):
+        """
+        Fetch available flights from the database based on the selected
+        departure location, arrival location, and date (unless 'Show all dates'
+        is checked).
+
+        Populates the Treeview with search results.
+        Displays error message on failure.
+        """
         self.tree.delete(*self.tree.get_children())
         self.flights_data = {}
 
@@ -247,8 +267,13 @@ class TicketSystem(BaseWindow):
             logger.error(f"Flight fetch error: {str(e)}")
             messagebox.showerror("Error", "Failed to load flight data")
 
-    def _navigate_to_packages(self):
-        """Navigate to additional packages screen"""
+    def navigate_to_packages(self):
+        """
+        Navigate to the 'AdditionalPackageScreen' after a flight is selected.
+        Ensures a flight is selected before proceeding.
+
+        Passes flight and user data to the next screen.
+        """
         time.sleep(0.1)
 
         if not self.selected_flight:
@@ -276,9 +301,14 @@ class TicketSystem(BaseWindow):
             logger.error(f"Navigation error: {str(e)}")
             messagebox.showerror("Error", f"Failed to navigate: {str(e)}")
 
+    def on_flight_select(self, event):
+        """
+        Handle Treeview flight selection by parsing the selected row
+        and enabling the continue button.
 
-    def _on_flight_select(self, event):
-        """Handle flight selection event with robust error handling"""
+        Validates and formats price, and stores flight data in memory.
+        Displays error message if parsing fails.
+        """
         selected_items = self.tree.selection()
         if not selected_items:
             self.selected_flight = None
@@ -317,7 +347,7 @@ class TicketSystem(BaseWindow):
             self.selected_flight = None
             self.btn_book.configure(state="disabled")
 
-    def _go_back(self):
+    def go_back(self):
         """Handle back navigation"""
         if self.view_manager:
             self.view_manager.pop_view()
