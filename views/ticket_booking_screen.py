@@ -100,26 +100,45 @@ class TicketSystem(BaseWindow):
         )
         self.entry_date.grid(row=0, column=3, padx=(10,10))
 
+        self.lbl_or = ctk.CTkLabel(search_frame,text="or")
+        self.lbl_or.grid(row=0, column=4, padx=(10,10))
+
+
+        self.var_show_all_dates = ctk.BooleanVar(value=False)
+        self.chk_all_dates = ctk.CTkCheckBox(
+            search_frame,
+            text="Show all dates",
+            variable=self.var_show_all_dates
+        )
+        self.chk_all_dates.grid(row=0, column=5, padx=(10,10))
+
         btn_search = ctk.CTkButton(
             search_frame,
             text="Search Flights",
             command=self._fetch_flights
         )
-        btn_search.grid(row=0, column=4, padx=5)
+        btn_search.grid(row=0, column=6, padx=(10,10))
 
     def _create_flights_table(self):
         """Create flights results table"""
         style = ttk.Style()
         style.theme_use('default')
+
+        # ROW STYLE
         style.configure("Treeview",
                         background="#2a2d2e",
                         foreground="white",
                         fieldbackground="#2a2d2e",
-                        rowheight=25)
+                        rowheight=30,
+                        font=('Arial', 14)
+                        )
+        # HEADER STYLE
         style.configure("Treeview.Heading",
                         background="#3b3b3b",
                         foreground="white",
-                        font=('Arial', 10, 'bold'))
+                        font=('Arial', 15, 'bold')
+                        )
+        # SELECTED ROW STYLE
         style.map('Treeview', background=[('selected', '#22559b')])
 
         self.tree = ttk.Treeview(
@@ -187,15 +206,28 @@ class TicketSystem(BaseWindow):
         selected_date = self.entry_date.get_date()
 
         try:
-            query = """
-                SELECT id, airline, from_location,
-                       CONCAT(departure, ' - ', arrival) AS flight_schedule,
-                       to_location, price
-                FROM flights 
-                WHERE from_location = %s AND to_location = %s
-                  AND DATE(departure) = %s
-            """
-            self.cursor.execute(query, (from_loc, to_loc, selected_date))
+            if self.var_show_all_dates.get():
+                query = """
+                    SELECT id, airline, from_location,
+                           CONCAT(departure, ' - ', arrival) AS flight_schedule,
+                           to_location, price
+                    FROM flights 
+                    WHERE from_location = %s AND to_location = %s
+                """
+                params = (from_loc, to_loc)
+            else:
+                selected_date = self.entry_date.get_date()
+                query = """
+                    SELECT id, airline, from_location,
+                           CONCAT(departure, ' - ', arrival) AS flight_schedule,
+                           to_location, price
+                    FROM flights 
+                    WHERE from_location = %s AND to_location = %s
+                      AND DATE(departure) = %s
+                """
+                params = (from_loc, to_loc, selected_date)
+
+            self.cursor.execute(query, params)
 
             for row in self.cursor.fetchall():
                 price_str = f"{float(row['price']):.2f}" if row['price'] else "0.00"
