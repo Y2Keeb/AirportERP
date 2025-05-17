@@ -35,6 +35,7 @@ CREATE TABLE bookings (
     booking_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     total_price DECIMAL(10,2) NOT NULL,
 	status VARCHAR(50) NOT NULL,
+    transaction_id VARCHAR(50) NULL,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
     FOREIGN KEY (flight_id) REFERENCES Flights(id) ON DELETE CASCADE
 );

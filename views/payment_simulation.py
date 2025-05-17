@@ -5,6 +5,8 @@ import random,string
 import customtkinter as ctk
 from tkinter import messagebox
 
+from config import mydb
+
 
 class PaymentScreen(ctk.CTkToplevel):
     def __init__(self, root, view_manager, booking_id=None, amount=0, user_id=None, username=None, return_callback=None):
@@ -26,8 +28,8 @@ class PaymentScreen(ctk.CTkToplevel):
 
         self.txn_id = None
         self.remaining_time = 15 * 60
-        self._active = True
-        self._countdown_id = None
+        self.active = True
+        self.countdown_id = None
         self.update_countdown()
         self.protocol("WM_DELETE_WINDOW", self.on_window_close)
         self.view_state = {
@@ -65,7 +67,7 @@ class PaymentScreen(ctk.CTkToplevel):
         self.cancel_payment()
 
     def update_countdown(self):
-        if not self._active or not hasattr(self, 'countdown_label'):
+        if not self.active or not hasattr(self, 'countdown_label'):
             return
 
         minutes, seconds = divmod(self.remaining_time, 60)
@@ -73,7 +75,7 @@ class PaymentScreen(ctk.CTkToplevel):
 
         if self.remaining_time > 0:
             self.remaining_time -= 1
-            self._countdown_id = self.after(1000, self.update_countdown)
+            self.countdown_id = self.after(1000, self.update_countdown)
         else:
             self.timeout()
 
@@ -94,15 +96,15 @@ class PaymentScreen(ctk.CTkToplevel):
         self.pay_button.configure(state="disabled")
         self.cancel_button.configure(state="disabled")
         self.status_label.configure(text="Processing payment...")
-        self._active = False
-        if self._countdown_id:
-            self.after_cancel(self._countdown_id)
+        self.active = False
+        if self.countdown_id:
+            self.after_cancel(self.countdown_id)
         self.after(3000, self.payment_successful)
 
     def go_back(self, success=True):
         """Return to previous screen using ViewManager"""
         from views.user_screen import UserScreen
-        self._active = False
+        self.active = False
         self.destroy()
         if success:
             self.view_manager.show_view(
@@ -115,7 +117,7 @@ class PaymentScreen(ctk.CTkToplevel):
 
     def go_back_to_user(self):
         """Return to user screen after successful payment"""
-        self._active = False
+        self.active = False
         self.destroy()
 
         try:
@@ -134,14 +136,14 @@ class PaymentScreen(ctk.CTkToplevel):
             self.destroy()
 
     def timeout(self):
-        if self._active:
+        if self.active:
             messagebox.showwarning("Timeout", "Payment time has expired.")
             self.go_back(False)
 
     def cancel_payment(self):
-        self._active = False
-        if hasattr(self, '_countdown_id') and self._countdown_id:
-            self.after_cancel(self._countdown_id)
+        self.active = False
+        if hasattr(self, '_countdown_id') and self.countdown_id:
+            self.after_cancel(self.countdown_id)
 
         self.destroy()
         try:
@@ -158,9 +160,29 @@ class PaymentScreen(ctk.CTkToplevel):
             self.destroy()
 
     def payment_successful(self):
-        self._active = False
-        if hasattr(self, 'countdown_id') and self._countdown_id:
-            self.after_cancel(self._countdown_id)
+        self.active = False
+        if hasattr(self, 'countdown_id') and self.countdown_id:
+            self.after_cancel(self.countdown_id)
+
+        try:
+            cursor = mydb.cursor()
+
+            update_query = """
+                UPDATE bookings 
+                SET status = 'Booked',
+                    payment_date = NOW(),
+                    transaction_id = %s
+                WHERE id = %s
+            """
+            cursor.execute(update_query, (self.txn_id, self.booking_id))
+            mydb.commit()
+            cursor.close()
+        except Exception as e:
+            print(f"Error updating booking status: {e}")
+            try:
+                mydb.rollback()
+            except:
+                pass
 
         for widget in self.winfo_children():
             widget.destroy()
