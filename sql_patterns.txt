@@ -1,0 +1,51 @@
+' ?OR ?'1' ?= ?'1
+--
+;
+DROP\s+TABLE
+UNION\s+SELECT
+INSERT\s+INTO
+EXEC\s
+1\s*=\s*1
+' OR '1'='1
+" OR "1"="1
+' OR 1=1 --
+" OR 1=1 --
+' OR 'a'='a
+' OR 1=1#
+' OR 1=1/*
+' OR 'x'='x
+' OR ''='
+'--
+'#
+OR 1=1
+--+
+%27%20OR%201=1
+admin' --
+admin'#
+admin'/*
+;--
+; DROP TABLE
+; EXEC
+exec xp_cmdshell
+SELECT * FROM
+UNION SELECT
+UPDATE users SET
+INSERT INTO
+xp_cmdshell
+sleep(5)
+WAITFOR DELAY '0:0:5'
+OR EXISTS
+HAVING 1=1
+OR TRUE
+OR FALSE
+' OR TRUE--
+' OR '' = ''
+; SHUTDOWN
+; ALTER TABLE
+; CREATE TABLE
+LOAD_FILE
+INFORMATION_SCHEMA
+CAST(
+CONCAT(
+@@version
+BENCHMARK(

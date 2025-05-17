@@ -3,6 +3,7 @@ import customtkinter as ctk
 import logging
 import base64
 import os
+import re
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -23,30 +24,17 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-# Suppress PIL's verbose internal logs
 logging.getLogger("PIL").setLevel(logging.WARNING)
 
 
-def is_suspect_sql_input(text: str) -> bool:
-    """
-    Detect basic SQL injection patterns in user input.
-    Returns True if input contains suspicious SQL patterns.
-    """
-    suspicious = [
-        "' OR",
-        "'--",
-        "';",
-        "DROP TABLE",
-        "UNION SELECT",
-        "'='",
-        "1=1",
-        '" OR',
-        '"--',
-        "EXEC",
-        "INSERT INTO",
-    ]
-    return any(keyword in text.upper() for keyword in suspicious)
+def load_sql_patterns(file_path="sql_patterns.txt") -> list[str]:
+    with open(file_path, "r", encoding="utf-8") as file:
+        return [line.strip() for line in file if line.strip()]
 
+def is_suspect_sql_input(text: str, patterns: list[str] = None) -> bool:
+    if patterns is None:
+        patterns = load_sql_patterns()
+    return any(re.search(pattern, text, re.IGNORECASE) for pattern in patterns)
 
 def get_logger(name):
     """
@@ -59,8 +47,9 @@ def set_theme():
     """
     Set the global appearance and color theme for the application using customtkinter.
     """
+    theme_path = os.path.join(os.path.dirname(__file__), "themes", "marsh.json")
     ctk.set_appearance_mode("Dark")
-    ctk.set_default_color_theme("themes/marsh.json")
+    ctk.set_default_color_theme(theme_path)
 
 
 SECRET_KEY = os.environ.get("SECRET_KEY", "secret-key")
