@@ -42,6 +42,14 @@ class AdditionalPackageScreen(BaseWindow):
         self.frame_additions.grid(row=2, column=0, padx=10, pady=(3,10), sticky="w")
 
         self.flight_info_label = ctk.CTkLabel(self.frame_content, text=flight_info, font=("Arial", 14, "bold"))
+        self.btn_back = ctk.CTkButton(
+            self.frame_content,
+            text="← Back to Ticket Selection",
+            command=self.go_back,
+            fg_color="transparent",
+            border_width=1,
+            width=100
+        )
         self.lbl_success = ctk.CTkLabel(self.frame_content,text="Ticket reserved! Now choose your additional packages.",justify="left")
 
         self.package1_var = ctk.BooleanVar()
@@ -98,6 +106,8 @@ class AdditionalPackageScreen(BaseWindow):
         discount code entry, and price display layout.
         """
         self.flight_info_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="w")
+        self.btn_back.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="e")
+
         self.lbl_success.grid(row=1, column=0, columnspan = 2,padx=10, pady=10, sticky="w")
 
         self.checkbox_package1.grid(row=2, column=0, padx=10, pady=(30,5), sticky="w")
@@ -323,6 +333,15 @@ class AdditionalPackageScreen(BaseWindow):
         if self.package3_var.get():
             self.package_price -= 10
         self.update_total_price(base_price)
+
+    def go_back(self):
+        """Handle back navigation"""
+        if self.view_manager:
+            self.view_manager.pop_view()
+        else:
+            from views.ticket_booking_screen import TicketSystem
+            self.cleanup()
+            TicketSystem(self.root, user_id=self.user_id, username=self.username)
 
     def logout(self):
         """logout that clears everything and shows login screen"""
