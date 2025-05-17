@@ -5,7 +5,7 @@ import random,string
 import customtkinter as ctk
 from tkinter import messagebox
 
-from config import mydb
+from config import mydb,get_logger
 
 
 class PaymentScreen(ctk.CTkToplevel):
@@ -164,31 +164,41 @@ class PaymentScreen(ctk.CTkToplevel):
         if hasattr(self, 'countdown_id') and self.countdown_id:
             self.after_cancel(self.countdown_id)
 
+        transaction_id = "TXN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        self.txn_id = transaction_id
+
         try:
             cursor = mydb.cursor()
-
+            print(f"Updating booking {self.booking_id} with transaction {transaction_id}")
             update_query = """
                 UPDATE bookings 
                 SET status = 'Booked',
-                    payment_date = NOW(),
+                    booking_date = NOW(),
                     transaction_id = %s
                 WHERE id = %s
             """
             cursor.execute(update_query, (self.txn_id, self.booking_id))
             mydb.commit()
-            cursor.close()
+
+            cursor.execute("SELECT status, transaction_id FROM bookings WHERE id = %s", (self.booking_id,))
+            result = cursor.fetchone()
+            print(f"After update - Status: {result[0]}, Transaction ID: {result[1]}")
+
         except Exception as e:
             print(f"Error updating booking status: {e}")
+            import traceback
+            traceback.print_exc()
             try:
                 mydb.rollback()
+
             except:
                 pass
+        finally:
+            if 'cursor' in locals():
+                cursor.close()
 
         for widget in self.winfo_children():
             widget.destroy()
-
-        transaction_id = "TXN-" + ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-        self.txn_id = transaction_id
 
         success_label = ctk.CTkLabel(self, text="Payment Successful!", font=("Arial", 20))
         success_label.pack(pady=15)
