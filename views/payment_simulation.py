@@ -4,8 +4,9 @@ import random,string
 
 import customtkinter as ctk
 from tkinter import messagebox
+from threading import Thread
 
-from config import mydb,get_logger
+from config import mydb,get_logger,play_sound
 
 
 class PaymentScreen(ctk.CTkToplevel):
@@ -199,6 +200,8 @@ class PaymentScreen(ctk.CTkToplevel):
 
         for widget in self.winfo_children():
             widget.destroy()
+
+        Thread(target=play_sound, args=("docs/sounds/payment_complete.mp3",)).start()
 
         success_label = ctk.CTkLabel(self, text="Payment Successful!", font=("Arial", 20))
         success_label.pack(pady=15)

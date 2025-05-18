@@ -1,7 +1,7 @@
 import time
 
 import customtkinter as ctk
-from config import get_logger
+from config import get_logger, init_sound
 from views.login_screen import LoginScreen
 from view_manager import ViewManager
 import pywinstyles, sys
@@ -36,6 +36,8 @@ class App:
 
         self.root.after(1000, self.mark_splash_time_passed)
         threading.Thread(target=self.prepare_login_screen, daemon=True).start()
+
+        init_sound()
 
     def prepare_login_screen(self):
         time.sleep(2)

@@ -7,6 +7,18 @@ import re
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+import pygame
+from threading import Thread
+
+def init_sound():
+    pygame.mixer.init()
+
+def play_sound(sound_file):
+    try:
+        sound = pygame.mixer.Sound(sound_file)
+        sound.play()
+    except Exception as e:
+        print(f"Error playing sound: {e}")
 
 # Establish connection to the MySQL database
 mydb = mysql.connector.connect(

@@ -9,3 +9,5 @@ pywinstyles~=1.8
 ctypes
 cryptography~=44.0.3
 django-qrcode~=0.3
+qrcode~=8.2
+pygame~=2.6.1
