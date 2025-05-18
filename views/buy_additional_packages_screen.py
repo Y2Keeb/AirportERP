@@ -7,7 +7,7 @@ from datetime import datetime
 
 from ui_helpers import show_sql_meme_popup
 from views.payment_simulation import PaymentScreen
-from views.bjorn_easter_egg import BjornEasterEgg
+from views.bjorn_easter_egg_backupplan import BjornEasterEgg
 
 logger = get_logger(__name__)
 
