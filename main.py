@@ -70,7 +70,6 @@ class App:
             root.wm_attributes("-alpha", 0.99)
             root.wm_attributes("-alpha", 1)
 
-
     def run(self):
         self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
         self.root.mainloop()

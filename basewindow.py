@@ -9,8 +9,8 @@ from config import set_theme
 class BaseWindow:
     def __init__(self, root, title, menu_buttons=None):
         self.root = root
-        self.root.configure(bg="black")  # Makes root black behind the image
-        script_dir = os.path.dirname(os.path.abspath(__file__))  # basewindow.py location
+        self.root.configure(bg="black")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
         icon_path = os.path.join(script_dir, "docs", "icons", "favicon.ico")
         if os.path.exists(icon_path):
             self.root.wm_iconbitmap(icon_path)

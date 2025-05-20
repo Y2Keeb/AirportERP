@@ -20,7 +20,6 @@ def play_sound(sound_file):
     except Exception as e:
         print(f"Error playing sound: {e}")
 
-# Establish connection to the MySQL database
 mydb = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -28,11 +27,10 @@ mydb = mysql.connector.connect(
     database="airport",
 )
 
-# Configure logging to write detailed logs to app.log
 LOG_FILENAME = "app.log"
 logging.basicConfig(
     filename=LOG_FILENAME,
-    level=logging.DEBUG,  # Log everything (DEBUG, INFO, WARNING, ERROR, CRITICAL) debug is lowest level
+    level=logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
