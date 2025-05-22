@@ -2,6 +2,7 @@
 
 [![linting: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 Our project is an airport ERP system that digitizes and optimizes the operational processes of an airport. It provides a centralized solution for flight management and passenger handling. Many airports struggle with fragmented systems and manual processes, leading to delays, miscommunication, and operational errors. Our system centralizes and streamlines these processes to improve efficiency and safety.
 
 ## Luchthaven ERP
@@ -112,6 +113,7 @@ Other external libraries may include:
 ### Security
 
 [![Cryptography](https://img.shields.io/badge/Cryptography-3.4.7-blue.svg)](https://cryptography.io/en/latest/)
+
 Security is a priority, and we will implement the following measures:
 
 - **Password Hashing**: All user passwords will be hashed using **Fernet** a part of the **Cryptography** library for Python to ensure that plain-text passwords are not stored in the database.
