@@ -10,6 +10,7 @@ logger = get_logger(__name__)
 
 
 class AdminScreen(BaseWindow):
+    """Admin interface for managing users in the Airport ERP system."""
 
     def __init__(self, root, view_manager=None, user_id=None, username=None):
         super().__init__(
@@ -263,7 +264,13 @@ class AdminScreen(BaseWindow):
 
                     self.cursor.execute(
                         "INSERT INTO users (username, role, first_name, last_name, password) VALUES (%s, %s, %s, %s, %s)",
-                        (username, role, first_name, last_name, encrypt_password(password)),
+                        (
+                            username,
+                            role,
+                            first_name,
+                            last_name,
+                            encrypt_password(password),
+                        ),
                     )
                 mydb.commit()
                 self._fetch_users()

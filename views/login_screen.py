@@ -3,7 +3,6 @@ from tkinter import messagebox
 import PIL
 from PIL import Image
 import customtkinter as ctk
-
 from basewindow import BaseWindow
 from config import is_suspect_sql_input, mydb, set_theme, decrypt_password
 from ui_helpers import show_sql_meme_popup
@@ -15,17 +14,14 @@ from views.user_screen import UserScreen
 
 
 class LoginScreen(BaseWindow):
+    """
+    Initialize the LoginScreen window and declare all instance variables.
+    """
+
     def __init__(self, root, view_manager=None):
         super().__init__(root, " ", menu_buttons=["help", "about", "exit"])
-        """
-         Initialize the LoginScreen window and declare all instance variables.
-        """
         self.root = root
         self.view_manager = view_manager
-
-        # The instance variables are already declared as None here in __init__, so the program knows they exist already.
-        # They are fully initialized later in a separate method (load_view_content),
-        # this is to avoid slowing down the startup process.
         self.username_image = None
         self.password_image = None
         self.original_bg_image = None

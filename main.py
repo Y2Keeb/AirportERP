@@ -6,19 +6,19 @@ from views.login_screen import LoginScreen
 from view_manager import ViewManager
 import pywinstyles, sys
 import threading
-
 from views.splash_screen import SplashScreen
 
 logger = get_logger(__name__)
+
 
 class App:
     def __init__(self):
         self.root = ctk.CTk()
         self.root.bind("<Escape>", lambda e: self.root.attributes("-fullscreen", False))
-        screen_width=1920
-        screen_height=1200
-        app_width=1300
-        app_height=900
+        screen_width = 1920
+        screen_height = 1200
+        app_width = 1300
+        app_height = 900
         x = 150
         y = 17
 
@@ -32,7 +32,7 @@ class App:
 
         self.splash = SplashScreen(self.root)
         self.splash.pack(fill="both", expand=True)
-        self.root.update_idletasks()  # force draw
+        self.root.update_idletasks()
 
         self.root.after(1000, self.mark_splash_time_passed)
         threading.Thread(target=self.prepare_login_screen, daemon=True).start()
