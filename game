@@ -1,0 +1,355 @@
+import pygame
+import random
+import os
+import math
+
+# Initialize Pygame
+pygame.init()
+pygame.mixer.init()
+
+# Constants
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+PLAYER_WIDTH = 60   # <<< MODIFIED: Adjust to fit your little_man.png aspect ratio
+PLAYER_HEIGHT = 80  # <<< MODIFIED: Adjust to fit your little_man.png aspect ratio
+EGG_WIDTH = 30
+EGG_HEIGHT = 30
+SPIDER_WIDTH = 50   # <<< MODIFIED: Adjust to fit your enemy_spider.png
+SPIDER_HEIGHT = 50  # <<< MODIFIED: Adjust to fit your enemy_spider.png
+# BRICK_WIDTH = 40 # Not used in this version
+# BRICK_HEIGHT = 20 # Not used in this version
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+GRAY = (200, 200, 200)
+DARK_GRAY = (100, 100, 100)
+
+# Create the game window
+screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+pygame.display.set_caption("Egg Breaking Game")
+
+# --- Load Assets (Sounds and Images) ---
+# <<< NEW: Function to safely load images
+def load_image(filename, width, height):
+    try:
+        image = pygame.image.load(filename).convert_alpha()
+        image = pygame.transform.scale(image, (width, height))
+        return image
+    except pygame.error as e:
+        print(f"Error loading image '{filename}': {e}")
+        return None
+
+# Load sounds
+try:
+    bjorn_sound = pygame.mixer.Sound("bjorn.wav")
+    baby_cry_sound = pygame.mixer.Sound("baby_cry.wav")
+    baby_laugh_sound = pygame.mixer.Sound("baby_laugh.wav")
+except pygame.error as e: # <<< MODIFIED: Catch specific pygame error
+    print(f"Sound files not found or error loading: {e}. Game will run without sounds.")
+    bjorn_sound = None
+    baby_cry_sound = None
+    baby_laugh_sound = None
+
+# Load images
+player_img_right = load_image("little_man.png", PLAYER_WIDTH, PLAYER_HEIGHT) # Assumes man faces right by default
+if player_img_right:
+    player_img_left = pygame.transform.flip(player_img_right, True, False) # Create left-facing version
+else:
+    player_img_left = None
+
+enemy_spider_img = load_image("enemy_spider.png", SPIDER_WIDTH, SPIDER_HEIGHT)
+# --- End Asset Loading ---
+
+
+class Button:
+    def __init__(self, x, y, width, height, text, color=GRAY, hover_color=DARK_GRAY):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.text = text
+        self.color = color
+        self.hover_color = hover_color
+        self.is_hovered = False
+        self.font = pygame.font.Font(None, 36)
+
+    def draw(self, surface):
+        color = self.hover_color if self.is_hovered else self.color
+        pygame.draw.rect(surface, color, self.rect)
+        pygame.draw.rect(surface, BLACK, self.rect, 2)  # Border
+
+        text_surface = self.font.render(self.text, True, BLACK)
+        text_rect = text_surface.get_rect(center=self.rect.center)
+        surface.blit(text_surface, text_rect)
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEMOTION:
+            self.is_hovered = self.rect.collidepoint(event.pos)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if self.is_hovered:
+                return True
+        return False
+
+
+class Player:
+    def __init__(self):
+        self.width = PLAYER_WIDTH
+        self.height = PLAYER_HEIGHT
+        self.x = WINDOW_WIDTH // 2 - self.width // 2 # <<< MODIFIED: Center x
+        self.y = WINDOW_HEIGHT - self.height - 10
+        self.speed = 5
+        self.jumping = False
+        self.jump_count = 10
+        self.power_level = 5
+        self.pampers = 0
+        self.lollies = 0
+        self.direction = "right"
+        self.image_right = player_img_right # <<< NEW
+        self.image_left = player_img_left   # <<< NEW
+        self.current_image = self.image_right if self.image_right else None # <<< NEW
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height) # <<< NEW: Collision rect
+
+    def move(self, direction):
+        self.direction = direction
+        if direction == "left" and self.x > 0:
+            self.x -= self.speed
+            if self.image_left: self.current_image = self.image_left # <<< NEW
+        if direction == "right" and self.x < WINDOW_WIDTH - self.width:
+            self.x += self.speed
+            if self.image_right: self.current_image = self.image_right # <<< NEW
+        self.rect.topleft = (self.x, self.y) # <<< NEW
+
+    def jump(self):
+        if not self.jumping:
+            self.jumping = True
+            self.jump_count = 10
+
+    def update(self):
+        if self.jumping:
+            if self.jump_count >= -10:
+                neg = 1
+                if self.jump_count < 0:
+                    neg = -1
+                self.y -= (self.jump_count ** 2) * 0.5 * neg
+                self.jump_count -= 1
+            else:
+                self.jumping = False
+                self.y = WINDOW_HEIGHT - self.height - 10
+        self.rect.topleft = (self.x, self.y) # <<< NEW
+
+    def draw(self):
+        # <<< MODIFIED: Draw image if available, else a fallback shape
+        if self.current_image:
+            screen.blit(self.current_image, self.rect.topleft)
+        else:
+            # Fallback drawing if image is missing
+            pygame.draw.rect(screen, (200, 100, 100), self.rect) # A simple rectangle
+
+
+class Egg:
+    def __init__(self, level):
+        self.width = EGG_WIDTH
+        self.height = EGG_HEIGHT
+        self.x = random.randint(0, WINDOW_WIDTH - self.width)
+        self.y = -self.height
+        self.color = random.choice([RED, GREEN, BLUE])
+        self.speed = 2 + level
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height) # <<< NEW
+
+    def move(self):
+        self.y += self.speed
+        self.rect.topleft = (self.x, self.y) # <<< NEW
+
+    def draw(self):
+        pygame.draw.ellipse(screen, self.color, self.rect)
+
+
+class Spider: # Enemy Spider
+    def __init__(self, level):
+        self.width = SPIDER_WIDTH
+        self.height = SPIDER_HEIGHT
+        self.speed = 3 + level
+        self.image = enemy_spider_img # <<< NEW
+        self.current_image = self.image # <<< NEW (can be flipped later if needed)
+        self.rect = pygame.Rect(0, 0, self.width, self.height) # <<< NEW
+        self.reset()
+
+
+    def reset(self):
+        self.direction = random.choice(["left", "right"])
+        if self.direction == "left":
+            self.rect.right = WINDOW_WIDTH # Start from right edge
+            if self.image: # Flip if moving left
+                self.current_image = pygame.transform.flip(self.image, True, False)
+        else:
+            self.rect.left = -self.width # Start from left edge (off-screen)
+            self.current_image = self.image
+        self.rect.y = random.randint(100, WINDOW_HEIGHT - 200 - self.height)
+
+
+    def move(self):
+        if self.direction == "left":
+            self.rect.x -= self.speed
+            if self.rect.right < 0: # If completely off-screen to the left
+                self.reset()
+        else: # Moving right
+            self.rect.x += self.speed
+            if self.rect.left > WINDOW_WIDTH: # If completely off-screen to the right
+                self.reset()
+
+    def draw(self):
+        # <<< MODIFIED: Draw image if available, else a fallback shape
+        if self.current_image:
+            screen.blit(self.current_image, self.rect.topleft)
+        else:
+            # Fallback drawing
+            pygame.draw.rect(screen, BLACK, self.rect)
+
+
+class Game:
+    def __init__(self):
+        self.reset_game()
+
+    def reset_game(self):
+        self.player = Player()
+        self.eggs = []
+        self.spiders = []
+        self.level = 1
+        self.score = 0
+        self.game_over = False
+        self.level_complete = False
+        self.font = pygame.font.Font(None, 36)
+        self.play_again_button = Button(WINDOW_WIDTH // 2 - 100, WINDOW_HEIGHT // 2 + 50, 200, 50, "Play Again")
+
+    def spawn_egg(self):
+        if random.random() < 0.02:
+            self.eggs.append(Egg(self.level))
+
+    def spawn_spider(self):
+        if len(self.spiders) < 2 and random.random() < 0.005:
+            self.spiders.append(Spider(self.level))
+
+    def check_collisions(self):
+        # <<< MODIFIED: Use rect.colliderect for all collisions
+        # Egg collisions
+        for egg in self.eggs[:]:
+            if self.player.rect.colliderect(egg.rect):
+                if egg.color == GREEN:
+                    self.player.pampers += 1
+                    if bjorn_sound: bjorn_sound.play()
+                elif egg.color == BLUE:
+                    self.player.lollies += 1
+                    if bjorn_sound: bjorn_sound.play()
+                elif egg.color == RED:
+                    self.player.power_level -= 1
+                    if baby_cry_sound: baby_cry_sound.play()
+                    if self.player.power_level <= 0:
+                        self.game_over = True
+                self.eggs.remove(egg)
+                self.score += 1
+
+        # Spider collisions
+        for spider_enemy in self.spiders[:]: # Renamed to avoid confusion
+            if self.player.rect.colliderect(spider_enemy.rect):
+                self.player.power_level -= 1
+                if baby_cry_sound: baby_cry_sound.play()
+                if self.player.power_level <= 0:
+                    self.game_over = True
+                # Decide if spider should be removed or just damage player
+                self.spiders.remove(spider_enemy) # For now, remove on collision
+
+    def update(self):
+        if not self.game_over and not self.level_complete:
+            self.player.update()
+            self.spawn_egg()
+            self.spawn_spider()
+
+            for egg in self.eggs[:]:
+                egg.move()
+                if egg.rect.top > WINDOW_HEIGHT: # <<< MODIFIED: Check rect top
+                    self.eggs.remove(egg)
+
+            for spider_enemy in self.spiders:
+                spider_enemy.move()
+
+            self.check_collisions()
+
+            if self.score >= 20 * self.level:
+                self.level += 1
+                if self.level > 3:
+                    self.level_complete = True
+                    if baby_laugh_sound: baby_laugh_sound.play()
+                else:
+                    self.eggs.clear()
+                    # self.spiders.clear() # Or reset them
+                    for s in self.spiders: s.reset()
+
+
+    def draw(self):
+        screen.fill(WHITE)
+        self.player.draw()
+        for egg in self.eggs:
+            egg.draw()
+        for spider_enemy in self.spiders:
+            spider_enemy.draw()
+
+        power_text = self.font.render(f"Power: {self.player.power_level}", True, BLACK)
+        score_text = self.font.render(f"Score: {self.score}", True, BLACK)
+        level_text = self.font.render(f"Level: {self.level}", True, BLACK)
+        pampers_text = self.font.render(f"Pampers: {self.player.pampers}", True, BLACK)
+        lollies_text = self.font.render(f"Lollies: {self.player.lollies}", True, BLACK)
+
+        screen.blit(power_text, (10, 10))
+        screen.blit(score_text, (10, 50))
+        screen.blit(level_text, (10, 90))
+        screen.blit(pampers_text, (10, 130))
+        screen.blit(lollies_text, (10, 170))
+
+        if self.game_over:
+            game_over_text = self.font.render("GAME OVER", True, RED)
+            text_rect = game_over_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20)) # <<< MODIFIED: Center text
+            screen.blit(game_over_text, text_rect)
+            self.play_again_button.draw(screen)
+        elif self.level_complete:
+            complete_text = self.font.render("YOU WIN!", True, GREEN)
+            text_rect = complete_text.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20)) # <<< MODIFIED: Center text
+            screen.blit(complete_text, text_rect)
+            self.play_again_button.draw(screen)
+
+        pygame.display.flip()
+
+
+def main():
+    clock = pygame.time.Clock()
+    game = Game()
+    running = True
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not game.game_over and not game.level_complete:
+                    game.player.jump()
+
+            if game.game_over or game.level_complete:
+                if game.play_again_button.handle_event(event):
+                    game.reset_game()
+
+        if not game.game_over and not game.level_complete:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT]:
+                game.player.move("left")
+            if keys[pygame.K_RIGHT]:
+                game.player.move("right")
+
+        game.update()
+        game.draw()
+        clock.tick(60)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()
