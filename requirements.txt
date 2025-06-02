@@ -6,8 +6,8 @@ customtkinter~=5.2.2
 CTkMessagebox~=2.7
 mysql-connector-python~=9.2.0
 pywinstyles~=1.8
-ctypes
 cryptography~=44.0.3
 django-qrcode~=0.3
 qrcode~=8.2
 pygame~=2.6.1
+ctypes>1.0

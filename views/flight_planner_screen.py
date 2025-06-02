@@ -1,5 +1,5 @@
 from datetime import date
-from tkinter import ttk,messagebox
+from tkinter import ttk, messagebox
 from tkcalendar import DateEntry
 import customtkinter as ctk
 import PIL
@@ -10,13 +10,15 @@ from ui_helpers import show_sql_meme_popup
 
 logger = get_logger(__name__)
 
+
 class FlightPlannerScreen(BaseWindow):
     """
-     A UI screen for planning flights.
-     Allows staff members/flight planners to browse, filter, and manage both pending and planned flights.
-     Supports selecting flights, viewing flight details, planning flights by assigning gates,
-     and deleting pending flights.
-     """
+    A UI screen for planning flights.
+    Allows staff members/flight planners to browse, filter, and manage both pending and planned flights.
+    Supports selecting flights, viewing flight details, planning flights by assigning gates,
+    and deleting pending flights.
+    """
+
     def __init__(self, root, view_manager=None, user_id=None, username=None):
         super().__init__(root, "Flight Planner")
 
@@ -28,24 +30,27 @@ class FlightPlannerScreen(BaseWindow):
         self.current_view_mode = "pending"
         self.departure_date_filter = None
 
-        self.view_state = {
-            'user_id': user_id,
-            'username': username
-        }
+        self.view_state = {"user_id": user_id, "username": username}
 
         for widget in root.winfo_children():
             widget.destroy()
 
-        self.original_bg_image = PIL.Image.open("docs/icons/background.jpg").convert("RGBA")
+        self.original_bg_image = PIL.Image.open("docs/icons/background.jpg").convert(
+            "RGBA"
+        )
         startup_image = self.original_bg_image.resize((1600, 950), Image.NEAREST)
-        self.bg_image = ctk.CTkImage(light_image=startup_image, dark_image=startup_image, size=(1600, 950))
+        self.bg_image = ctk.CTkImage(
+            light_image=startup_image, dark_image=startup_image, size=(1600, 950)
+        )
         self.bg_label = ctk.CTkLabel(self.root, image=self.bg_image, text="")
         self.bg_label.place(x=0, y=0, relwidth=1, relheight=1)
 
-        self.create_menu_bar(["exit","logout"])
+        self.create_menu_bar(["exit", "logout"])
 
         self.frame_main = ctk.CTkFrame(root)
-        self.frame_main.place(relx=0.5, rely=0.52, anchor="center", relwidth=0.95, relheight=0.92)
+        self.frame_main.place(
+            relx=0.5, rely=0.52, anchor="center", relwidth=0.95, relheight=0.92
+        )
         self.frame_main.grid_columnconfigure(1, weight=1)
         self.frame_main.grid_rowconfigure(0, weight=1)
 
@@ -81,7 +86,7 @@ class FlightPlannerScreen(BaseWindow):
         self.title_label = ctk.CTkLabel(
             self.right_frame,
             text="Flight Planner - Pending flights ready for planning.",
-            font=("Arial", 25, "bold")
+            font=("Arial", 25, "bold"),
         )
         self.title_label.grid(row=0, column=0, padx=10, pady=(2, 60))
 
@@ -96,7 +101,7 @@ class FlightPlannerScreen(BaseWindow):
             variable=self.airline_filter_var,
             command=self.on_filter_change,
             values=["All Airlines"],
-            width=200
+            width=200,
         )
         self.airline_dropdown.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
@@ -105,7 +110,7 @@ class FlightPlannerScreen(BaseWindow):
             variable=self.departure_filter_var,
             command=self.on_filter_change,
             values=["All Departures"],
-            width=200
+            width=200,
         )
         self.departure_dropdown.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
@@ -114,7 +119,7 @@ class FlightPlannerScreen(BaseWindow):
             variable=self.arrival_filter_var,
             command=self.on_filter_change,
             values=["All Arrivals"],
-            width=200
+            width=200,
         )
         self.arrival_dropdown.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
@@ -123,7 +128,7 @@ class FlightPlannerScreen(BaseWindow):
             variable=self.plane_filter_var,
             command=self.on_filter_change,
             values=["All Plane Types"],
-            width=200
+            width=200,
         )
         self.plane_dropdown.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
 
@@ -134,28 +139,30 @@ class FlightPlannerScreen(BaseWindow):
             self.filter_frame,
             textvariable=self.departure_date_var,
             width=16,
-            background='grey',
-            foreground='white',
+            background="grey",
+            foreground="white",
             borderwidth=2,
-            date_pattern='yyyy-mm-dd'
+            date_pattern="yyyy-mm-dd",
         )
         self.departure_date_picker.grid(row=0, column=5, padx=5, pady=5, sticky="ew")
-        self.departure_date_picker.bind("<<DateEntrySelected>>", lambda e: self.on_filter_change())
+        self.departure_date_picker.bind(
+            "<<DateEntrySelected>>", lambda e: self.on_filter_change()
+        )
         self.refresh_filter_options()
 
         self.btn_pending_flights = ctk.CTkButton(
             self.sidebar_frame,
             text="Browse Pending Flights",
-            command=lambda: self.switch_view_mode("pending")
+            command=lambda: self.switch_view_mode("pending"),
         )
-        self.btn_pending_flights.pack(pady=(50, 15), fill='x', padx=10)
+        self.btn_pending_flights.pack(pady=(50, 15), fill="x", padx=10)
 
         self.btn_planned_flights = ctk.CTkButton(
             self.sidebar_frame,
             text="Browse Planned Flights",
-            command=lambda: self.switch_view_mode("planned")
+            command=lambda: self.switch_view_mode("planned"),
         )
-        self.btn_planned_flights.pack(pady=(15, 15), fill='x', padx=10)
+        self.btn_planned_flights.pack(pady=(15, 15), fill="x", padx=10)
 
         self.column_options = {
             "Airline": ctk.BooleanVar(value=True),
@@ -168,26 +175,30 @@ class FlightPlannerScreen(BaseWindow):
             "Price": ctk.BooleanVar(value=True),
         }
 
-        lbl_visible_fields = ctk.CTkLabel(self.sidebar_frame, text="Visible Fields:", anchor="w").pack(pady=(20, 5), padx=10)
+        lbl_visible_fields = ctk.CTkLabel(
+            self.sidebar_frame, text="Visible Fields:", anchor="w"
+        ).pack(pady=(20, 5), padx=10)
 
         for field, var in self.column_options.items():
             ctk.CTkCheckBox(
                 self.sidebar_frame,
                 text=field,
                 variable=var,
-                command=self.refresh_treeview_columns
-            ).pack(anchor='w', padx=10,pady=(7,7))
+                command=self.refresh_treeview_columns,
+            ).pack(anchor="w", padx=10, pady=(7, 7))
 
-        self.btn_select_all_filters = ctk.CTkButton(self.sidebar_frame, text="Select All Fields", command=self.select_all_fields)
-        self.btn_select_all_filters.pack(anchor='w', padx=10,pady=(20,20))
+        self.btn_select_all_filters = ctk.CTkButton(
+            self.sidebar_frame, text="Select All Fields", command=self.select_all_fields
+        )
+        self.btn_select_all_filters.pack(anchor="w", padx=10, pady=(20, 20))
 
         clear_btn = ctk.CTkButton(
             self.filter_frame,
             text="Clear Filters",
             command=self.clear_filters,
-            width=100
+            width=100,
         )
-        clear_btn.grid(row=0, column=6, padx=(100,5), pady=5, sticky="e")
+        clear_btn.grid(row=0, column=6, padx=(100, 5), pady=5, sticky="e")
         self.departure_date_var.set("")
 
         self.update_button_styles()
@@ -217,22 +228,40 @@ class FlightPlannerScreen(BaseWindow):
         Fetches distinct values from the database for airlines, locations, and plane types.
         """
         try:
-            table_name = "pending_flights" if self.current_view_mode == "pending" else "flights"
+            table_name = (
+                "pending_flights" if self.current_view_mode == "pending" else "flights"
+            )
 
-            self.cursor.execute(f"SELECT DISTINCT airline FROM {table_name} ORDER BY airline")
-            airlines = ["All Airlines"] + [row["airline"] for row in self.cursor.fetchall()]
+            self.cursor.execute(
+                f"SELECT DISTINCT airline FROM {table_name} ORDER BY airline"
+            )
+            airlines = ["All Airlines"] + [
+                row["airline"] for row in self.cursor.fetchall()
+            ]
             self.airline_dropdown.configure(values=airlines)
 
-            self.cursor.execute(f"SELECT DISTINCT from_location FROM {table_name} ORDER BY from_location")
-            departures = ["All Departures"] + [row["from_location"] for row in self.cursor.fetchall()]
+            self.cursor.execute(
+                f"SELECT DISTINCT from_location FROM {table_name} ORDER BY from_location"
+            )
+            departures = ["All Departures"] + [
+                row["from_location"] for row in self.cursor.fetchall()
+            ]
             self.departure_dropdown.configure(values=departures)
 
-            self.cursor.execute(f"SELECT DISTINCT to_location FROM {table_name} ORDER BY to_location")
-            arrivals = ["All Arrivals"] + [row["to_location"] for row in self.cursor.fetchall()]
+            self.cursor.execute(
+                f"SELECT DISTINCT to_location FROM {table_name} ORDER BY to_location"
+            )
+            arrivals = ["All Arrivals"] + [
+                row["to_location"] for row in self.cursor.fetchall()
+            ]
             self.arrival_dropdown.configure(values=arrivals)
 
-            self.cursor.execute(f"SELECT DISTINCT plane_type FROM {table_name} ORDER BY plane_type")
-            planes = ["All Plane Types"] + [row["plane_type"] for row in self.cursor.fetchall()]
+            self.cursor.execute(
+                f"SELECT DISTINCT plane_type FROM {table_name} ORDER BY plane_type"
+            )
+            planes = ["All Plane Types"] + [
+                row["plane_type"] for row in self.cursor.fetchall()
+            ]
             self.plane_dropdown.configure(values=planes)
 
         except Exception as e:
@@ -245,25 +274,33 @@ class FlightPlannerScreen(BaseWindow):
         Also sets up selection event handling and an info frame for displaying details of the selected flight.
         """
         style = ttk.Style()
-        style.theme_use('default')
-        style.configure("Treeview",
-                        background="#2a2d2e",
-                        foreground="white",
-                        fieldbackground="#2a2d2e",
-                        rowheight=25)
-        style.configure("Treeview.Heading",
-                        background="#3b3b3b",
-                        foreground="white",
-                        font=('Arial', 10, 'bold'))
-        style.map('Treeview', background=[('selected', '#22559b')])
+        style.theme_use("default")
+        style.configure(
+            "Treeview",
+            background="#2a2d2e",
+            foreground="white",
+            fieldbackground="#2a2d2e",
+            rowheight=25,
+        )
+        style.configure(
+            "Treeview.Heading",
+            background="#3b3b3b",
+            foreground="white",
+            font=("Arial", 10, "bold"),
+        )
+        style.map("Treeview", background=[("selected", "#22559b")])
 
         self.tree = ttk.Treeview(self.right_frame, show="headings", selectmode="browse")
         self.tree.grid(row=1, column=0, sticky="nsew")
 
         self.flight_info_frame = ctk.CTkFrame(self.right_frame, fg_color="transparent")
-        self.flight_info_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=(10, 0))
+        self.flight_info_frame.grid(
+            row=3, column=0, columnspan=2, sticky="ew", pady=(10, 0)
+        )
 
-        self.scrollbar = ttk.Scrollbar(self.right_frame, orient="vertical", command=self.tree.yview)
+        self.scrollbar = ttk.Scrollbar(
+            self.right_frame, orient="vertical", command=self.tree.yview
+        )
         self.tree.configure(yscrollcommand=self.scrollbar.set)
         self.scrollbar.grid(row=1, column=1, sticky="ns")
 
@@ -295,7 +332,9 @@ class FlightPlannerScreen(BaseWindow):
         self.flights_data = {}
 
         try:
-            table_name = "pending_flights" if self.current_view_mode == "pending" else "flights"
+            table_name = (
+                "pending_flights" if self.current_view_mode == "pending" else "flights"
+            )
 
             query = f"""
                 SELECT id, airline, departure, arrival, from_location, 
@@ -337,12 +376,12 @@ class FlightPlannerScreen(BaseWindow):
                     "Arrival city": row["to_location"],
                     "Plane Type": row["plane_type"],
                     "Total seats": row["total_seats"],
-                    "Price": f"{float(row['price']):.2f}" if row['price'] else "0.00",
+                    "Price": f"{float(row['price']):.2f}" if row["price"] else "0.00",
                 }
 
                 values = [all_data[col] for col in self.tree["columns"]]
                 item_id = self.tree.insert("", "end", values=values)
-                self.flights_data[item_id] = row['id']
+                self.flights_data[item_id] = row["id"]
 
         except Exception as e:
             logger.error(f"Flight fetch with filters error: {str(e)}")
@@ -367,7 +406,7 @@ class FlightPlannerScreen(BaseWindow):
             return
         try:
             item_id = selected_items[0]
-            values = self.tree.item(item_id, 'values')
+            values = self.tree.item(item_id, "values")
             flight_id = self.flights_data[item_id]
             visible_columns = self.tree["columns"]
 
@@ -384,7 +423,7 @@ class FlightPlannerScreen(BaseWindow):
             price_str = flight_info.get("Price", "0.00")
 
             try:
-                price = float(''.join(c for c in price_str if c.isdigit() or c == '.'))
+                price = float("".join(c for c in price_str if c.isdigit() or c == "."))
             except:
                 price = 0.00
 
@@ -395,7 +434,7 @@ class FlightPlannerScreen(BaseWindow):
                 arrival,
                 from_city,
                 to_city,
-                price
+                price,
             )
 
             for widget in self.flight_info_frame.winfo_children():
@@ -407,7 +446,12 @@ class FlightPlannerScreen(BaseWindow):
                 f"🌍 From: {from_city} → To: {to_city}\n"
                 f"💺 Price: {price:.2f} EUR"
             )
-            summary_label = ctk.CTkLabel(self.flight_info_frame, text=summary_text, justify="left", font=("Arial", 14))
+            summary_label = ctk.CTkLabel(
+                self.flight_info_frame,
+                text=summary_text,
+                justify="left",
+                font=("Arial", 14),
+            )
             summary_label.pack(anchor="w", padx=10, pady=(0, 5))
 
             gate_frame = ctk.CTkFrame(self.flight_info_frame, fg_color="transparent")
@@ -418,10 +462,16 @@ class FlightPlannerScreen(BaseWindow):
 
             button_frame = ctk.CTkFrame(self.flight_info_frame, fg_color="transparent")
             button_frame.pack(fill="x", padx=10, pady=(10, 0))
-            self.btn_plan = ctk.CTkButton(button_frame, text="Plan Flight", command=self.plan_flight)
+            self.btn_plan = ctk.CTkButton(
+                button_frame, text="Plan Flight", command=self.plan_flight
+            )
             self.btn_plan.pack(side="left", padx=(0, 10))
-            self.btn_cancel = ctk.CTkButton(button_frame, text="Delete Flight", fg_color="red",
-                                            command=self.cancel_flight)
+            self.btn_cancel = ctk.CTkButton(
+                button_frame,
+                text="Delete Flight",
+                fg_color="red",
+                command=self.cancel_flight,
+            )
             self.btn_cancel.pack(side="left")
 
         except Exception as e:
@@ -438,7 +488,9 @@ class FlightPlannerScreen(BaseWindow):
         self.current_view_mode = mode
 
         if mode == "pending":
-            self.title_label.configure(text="Flight Planner - Pending flights ready for planning.")
+            self.title_label.configure(
+                text="Flight Planner - Pending flights ready for planning."
+            )
         else:
             self.title_label.configure(text="Flight Planner - Your planned flights")
 
@@ -489,7 +541,9 @@ class FlightPlannerScreen(BaseWindow):
                 messagebox.showwarning("Input Required", "Please fill in gate field.")
                 return
 
-            self.cursor.execute("SELECT * FROM pending_flights WHERE id = %s", (flight_id,))
+            self.cursor.execute(
+                "SELECT * FROM pending_flights WHERE id = %s", (flight_id,)
+            )
             flight_data = self.cursor.fetchone()
 
             if not flight_data:
@@ -504,21 +558,23 @@ class FlightPlannerScreen(BaseWindow):
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             insert_values = (
-                flight_data['airline'],
-                flight_data['departure'],
-                flight_data['arrival'],
+                flight_data["airline"],
+                flight_data["departure"],
+                flight_data["arrival"],
                 "On Time",
                 gate,
-                flight_data['plane_type'],
-                flight_data['total_seats'],
+                flight_data["plane_type"],
+                flight_data["total_seats"],
                 0,
-                flight_data['price'],
-                flight_data['from_location'],
-                flight_data['to_location']
+                flight_data["price"],
+                flight_data["from_location"],
+                flight_data["to_location"],
             )
 
             self.cursor.execute(insert_query, insert_values)
-            self.cursor.execute("DELETE FROM pending_flights WHERE id = %s", (flight_id,))
+            self.cursor.execute(
+                "DELETE FROM pending_flights WHERE id = %s", (flight_id,)
+            )
             mydb.commit()
 
             messagebox.showinfo("Success", "Flight successfully planned")
@@ -526,7 +582,7 @@ class FlightPlannerScreen(BaseWindow):
             self.selected_flight = None
             self.btn_plan.configure(state="disabled")
 
-            self.gate_entry.delete(0, 'end')
+            self.gate_entry.delete(0, "end")
             self.fetch_flights_with_filters()
 
         except Exception as e:
@@ -543,17 +599,23 @@ class FlightPlannerScreen(BaseWindow):
             return
 
         if not self.selected_flight:
-            messagebox.showwarning("Warning", "Please select a pending flight to delete.")
+            messagebox.showwarning(
+                "Warning", "Please select a pending flight to delete."
+            )
             return
 
         flight_id = self.selected_flight[0]
 
-        confirm = messagebox.askyesno("Confirm Deletion", "Are you sure you want to delete this pending flight?")
+        confirm = messagebox.askyesno(
+            "Confirm Deletion", "Are you sure you want to delete this pending flight?"
+        )
         if not confirm:
             return
 
         try:
-            self.cursor.execute("DELETE FROM pending_flights WHERE id = %s", (flight_id,))
+            self.cursor.execute(
+                "DELETE FROM pending_flights WHERE id = %s", (flight_id,)
+            )
             mydb.commit()
 
             messagebox.showinfo("Success", "Pending flight successfully deleted.")
@@ -575,6 +637,7 @@ class FlightPlannerScreen(BaseWindow):
                 widget.destroy()
 
             from views.login_screen import LoginScreen
+
             login_screen = LoginScreen(self.root, view_manager=self.view_manager)
             login_screen.load_view_content()
 
@@ -584,11 +647,12 @@ class FlightPlannerScreen(BaseWindow):
             print(f"Error during logout: {e}")
             self.root.destroy()
             import os
+
             os.system("python main.py")
 
     def cleanup(self):
         """Clean up resources"""
-        if hasattr(self, 'cursor'):
+        if hasattr(self, "cursor"):
             self.cursor.close()
-        if hasattr(self, 'frame_main') and self.frame_main.winfo_exists():
+        if hasattr(self, "frame_main") and self.frame_main.winfo_exists():
             self.frame_main.destroy()
