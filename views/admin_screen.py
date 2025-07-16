@@ -14,7 +14,7 @@ class AdminScreen(BaseWindow):
 
     def __init__(self, root, view_manager=None, user_id=None, username=None):
         super().__init__(
-            root, "Admin Panel", menu_buttons=["help", "about", "exit", "logout"]
+            root, "Admin Panel"
         )
 
         self.view_manager = view_manager
@@ -22,13 +22,12 @@ class AdminScreen(BaseWindow):
         self.username = username
         self.selected_user = None
         self.cursor = mydb.cursor(dictionary=True)
+        self.create_menu_bar(["help", "about", "exit", "logout"])
 
-        for widget in root.winfo_children():
-            if isinstance(widget, ctk.CTkFrame):
-                widget.destroy()
-
-        self.frame_main = ctk.CTkFrame(root)
-        self.frame_main.pack(fill="both", expand=True)
+        self.frame_main = ctk.CTkFrame(self.root)
+        self.frame_main.place(
+            relx=0.5, rely=0.52, anchor="center", relwidth=0.9, relheight=0.9
+        )
 
         self.frame_main.grid_columnconfigure(1, weight=1)
         self.frame_main.grid_rowconfigure(0, weight=1)
@@ -280,6 +279,25 @@ class AdminScreen(BaseWindow):
                 messagebox.showerror("Error", "Failed to save user")
 
         ctk.CTkButton(form, text="Save", command=save).pack(pady=(20, 10))
+    def logout(self):
+        """Proper logout that clears everything and shows login screen"""
+        try:
+            for widget in self.root.winfo_children():
+                widget.destroy()
+
+            from views.login_screen import LoginScreen
+
+            login_screen = LoginScreen(self.root, view_manager=self.view_manager)
+            login_screen.load_view_content()
+
+            self.root.update_idletasks()
+            self.root.update()
+        except Exception as e:
+            print(f"Error during logout: {e}")
+            self.root.destroy()
+            import os
+
+            os.system("python main.py")
 
     def cleanup(self):
         if hasattr(self, "cursor"):
